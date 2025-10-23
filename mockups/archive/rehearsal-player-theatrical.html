@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rehearsal - RunThru</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            background: "hsl(240 10% 3.9%)",
+            foreground: "hsl(0 0% 98%)",
+            card: "hsl(240 10% 7%)",
+            border: "hsl(240 3.7% 15.9%)",
+            muted: "hsl(240 5% 64.9%)",
+            primary: "hsl(24 90% 60%)",
+            accent: "hsl(180 80% 60%)",
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    body {
+      background: hsl(240 10% 3.9%);
+      color: hsl(0 0% 98%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    }
+    @keyframes waveform {
+      0%, 100% { height: 20%; }
+      50% { height: 80%; }
+    }
+    .waveform-bar {
+      animation: waveform 0.8s ease-in-out infinite;
+    }
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(251, 146, 60, 0.3); }
+      50% { box-shadow: 0 0 40px rgba(251, 146, 60, 0.6); }
+    }
+    .your-turn-glow {
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-50 border-b border-border/50 bg-card/80 backdrop-blur-xl">
+    <div class="max-w-2xl mx-auto px-5 py-4">
+      <!-- Top Row -->
+      <div class="flex items-center justify-between mb-3">
+        <button class="text-sm font-medium text-muted hover:text-foreground transition-colors">
+          ← Exit
+        </button>
+        <div class="text-xs font-semibold text-primary uppercase tracking-wider">
+          You're: Narrator 1
+        </div>
+        <button class="w-8 h-8 rounded-lg bg-card border border-border/50 hover:border-border transition-colors flex items-center justify-center">
+          <svg class="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Progress -->
+      <div class="mb-3">
+        <div class="h-1.5 bg-border/30 rounded-full overflow-hidden">
+          <div class="h-full bg-gradient-to-r from-primary to-accent rounded-full" style="width: 32%"></div>
+        </div>
+      </div>
+
+      <!-- Scene Context -->
+      <div class="bg-card/50 rounded-2xl p-4 border border-border/50">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <div class="text-sm font-bold mb-0.5">Scene 5: The Argument</div>
+            <div class="text-xs text-muted font-medium">Basement · Tense banter</div>
+          </div>
+          <div class="text-xs text-muted">
+            Line <span class="text-foreground font-semibold">137</span> / 428
+          </div>
+        </div>
+
+        <!-- Characters in Scene -->
+        <div>
+          <div class="text-xs font-semibold text-muted mb-2 uppercase tracking-wide">In this scene:</div>
+          <div class="flex flex-wrap gap-2">
+            <div class="px-3 py-1.5 bg-primary/10 border border-primary/30 rounded-lg text-xs font-medium">
+              <span class="text-primary">●</span> You (Narrator 1)
+            </div>
+            <div class="px-3 py-1.5 bg-accent/10 border border-accent/30 rounded-lg text-xs font-medium">
+              <span class="text-accent">●</span> Narrator 2
+            </div>
+            <div class="px-3 py-1.5 bg-green-400/10 border border-green-400/30 rounded-lg text-xs font-medium">
+              <span class="text-green-400">●</span> Zombie
+            </div>
+            <div class="px-3 py-1.5 bg-muted/10 border border-muted/30 rounded-lg text-xs font-medium text-muted">
+              Girl (offstage)
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 max-w-2xl mx-auto px-5 py-6 flex flex-col pb-48">
+
+    <!-- Current Line - AI Speaking -->
+    <div class="mb-4">
+      <div class="bg-card/90 backdrop-blur-sm rounded-3xl border-2 border-accent/40 p-6">
+        <!-- Character Info -->
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent/20 to-accent/10 flex items-center justify-center">
+              <svg class="w-5 h-5 text-accent" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
+              </svg>
+            </div>
+            <div>
+              <div class="text-sm font-bold">Narrator 2</div>
+              <div class="text-xs text-muted font-medium">On stage with you</div>
+            </div>
+          </div>
+
+          <!-- Speaking indicator -->
+          <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1 h-6">
+              <div class="w-1 bg-accent rounded-full waveform-bar" style="animation-delay: 0s"></div>
+              <div class="w-1 bg-accent rounded-full waveform-bar" style="animation-delay: 0.1s"></div>
+              <div class="w-1 bg-accent rounded-full waveform-bar" style="animation-delay: 0.2s"></div>
+            </div>
+            <span class="text-xs font-semibold text-accent">AI Speaking</span>
+          </div>
+        </div>
+
+        <!-- Stage direction -->
+        <p class="text-sm text-muted italic font-medium mb-3">(with exasperation)</p>
+
+        <!-- Dialogue -->
+        <p class="text-xl leading-relaxed font-medium">
+          Oh sure, because that's exactly what we need right now—more brilliant ideas from the person who thought hiding in the basement was a good plan.
+        </p>
+      </div>
+    </div>
+
+    <!-- Your Turn Card -->
+    <div class="bg-gradient-to-br from-primary/20 to-primary/10 rounded-3xl border-2 border-primary/50 p-6 your-turn-glow">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/40 to-primary/30 flex items-center justify-center">
+          <svg class="w-6 h-6 text-primary" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="text-lg font-bold text-primary">Your Turn</div>
+          <div class="text-xs text-muted font-semibold">Say your line, then tap Continue</div>
+        </div>
+      </div>
+
+      <!-- Stage direction -->
+      <p class="text-sm text-muted italic font-medium mb-3">(defensively)</p>
+
+      <!-- Your dialogue -->
+      <p class="text-xl leading-relaxed font-semibold text-foreground mb-4">
+        Hey, at least I'm contributing ideas. Unlike some people who just stand there making sarcastic comments all day.
+      </p>
+
+      <!-- Cue reminder -->
+      <div class="pt-3 border-t border-primary/20">
+        <div class="text-xs text-muted font-medium">
+          <span class="text-primary font-semibold">Your cue:</span> "...hiding in the basement was a good plan."
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Playback Controls -->
+  <div class="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-xl border-t border-border/50">
+    <div class="max-w-2xl mx-auto px-5 py-5">
+
+      <!-- Status Message -->
+      <div class="text-center mb-4">
+        <div class="text-sm font-semibold text-primary mb-1">Waiting for you to say your line...</div>
+        <div class="text-xs text-muted">Take your time. Tap Continue when ready.</div>
+      </div>
+
+      <!-- Main Controls -->
+      <div class="flex items-center justify-center gap-3 mb-4">
+
+        <!-- Replay Last Line -->
+        <button class="flex flex-col items-center gap-1.5 px-4 py-3 rounded-2xl bg-card border-2 border-border/50 hover:border-accent/50 transition-all">
+          <svg class="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          <span class="text-xs font-semibold text-muted">Replay</span>
+        </button>
+
+        <!-- Continue (Primary Action) -->
+        <button class="flex-1 flex flex-col items-center justify-center gap-2 h-20 rounded-2xl bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-all shadow-lg shadow-primary/20">
+          <svg class="w-8 h-8 text-black" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10.293 15.707a1 1 0 010-1.414L14.586 10l-4.293-4.293a1 1 0 111.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+            <path fill-rule="evenodd" d="M4.293 15.707a1 1 0 010-1.414L8.586 10 4.293 5.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+          </svg>
+          <span class="text-sm font-black text-black">Continue</span>
+        </button>
+
+        <!-- Practice Your Line -->
+        <button class="flex flex-col items-center gap-1.5 px-4 py-3 rounded-2xl bg-card border-2 border-border/50 hover:border-primary/50 transition-all">
+          <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+          </svg>
+          <span class="text-xs font-semibold text-muted">Practice</span>
+        </button>
+
+      </div>
+
+      <!-- Secondary Actions -->
+      <div class="flex items-center justify-center gap-6">
+        <button class="text-xs font-medium text-muted hover:text-foreground transition-colors">
+          Pause Rehearsal
+        </button>
+        <button class="text-xs font-medium text-muted hover:text-foreground transition-colors">
+          Change Role
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

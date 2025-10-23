@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rehearsal - RunThru</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            background: "hsl(240 10% 3.9%)",
+            foreground: "hsl(0 0% 98%)",
+            card: "hsl(240 10% 7%)",
+            border: "hsl(240 3.7% 15.9%)",
+            muted: "hsl(240 5% 64.9%)",
+            primary: "hsl(24 90% 60%)",
+            accent: "hsl(180 80% 60%)",
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    body {
+      background: hsl(240 10% 3.9%);
+      color: hsl(0 0% 98%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    }
+    .word {
+      transition: all 0.1s ease-out;
+    }
+    .word-active {
+      color: hsl(180 80% 70%);
+      text-shadow: 0 0 20px hsl(180 80% 60% / 0.4);
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.2); }
+    }
+    .speaking-indicator {
+      animation: pulse-dot 1.5s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Slim Header -->
+  <header class="sticky top-0 z-50 bg-card/80 backdrop-blur-xl border-b border-border/50">
+    <div class="max-w-3xl mx-auto px-5 py-3">
+      <!-- Top Row: Scene Info + Cast -->
+      <div class="flex items-center justify-between mb-2">
+        <button class="text-sm font-medium text-muted hover:text-foreground transition-colors">
+          ← Exit
+        </button>
+        <div class="flex items-center gap-3">
+          <div class="text-xs font-semibold text-muted">Scene 5: The Argument</div>
+          <div class="flex items-center gap-1.5">
+            <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
+            <div class="w-1.5 h-1.5 rounded-full bg-accent speaking-indicator"></div>
+            <div class="w-1.5 h-1.5 rounded-full bg-green-400"></div>
+            <div class="w-1.5 h-1.5 rounded-full bg-muted/40"></div>
+          </div>
+        </div>
+        <button class="text-xs font-medium text-muted hover:text-foreground transition-colors">
+          Menu
+        </button>
+      </div>
+      <!-- Progress Bar -->
+      <div class="h-1 bg-border/30 rounded-full overflow-hidden">
+        <div class="h-full bg-gradient-to-r from-primary to-accent rounded-full transition-all" style="width: 32%"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 max-w-3xl mx-auto px-5 py-6 flex flex-col pb-28">
+
+    <!-- Current Speaker + Context -->
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-3">
+        <div class="w-2 h-2 rounded-full bg-accent speaking-indicator"></div>
+        <div>
+          <div class="text-sm font-bold text-accent">Narrator 2</div>
+          <div class="text-xs text-muted">speaking to you</div>
+        </div>
+      </div>
+      <div class="text-right">
+        <div class="text-xs text-muted">Line 137 / 428</div>
+        <div class="text-xs text-muted">18:32 elapsed</div>
+      </div>
+    </div>
+
+    <!-- Stage Direction -->
+    <div class="mb-3">
+      <p class="text-sm text-accent/80 italic font-medium">
+        (with exasperation, turns to face you)
+      </p>
+    </div>
+
+    <!-- DIALOGUE - Massive with Word Sync -->
+    <div class="flex-1 flex items-start justify-center py-8">
+      <p class="text-4xl md:text-5xl leading-[1.4] font-medium tracking-tight text-center max-w-2xl">
+        <span class="word word-active">Oh</span>
+        <span class="word word-active"> sure,</span>
+        <span class="word"> because</span>
+        <span class="word"> that's</span>
+        <span class="word"> exactly</span>
+        <span class="word"> what</span>
+        <span class="word"> we</span>
+        <span class="word"> need</span>
+        <span class="word"> right</span>
+        <span class="word"> now—more</span>
+        <span class="word"> brilliant</span>
+        <span class="word"> ideas</span>
+        <span class="word"> from</span>
+        <span class="word"> the</span>
+        <span class="word"> person</span>
+        <span class="word"> who</span>
+        <span class="word"> thought</span>
+        <span class="word"> hiding</span>
+        <span class="word"> in</span>
+        <span class="word"> the</span>
+        <span class="word"> basement</span>
+        <span class="word"> was</span>
+        <span class="word"> a</span>
+        <span class="word"> good</span>
+        <span class="word"> plan.</span>
+      </p>
+    </div>
+
+    <!-- Your Cue + Next Line -->
+    <div class="border-t border-primary/20 pt-6 space-y-4">
+      <!-- Cue Indicator -->
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2 px-3 py-1.5 bg-primary/10 border border-primary/30 rounded-lg">
+          <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
+          <span class="text-xs font-bold text-primary uppercase tracking-wide">Your Cue</span>
+        </div>
+        <p class="text-sm text-muted italic">
+          "...was a good plan."
+        </p>
+      </div>
+
+      <!-- Your Next Line -->
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-2 h-2 rounded-full bg-primary"></div>
+          <div class="text-sm font-bold text-primary">You (Narrator 1)</div>
+          <div class="text-xs text-muted italic">(defensively)</div>
+        </div>
+        <p class="text-2xl md:text-3xl leading-relaxed font-medium text-muted/80">
+          Hey, at least I'm contributing ideas. Unlike some people who just stand there making sarcastic comments all day.
+        </p>
+      </div>
+
+      <!-- Beat/Timing Hint -->
+      <div class="flex items-center gap-2 text-xs text-muted">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>Take a beat before responding</span>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Bottom Navigation - Fixed Height -->
+  <nav class="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-xl border-t border-border/50">
+    <div class="max-w-3xl mx-auto px-5 py-4">
+      <div class="flex items-center justify-center gap-4">
+
+        <!-- Previous -->
+        <button class="w-11 h-11 rounded-xl bg-card/50 border border-border/50 hover:border-border transition-all flex items-center justify-center">
+          <svg class="w-5 h-5 text-muted" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M8.445 14.832A1 1 0 0010 14v-2.798l5.445 3.63A1 1 0 0017 14V6a1 1 0 00-1.555-.832L10 8.798V6a1 1 0 00-1.555-.832l-6 4a1 1 0 000 1.664l6 4z" />
+          </svg>
+        </button>
+
+        <!-- Play/Pause -->
+        <button class="w-16 h-16 rounded-2xl bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity shadow-lg shadow-primary/20 flex items-center justify-center">
+          <svg class="w-8 h-8 text-black" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" />
+          </svg>
+        </button>
+
+        <!-- Next -->
+        <button class="w-11 h-11 rounded-xl bg-card/50 border border-border/50 hover:border-border transition-all flex items-center justify-center">
+          <svg class="w-5 h-5 text-muted" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M4.555 5.168A1 1 0 003 6v8a1 1 0 001.555.832L10 11.202V14a1 1 0 001.555.832l6-4a1 1 0 000-1.664l-6-4A1 1 0 0010 6v2.798l-5.445-3.63z" />
+          </svg>
+        </button>
+
+        <!-- Replay -->
+        <button class="w-11 h-11 rounded-xl bg-card/50 border border-accent/30 hover:border-accent/50 transition-all flex items-center justify-center">
+          <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+        </button>
+
+      </div>
+    </div>
+  </nav>
+
+</body>
+</html>

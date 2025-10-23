@@ -18,11 +18,14 @@ Quick iteration playground for UI/UX experiments. No build process - just HTML, 
 
 ## 📁 File Structure
 
+**Active Mockups:**
+- `character-cards-influencer.html` - **FINAL** Character selection (influencer-style cards with AI portraits)
+- `rehearsal-player-final.html` - **FINAL** Rehearsal experience (word-sync, theatrical cues)
 - `index.html` - Directory listing (start here)
-- `script-detail-v1.html` - Current design (reference)
-- `script-detail-v2.html` - Blank template (experiment here)
-- `rehearsal-player-v1.html` - Sprint 5 concept
 - `_template.html` - Blank starter template
+
+**Archive:**
+- `archive/` - Previous iterations (reference only)
 
 ## 🎨 Design System
 

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rehearsal - RunThru</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            background: "hsl(240 10% 3.9%)",
+            foreground: "hsl(0 0% 98%)",
+            card: "hsl(240 10% 7%)",
+            border: "hsl(240 3.7% 15.9%)",
+            muted: "hsl(240 5% 64.9%)",
+            primary: "hsl(24 90% 60%)",
+            accent: "hsl(180 80% 60%)",
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    body {
+      background: hsl(240 10% 3.9%);
+      color: hsl(0 0% 98%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    }
+    @keyframes pulse-ring {
+      0%, 100% { transform: scale(1); opacity: 0.5; }
+      50% { transform: scale(1.1); opacity: 0.2; }
+    }
+    .speaking-ring {
+      animation: pulse-ring 1.5s ease-in-out infinite;
+    }
+    @keyframes waveform {
+      0%, 100% { height: 20%; }
+      50% { height: 80%; }
+    }
+    .waveform-bar {
+      animation: waveform 0.8s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col pb-32">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-50 border-b border-border/50 bg-card/80 backdrop-blur-xl">
+    <div class="max-w-2xl mx-auto px-5 py-4">
+      <!-- Top Row -->
+      <div class="flex items-center justify-between mb-3">
+        <button class="text-sm font-medium text-muted hover:text-foreground transition-colors">
+          ← Exit
+        </button>
+        <div class="text-xs font-semibold text-muted uppercase tracking-wider">
+          Rehearsal
+        </div>
+        <button class="text-sm font-medium text-muted hover:text-foreground transition-colors">
+          Menu
+        </button>
+      </div>
+
+      <!-- Progress -->
+      <div class="mb-3">
+        <div class="h-1.5 bg-border/30 rounded-full overflow-hidden">
+          <div class="h-full bg-gradient-to-r from-primary to-accent rounded-full" style="width: 32%"></div>
+        </div>
+      </div>
+
+      <!-- Info Row -->
+      <div class="flex items-center justify-between text-xs">
+        <div class="font-medium text-muted">
+          <span class="text-foreground">Line 137</span> / 428
+        </div>
+        <button class="px-3 py-1.5 bg-card border border-border/50 rounded-lg font-medium hover:bg-card/50 transition-colors">
+          Scene 5
+        </button>
+        <div class="font-medium text-muted">
+          <span class="text-foreground">18:32</span> elapsed
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 max-w-2xl mx-auto px-5 py-6 flex flex-col">
+
+    <!-- Current Line Card - AI Speaking -->
+    <div class="mb-4 relative">
+      <!-- Speaking indicator ring -->
+      <div class="absolute -inset-2 bg-gradient-to-r from-accent/20 to-accent/10 rounded-3xl speaking-ring"></div>
+
+      <div class="relative bg-card/90 backdrop-blur-sm rounded-3xl border-2 border-accent/40 p-6">
+        <!-- Character badge -->
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent/20 to-accent/10 flex items-center justify-center">
+              <svg class="w-5 h-5 text-accent" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
+              </svg>
+            </div>
+            <div>
+              <div class="text-sm font-bold">Narrator 2</div>
+              <div class="text-xs text-muted font-medium">AI Voice</div>
+            </div>
+          </div>
+
+          <!-- Speaking indicator -->
+          <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1 h-8">
+              <div class="w-1 bg-accent rounded-full waveform-bar" style="animation-delay: 0s"></div>
+              <div class="w-1 bg-accent rounded-full waveform-bar" style="animation-delay: 0.1s"></div>
+              <div class="w-1 bg-accent rounded-full waveform-bar" style="animation-delay: 0.2s"></div>
+              <div class="w-1 bg-accent rounded-full waveform-bar" style="animation-delay: 0.3s"></div>
+            </div>
+            <span class="text-xs font-semibold text-accent">Speaking...</span>
+          </div>
+        </div>
+
+        <!-- Stage direction -->
+        <p class="text-sm text-muted italic font-medium mb-3">(with exasperation)</p>
+
+        <!-- Dialogue -->
+        <p class="text-xl leading-relaxed font-medium">
+          Oh sure, because that's exactly what we need right now—more brilliant ideas from the person who thought hiding in the basement was a good plan.
+        </p>
+      </div>
+    </div>
+
+    <!-- Next Line Preview - Your Turn -->
+    <div class="bg-gradient-to-br from-primary/10 to-primary/5 rounded-3xl border-2 border-primary/30 border-dashed p-6 mb-6">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/30 to-primary/20 flex items-center justify-center">
+          <svg class="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="text-sm font-bold">Narrator 1</div>
+          <div class="text-xs text-primary font-semibold">You're next</div>
+        </div>
+      </div>
+      <p class="text-base text-muted/80 leading-relaxed line-clamp-2">
+        Hey, at least I'm contributing ideas. Unlike some people who just stand there making sarcastic comments...
+      </p>
+    </div>
+
+    <!-- Context Info -->
+    <div class="flex items-center justify-center gap-6 text-xs text-muted font-medium mb-4">
+      <div class="flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+        <span>Scene 5: The Argument</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>Mood: Tense banter</span>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Playback Controls -->
+  <div class="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-xl border-t border-border/50 pb-safe">
+    <div class="max-w-2xl mx-auto px-5 py-6">
+      <div class="flex items-center justify-center gap-4">
+        <!-- Previous -->
+        <button class="w-12 h-12 rounded-xl bg-card border-2 border-border/50 hover:border-border transition-all flex items-center justify-center">
+          <svg class="w-5 h-5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.333 4zM4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z" />
+          </svg>
+        </button>
+
+        <!-- Play/Pause -->
+        <button class="w-16 h-16 rounded-2xl bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-all shadow-lg shadow-primary/20 flex items-center justify-center">
+          <svg class="w-8 h-8 text-black" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" />
+          </svg>
+        </button>
+
+        <!-- Next -->
+        <button class="w-12 h-12 rounded-xl bg-card border-2 border-border/50 hover:border-border transition-all flex items-center justify-center">
+          <svg class="w-5 h-5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.933 12.8a1 1 0 000-1.6L6.6 7.2A1 1 0 005 8v8a1 1 0 001.6.8l5.333-4zM19.933 12.8a1 1 0 000-1.6l-5.333-4A1 1 0 0013 8v8a1 1 0 001.6.8l5.333-4z" />
+          </svg>
+        </button>
+
+        <!-- Replay -->
+        <button class="w-12 h-12 rounded-xl bg-card border-2 border-border/50 hover:border-accent/50 transition-all flex items-center justify-center">
+          <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Secondary controls -->
+      <div class="flex items-center justify-center gap-6 mt-4">
+        <button class="text-sm font-medium text-muted hover:text-foreground transition-colors">
+          Change Role
+        </button>
+        <button class="text-sm font-medium text-muted hover:text-foreground transition-colors">
+          Speed: 1.0x
+        </button>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

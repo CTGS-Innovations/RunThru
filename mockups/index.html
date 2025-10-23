@@ -10,31 +10,12 @@
       theme: {
         extend: {
           colors: {
-            border: "hsl(240 3.7% 15.9%)",
-            input: "hsl(240 3.7% 15.9%)",
-            ring: "hsl(240 4.9% 83.9%)",
             background: "hsl(240 10% 3.9%)",
             foreground: "hsl(0 0% 98%)",
-            primary: {
-              DEFAULT: "hsl(0 0% 98%)",
-              foreground: "hsl(240 5.9% 10%)",
-            },
-            secondary: {
-              DEFAULT: "hsl(240 3.7% 15.9%)",
-              foreground: "hsl(0 0% 98%)",
-            },
-            muted: {
-              DEFAULT: "hsl(240 3.7% 15.9%)",
-              foreground: "hsl(240 5% 64.9%)",
-            },
-            accent: {
-              DEFAULT: "hsl(240 3.7% 15.9%)",
-              foreground: "hsl(0 0% 98%)",
-            },
-            card: {
-              DEFAULT: "hsl(240 10% 3.9%)",
-              foreground: "hsl(0 0% 98%)",
-            },
+            border: "hsl(240 3.7% 15.9%)",
+            muted: "hsl(240 5% 64.9%)",
+            primary: "hsl(24 90% 60%)",
+            accent: "hsl(180 80% 60%)",
           },
         },
       },
@@ -42,105 +23,97 @@
   </script>
   <style>
     body {
-      background-color: hsl(240 10% 3.9%);
+      background: hsl(240 10% 3.9%);
       color: hsl(0 0% 98%);
     }
   </style>
 </head>
-<body class="p-8">
+<body class="p-8 min-h-screen">
   <div class="max-w-4xl mx-auto">
-    <h1 class="text-4xl font-bold mb-2 bg-gradient-to-r from-amber-400 to-cyan-400 bg-clip-text text-transparent">
+    <h1 class="text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
       RunThru - HTML Mockups
     </h1>
-    <p class="text-muted-foreground mb-8">
+    <p class="text-muted mb-8">
       Quick iteration playground - no build process, just refresh!
     </p>
 
-    <div class="space-y-4">
-      <!-- THEATER EDITION - Featured -->
-      <div class="border-4 border-yellow-500/70 bg-gradient-to-br from-yellow-500/20 to-orange-500/20 rounded-2xl p-8 hover:border-yellow-500 transition-colors shadow-2xl shadow-yellow-500/20">
-        <div class="flex items-center gap-3 mb-4">
+    <!-- FINAL MOCKUPS -->
+    <div class="space-y-6 mb-12">
+      <div class="border-4 border-primary/50 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl p-8 hover:border-primary transition-colors">
+        <div class="flex items-center gap-4 mb-4">
           <span class="text-5xl">🎭</span>
           <div class="flex-1">
             <div class="flex items-center gap-3 mb-2">
-              <h2 class="text-3xl font-black">Theater Edition</h2>
-              <span class="px-3 py-1 bg-gradient-to-r from-yellow-500 to-orange-500 text-black rounded-full text-xs font-bold">✨ RECOMMENDED</span>
+              <h2 class="text-3xl font-black">Character Selection</h2>
+              <span class="px-3 py-1.5 bg-gradient-to-r from-primary to-accent text-black rounded-full text-xs font-bold uppercase tracking-wide">Final</span>
             </div>
-            <p class="text-base text-gray-300">
-              Same addictive energy + professional theater context (scenes, blocking, objectives, character arcs)
+            <p class="text-base text-muted">
+              Influencer-style character cards with AI portrait placeholders, breakout moments, and character arcs
             </p>
           </div>
         </div>
-        <div class="flex gap-3">
-          <a href="script-detail-theater.html" class="px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-black rounded-xl font-black hover:scale-105 transition-transform shadow-lg">
-            🎭 Character Selection
-          </a>
-          <a href="rehearsal-player-theater.html" class="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-black hover:scale-105 transition-transform shadow-lg">
-            📱 Rehearsal Player
-          </a>
-        </div>
+        <a href="character-cards-influencer.html" class="inline-block px-8 py-4 bg-gradient-to-r from-primary to-accent text-black rounded-xl font-black text-lg hover:scale-105 transition-transform shadow-lg shadow-primary/20">
+          View Mockup →
+        </a>
       </div>
 
-      <div class="border-2 border-pink-500/50 bg-gradient-to-br from-pink-500/10 to-purple-500/10 rounded-lg p-6 hover:border-pink-500 transition-colors opacity-60">
-        <div class="flex items-center gap-3 mb-3">
-          <span class="text-3xl">🔥</span>
-          <h2 class="text-2xl font-bold">Pure Energy (No Theater Context)</h2>
+      <div class="border-4 border-accent/50 bg-gradient-to-br from-accent/20 to-primary/20 rounded-2xl p-8 hover:border-accent transition-colors">
+        <div class="flex items-center gap-4 mb-4">
+          <span class="text-5xl">📱</span>
+          <div class="flex-1">
+            <div class="flex items-center gap-3 mb-2">
+              <h2 class="text-3xl font-black">Rehearsal Player</h2>
+              <span class="px-3 py-1.5 bg-gradient-to-r from-accent to-primary text-black rounded-full text-xs font-bold uppercase tracking-wide">Final</span>
+            </div>
+            <p class="text-base text-muted">
+              Clean, content-first player with word-sync highlighting, theatrical cues, and mobile-optimized controls
+            </p>
+          </div>
         </div>
-        <p class="text-sm text-muted-foreground mb-4">
-          Massive text, bold emojis, swipeable cards - but missing educational theater elements
-        </p>
-        <div class="flex gap-2">
-          <a href="script-detail-tiktok.html" class="px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg font-bold hover:scale-105 transition-transform">
-            🔥 Pure Energy Version
-          </a>
-          <a href="script-detail-v1.html" class="text-sm text-gray-400 hover:underline self-center">v1 - Old (Gaming)</a>
-        </div>
-      </div>
-
-      <div class="border border-border rounded-lg p-4 hover:border-amber-500/50 transition-colors opacity-50">
-        <h2 class="text-xl font-bold mb-2">📄 Script Detail Page</h2>
-        <p class="text-sm text-muted-foreground mb-4">
-          Quest card aesthetic, character selection (OLD)
-        </p>
-        <div class="flex gap-2">
-          <a href="script-detail-v1.html" class="text-sm text-amber-500 hover:underline">v1 - Current Design</a>
-          <a href="script-detail-v2.html" class="text-sm text-cyan-500 hover:underline">v2 - Experiment Here</a>
-        </div>
-      </div>
-
-      <div class="border border-border rounded-lg p-4 hover:border-amber-500/50 transition-colors">
-        <h2 class="text-xl font-bold mb-2">⚙️ Session Setup Page</h2>
-        <p class="text-sm text-muted-foreground mb-4">
-          Character picker, voice assignment, team builder
-        </p>
-        <div class="flex gap-2">
-          <a href="session-setup-v1.html" class="text-sm text-amber-500 hover:underline">v1 - Current Design</a>
-          <a href="session-setup-v2.html" class="text-sm text-cyan-500 hover:underline">v2 - Experiment Here</a>
-        </div>
-      </div>
-
-      <div class="border border-border rounded-lg p-4 hover:border-purple-500/50 transition-colors opacity-50">
-        <h2 class="text-xl font-bold mb-2">📱 Old Rehearsal Player Prototypes</h2>
-        <p class="text-sm text-muted-foreground mb-4">
-          Earlier iterations (horizontal layout, no theater context)
-        </p>
-        <div class="flex gap-2">
-          <a href="rehearsal-player-tiktok.html" class="text-sm text-gray-400 hover:underline">Pure Energy</a>
-          <a href="rehearsal-player-v1.html" class="text-sm text-gray-400 hover:underline">v1 - Horizontal</a>
-        </div>
+        <a href="rehearsal-player-final.html" class="inline-block px-8 py-4 bg-gradient-to-r from-accent to-primary text-black rounded-xl font-black text-lg hover:scale-105 transition-transform shadow-lg shadow-accent/20">
+          View Mockup →
+        </a>
       </div>
     </div>
 
-    <div class="mt-8 p-4 bg-amber-500/10 border border-amber-500/30 rounded-lg">
-      <h3 class="font-bold mb-2 flex items-center gap-2">
+    <!-- Archive Link -->
+    <div class="border border-border/50 rounded-lg p-6 bg-card/50">
+      <h3 class="text-lg font-bold mb-2 flex items-center gap-2">
+        <svg class="w-5 h-5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+        </svg>
+        Previous Iterations
+      </h3>
+      <p class="text-sm text-muted mb-3">
+        Earlier mockup versions (reference only)
+      </p>
+      <a href="archive/" class="text-sm text-primary hover:text-accent transition-colors underline">
+        Browse archive →
+      </a>
+    </div>
+
+    <!-- Instructions -->
+    <div class="mt-8 p-6 bg-primary/10 border border-primary/30 rounded-lg">
+      <h3 class="font-bold mb-3 flex items-center gap-2 text-lg">
         <span>💡</span> How to Use
       </h3>
-      <ul class="text-sm space-y-1 text-muted-foreground">
-        <li>• Edit HTML files directly (no build step!)</li>
-        <li>• Refresh browser to see changes instantly</li>
-        <li>• Copy HTML → React components when design is approved</li>
-        <li>• Use same Tailwind classes as the real app</li>
-        <li>• Version with -v1, -v2, -v3 to compare approaches</li>
+      <ul class="text-sm space-y-2 text-muted">
+        <li class="flex items-start gap-2">
+          <span class="text-primary">•</span>
+          <span>Edit HTML files directly in your editor (no build step!)</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-primary">•</span>
+          <span>Refresh browser (F5) to see changes instantly</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-primary">•</span>
+          <span>Copy final HTML structure to React components when approved</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-primary">•</span>
+          <span>Use same Tailwind classes as the real app for consistency</span>
+        </li>
       </ul>
     </div>
   </div>

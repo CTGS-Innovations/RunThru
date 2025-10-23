@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rehearsal - RunThru</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            background: "hsl(240 10% 3.9%)",
+            foreground: "hsl(0 0% 98%)",
+            card: "hsl(240 10% 7%)",
+            border: "hsl(240 3.7% 15.9%)",
+            muted: "hsl(240 5% 64.9%)",
+            primary: "hsl(24 90% 60%)",
+            accent: "hsl(180 80% 60%)",
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    body {
+      background: hsl(240 10% 3.9%);
+      color: hsl(0 0% 98%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    }
+    .word-highlight {
+      background: linear-gradient(to right, hsl(180 80% 60% / 0.3), hsl(180 80% 60% / 0.1));
+      padding: 0 0.1em;
+      border-radius: 0.2em;
+      transition: all 0.15s ease-out;
+    }
+    .word-active {
+      background: linear-gradient(to right, hsl(180 80% 60% / 0.5), hsl(180 80% 60% / 0.3));
+      color: hsl(180 80% 70%);
+      transform: scale(1.02);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Slim Header -->
+  <header class="sticky top-0 z-50 bg-card/80 backdrop-blur-xl border-b border-border/50">
+    <div class="max-w-3xl mx-auto px-5 py-3">
+      <div class="flex items-center justify-between mb-2">
+        <button class="text-sm font-medium text-muted hover:text-foreground transition-colors">
+          ← Exit
+        </button>
+        <div class="text-xs font-semibold text-muted">Scene 5: The Argument</div>
+        <button class="w-8 h-8 rounded-lg hover:bg-card transition-colors flex items-center justify-center">
+          <svg class="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+          </svg>
+        </button>
+      </div>
+      <!-- Slim Progress Bar -->
+      <div class="h-1 bg-border/30 rounded-full overflow-hidden">
+        <div class="h-full bg-gradient-to-r from-primary to-accent rounded-full transition-all" style="width: 32%"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content - Dialogue Focus -->
+  <main class="flex-1 max-w-3xl mx-auto px-5 py-8 flex flex-col justify-center pb-32">
+
+    <!-- Scene Context - Minimal -->
+    <div class="flex items-center justify-center gap-4 mb-6 text-xs text-muted">
+      <div class="flex items-center gap-1.5">
+        <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
+        <span>Narrator 2</span>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+        <span>You (Narrator 1)</span>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+        <span>Zombie</span>
+      </div>
+    </div>
+
+    <!-- Current Speaker Badge -->
+    <div class="flex items-center justify-center gap-3 mb-6">
+      <div class="px-4 py-2 bg-accent/10 border border-accent/30 rounded-full">
+        <span class="text-sm font-bold text-accent">Narrator 2</span>
+      </div>
+      <div class="text-xs text-muted italic">(with exasperation)</div>
+    </div>
+
+    <!-- DIALOGUE - BIG & CLEAN with word highlighting -->
+    <div class="text-center mb-12">
+      <p class="text-3xl md:text-4xl leading-relaxed font-medium tracking-tight">
+        <span class="word-highlight word-active">Oh</span>
+        <span class="word-highlight word-active">sure,</span>
+        <span class="word-highlight">because</span>
+        <span class="word-highlight">that's</span>
+        <span class="word-highlight">exactly</span>
+        <span class="word-highlight">what</span>
+        <span class="word-highlight">we</span>
+        <span class="word-highlight">need</span>
+        <span class="word-highlight">right</span>
+        <span class="word-highlight">now—more</span>
+        <span class="word-highlight">brilliant</span>
+        <span class="word-highlight">ideas</span>
+        <span class="word-highlight">from</span>
+        <span class="word-highlight">the</span>
+        <span class="word-highlight">person</span>
+        <span class="word-highlight">who</span>
+        <span class="word-highlight">thought</span>
+        <span class="word-highlight">hiding</span>
+        <span class="word-highlight">in</span>
+        <span class="word-highlight">the</span>
+        <span class="word-highlight">basement</span>
+        <span class="word-highlight">was</span>
+        <span class="word-highlight">a</span>
+        <span class="word-highlight">good</span>
+        <span class="word-highlight">plan.</span>
+      </p>
+    </div>
+
+    <!-- Next Up - Your Turn (Subtle Preview) -->
+    <div class="text-center border-t border-border/30 pt-8">
+      <div class="flex items-center justify-center gap-3 mb-4">
+        <div class="px-4 py-2 bg-primary/10 border border-primary/30 rounded-full">
+          <span class="text-sm font-bold text-primary">You're Next</span>
+        </div>
+        <div class="text-xs text-muted italic">(defensively)</div>
+      </div>
+      <p class="text-xl md:text-2xl text-muted/60 leading-relaxed font-medium">
+        Hey, at least I'm contributing ideas. Unlike some people who just stand there making sarcastic comments...
+      </p>
+    </div>
+
+  </main>
+
+  <!-- Bottom Navigation - Standard Mobile Height -->
+  <nav class="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-xl border-t border-border/50">
+    <div class="max-w-3xl mx-auto px-5 py-4">
+      <div class="flex items-center justify-center gap-4">
+
+        <!-- Previous -->
+        <button class="w-12 h-12 rounded-xl bg-card/50 border border-border/50 hover:border-border transition-all flex items-center justify-center">
+          <svg class="w-5 h-5 text-muted" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M8.445 14.832A1 1 0 0010 14v-2.798l5.445 3.63A1 1 0 0017 14V6a1 1 0 00-1.555-.832L10 8.798V6a1 1 0 00-1.555-.832l-6 4a1 1 0 000 1.664l6 4z" />
+          </svg>
+        </button>
+
+        <!-- Play/Pause - Prominent -->
+        <button class="w-16 h-16 rounded-2xl bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity shadow-lg shadow-primary/20 flex items-center justify-center">
+          <svg class="w-8 h-8 text-black" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" />
+          </svg>
+        </button>
+
+        <!-- Next -->
+        <button class="w-12 h-12 rounded-xl bg-card/50 border border-border/50 hover:border-border transition-all flex items-center justify-center">
+          <svg class="w-5 h-5 text-muted" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M4.555 5.168A1 1 0 003 6v8a1 1 0 001.555.832L10 11.202V14a1 1 0 001.555.832l6-4a1 1 0 000-1.664l-6-4A1 1 0 0010 6v2.798l-5.445-3.63z" />
+          </svg>
+        </button>
+
+      </div>
+
+      <!-- Swipe Hint (Optional) -->
+      <div class="text-center mt-3">
+        <div class="inline-flex items-center gap-2 text-xs text-muted">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18" />
+          </svg>
+          <span>Swipe to navigate</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+</body>
+</html>
