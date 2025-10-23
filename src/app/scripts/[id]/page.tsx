@@ -51,126 +51,70 @@ export default function ScriptDetailPage() {
       </Button>
 
       <div className="space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-4xl font-bold">{parsed.title}</h1>
-          {parsed.subtitle && (
-            <p className="mt-2 text-xl text-muted-foreground">{parsed.subtitle}</p>
-          )}
-          {parsed.author && (
-            <p className="mt-1 text-sm text-muted-foreground">by {parsed.author}</p>
-          )}
-        </div>
-
-        {/* Stats */}
-        <div className="grid gap-4 sm:grid-cols-3">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-sm font-medium">
-                <Users className="h-4 w-4" />
-                Characters
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">{parsed.characters.length}</div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-sm font-medium">
-                <FileText className="h-4 w-4" />
-                Scenes
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">{parsed.scenes.length}</div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-sm font-medium">
-                <FileText className="h-4 w-4" />
-                Lines
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">
-                {parsed.content.filter((c) => c.type === 'dialogue').length}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Characters List */}
+        {/* Compact Summary Card */}
         <Card>
           <CardHeader>
-            <CardTitle>Characters</CardTitle>
-            <CardDescription>All speaking roles in this script</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-              {parsed.characters.map((character) => (
-                <div
-                  key={character.name}
-                  className="rounded-lg border p-3 bg-card"
-                >
-                  <div className="font-medium">{character.name}</div>
-                  <div className="text-sm text-muted-foreground">
-                    {character.lineCount} {character.lineCount === 1 ? 'line' : 'lines'}
-                  </div>
+            <div className="flex items-start justify-between">
+              <div>
+                <CardTitle className="text-3xl mb-2">{parsed.title}</CardTitle>
+                {parsed.author && (
+                  <CardDescription className="text-base">by {parsed.author}</CardDescription>
+                )}
+              </div>
+              <div className="flex gap-4 text-sm text-muted-foreground">
+                <div className="text-center">
+                  <div className="text-2xl font-bold">{parsed.characters.length}</div>
+                  <div>Characters</div>
                 </div>
-              ))}
+                <div className="text-center">
+                  <div className="text-2xl font-bold">{parsed.scenes.length}</div>
+                  <div>Scenes</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold">
+                    {parsed.content.filter((c) => c.type === 'dialogue').length}
+                  </div>
+                  <div>Lines</div>
+                </div>
+              </div>
             </div>
-          </CardContent>
+          </CardHeader>
         </Card>
 
-        {/* Scenes List */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Scenes</CardTitle>
-            <CardDescription>Scene breakdown</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {parsed.scenes.map((scene, index) => (
-                <div
-                  key={scene.id}
-                  className="rounded-lg border p-3 bg-card"
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="font-medium">
-                        {index + 1}. {scene.title}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {scene.dialogueCount} lines • {scene.characterCount} characters
-                      </div>
+        {/* Direct to Character Selection */}
+        <div>
+          <h2 className="text-2xl font-bold mb-4">Select Your Character</h2>
+          <p className="text-muted-foreground mb-6">
+            Choose which role you want to play, then we'll assign voices to the other characters.
+          </p>
+
+          <Button
+            size="lg"
+            className="w-full mb-8 bg-amber-500 hover:bg-amber-600 text-black font-bold text-lg h-16"
+            onClick={() => router.push(`/scripts/${scriptId}/setup`)}
+          >
+            Choose Your Character →
+          </Button>
+
+          {/* Character Preview Grid */}
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {parsed.characters.map((character) => (
+              <div
+                key={character.name}
+                className="rounded-lg border p-4 bg-card cursor-pointer hover:bg-accent/5 transition-colors"
+                onClick={() => router.push(`/scripts/${scriptId}/setup`)}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">🎭</span>
+                  <div>
+                    <div className="font-semibold">{character.name}</div>
+                    <div className="text-sm text-muted-foreground">
+                      {character.lineCount} lines
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Actions */}
-        <div className="space-y-4">
-          <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-6 text-center space-y-4">
-            <div>
-              <h3 className="text-lg font-semibold text-amber-500 mb-2">Ready to Start?</h3>
-              <p className="text-sm text-muted-foreground">
-                Choose which character you want to play, then we'll assign voices to the other roles.
-              </p>
-            </div>
-            <Button
-              size="lg"
-              className="min-w-[300px] bg-amber-500 hover:bg-amber-600 text-black font-bold text-lg h-14"
-              onClick={() => router.push(`/scripts/${scriptId}/setup`)}
-            >
-              Select Your Character →
-            </Button>
+              </div>
+            ))}
           </div>
         </div>
       </div>
