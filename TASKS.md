@@ -1,8 +1,8 @@
 # RunThru - Task Tracking & Progress
 
-**Last Updated**: 2025-10-23 17:45
-**Current Phase**: MVP Phase 1 - Sprint 2 Complete ✅ | Sprint 3 Ready
-**Overall Progress**: Sprint 1: 100% ✅ | Sprint 2: 100% ✅ (tested + bugs fixed)
+**Last Updated**: 2025-10-23 17:50
+**Current Phase**: MVP Phase 1 - Sprint 3 Active 🔄 (Role Selection & Voice Assignment)
+**Overall Progress**: Sprint 1: 100% ✅ | Sprint 2: 100% ✅ | Sprint 3: 0% 🔄
 
 ---
 
@@ -144,11 +144,11 @@
 
 ---
 
-## 📅 Sprint 2: Script Upload Feature (Current - Week 1)
+## 📅 Sprint 2: Script Upload Feature (Complete ✅)
 
-**Status**: 🟢 Active - 15% Complete
+**Status**: ✅ Complete - 100%
 **Depends on**: Infrastructure Setup ✅ Complete
-**Target**: 2025-10-30
+**Completed**: 2025-10-23 17:45
 **Started**: 2025-10-23 16:45
 **Focus**: Upload markdown scripts, parse to JSON, store in SQLite
 
@@ -277,13 +277,217 @@
 
 ---
 
-## 📅 Future Sprints (Overview)
+---
 
-### Sprint 3: Role Selection & Voice Assignment (Week 2)
-- [ ] Frontend: CharacterSelector, VoiceSelector, VoicePreview
-- [ ] Backend: TTS voice listing, session creation
-- [ ] TTS: Index TTS integration, voice samples
-- [ ] **CHECKPOINT 2**: Voice selection working
+## 📅 Sprint 3: Role Selection & Voice Assignment (Current - Week 2)
+
+**Status**: 🟢 Active - 0%
+**Depends on**: Script Upload ✅ Complete
+**Target**: 2025-10-30
+**Started**: 2025-10-23 17:50
+**Focus**: Teen-friendly character selection + voice assignment with smart defaults
+
+### ✅ Design Decisions Made (2025-10-23 17:50)
+
+1. **Character Selection UX**: Large character cards (video game style) ✅
+   - Big, clickable cards showing character name + line count
+   - Visual, playful approach for teen audience
+
+2. **Voice Assignment UI**: Presets + fine-tune sliders ✅
+   - Start with preset voices ("Angry Teen", "Wise Elder", etc.)
+   - Allow fine-tuning with gender/emotion/age sliders
+   - Best of both worlds: quick setup + creative control
+
+3. **Auto-assignment Rules**: Smart defaults based on character names ✅
+   - Analyze names: "ZOMBIE" → angry voice, "GIRL" → female voice
+   - User can override any assignment
+   - Saves time for scripts with 30+ characters
+
+4. **Voice Preview**: On-demand generation (click "Preview" button) ✅
+   - Generate 30-second voice samples only when requested
+   - Saves GPU time during setup
+   - User clicks "Preview Voice" to hear sample
+
+### 🎯 Pre-Work (Design & Planning)
+
+- [ ] 🔄 **IN PROGRESS**: Use frontend-specialist to research teen-friendly UX patterns
+  - [ ] Research: Video game character selection patterns
+  - [ ] Research: Card-based UI designs for teens
+  - [ ] Research: Voice customization UIs (Sims, video games)
+  - [ ] Document findings in `.claude/docs/sprint3-ux-research.md`
+
+- [ ] **Design character selection flow (mockup)**
+  - [ ] Wireframe: Character card layout (grid vs list)
+  - [ ] Wireframe: Selected state (highlight, checkmark, etc.)
+  - [ ] Wireframe: Mobile vs desktop layout
+  - [ ] Document in `.claude/docs/sprint3-mockups.md`
+
+- [ ] **Design voice assignment flow (mockup)**
+  - [ ] Wireframe: Preset voice selector (dropdown vs cards)
+  - [ ] Wireframe: Slider layout (vertical vs horizontal)
+  - [ ] Wireframe: Preview button placement
+  - [ ] Document in `.claude/docs/sprint3-mockups.md`
+
+- [ ] **Define voice auto-assignment rules**
+  - [ ] Create throwaway test: Test with 30-character script
+  - [ ] Rules: Gender detection (male/female names)
+  - [ ] Rules: Age detection (TEEN, ELDER, KID)
+  - [ ] Rules: Emotion detection (ZOMBIE, GHOST, NARRATOR)
+  - [ ] Document in `docs/decisions/003-voice-auto-assignment.md`
+
+### 🎨 Frontend Track - Session Setup UI
+
+- [ ] **Create CharacterSelector component** (large cards)
+  - [ ] Display character cards in grid layout
+  - [ ] Show: Character name, line count, first appearance
+  - [ ] Hover effects: Scale, shadow, highlight
+  - [ ] Selected state: Border, checkmark, accent color
+  - [ ] Mobile responsive (stack on small screens)
+  - [ ] Empty state: "No characters found"
+
+- [ ] **Create VoicePresetSelector component**
+  - [ ] Dropdown or card selector for 8-10 presets
+  - [ ] Presets: "Angry Teen", "Wise Elder", "Cheerful Kid", etc.
+  - [ ] Show preset description on hover
+  - [ ] Selected state indicator
+
+- [ ] **Create VoiceSliders component** (fine-tune)
+  - [ ] Gender slider (0-100, male ← → female)
+  - [ ] Emotion slider (0-100, calm ← → excited)
+  - [ ] Age slider (0-100, young ← → old)
+  - [ ] Real-time value display
+  - [ ] Reset to preset button
+
+- [ ] **Create VoicePreview component**
+  - [ ] "Preview Voice" button (triggers TTS generation)
+  - [ ] Loading state (spinner, "Generating preview...")
+  - [ ] Audio player (play/pause/stop)
+  - [ ] Sample text: "Hello, I'm [character name]. Let's rehearse together!"
+
+- [ ] **Create SessionSetup page** (new route)
+  - [ ] Route: `/scripts/[id]/setup`
+  - [ ] Step 1: "Select Your Character" (CharacterSelector)
+  - [ ] Step 2: "Assign Voices" (list of other characters)
+  - [ ] For each character: VoicePresetSelector + VoiceSliders + VoicePreview
+  - [ ] Auto-assign button: "Use Smart Defaults"
+  - [ ] "Start Rehearsal" button (disabled until all voices assigned)
+  - [ ] Progress indicator: "3 of 11 characters assigned"
+
+- [ ] **Update ScriptDetailPage** (`/scripts/[id]`)
+  - [ ] Add "Select Your Character" button (prominent CTA)
+  - [ ] Button navigates to `/scripts/[id]/setup`
+  - [ ] Show coming soon message if clicked (for now)
+
+- [ ] **Create API client hooks**
+  - [ ] useVoices() - List available voice presets
+  - [ ] useCreateSession() - Create rehearsal session
+  - [ ] useVoicePreview() - Generate voice sample
+  - [ ] useSession(id) - Get session state
+
+- [ ] **🔍 CHECKPOINT 2A**: Frontend session setup UI review
+  - [ ] Test: Navigate to /scripts/[id]/setup
+  - [ ] Test: Select character (card highlights)
+  - [ ] Test: Assign voices (presets + sliders work)
+  - [ ] Test: Preview voice (audio plays)
+  - [ ] Test: Mobile responsive
+
+### ⚙️ Backend Track - Session & Voice Management
+
+- [ ] **Create VoicePresetService**
+  - [ ] Define 8-10 voice presets (JSON config)
+  - [ ] Presets: {id, name, description, gender, emotion, age}
+  - [ ] Example: {id: "angry-teen", name: "Angry Teen", gender: 60, emotion: 80, age: 20}
+  - [ ] Load from `config/voice-presets.json`
+
+- [ ] **Create VoiceAutoAssignService**
+  - [ ] Method: `assignVoices(characters[])`
+  - [ ] Rules: Detect gender from name (list of male/female names)
+  - [ ] Rules: Detect age from keywords (TEEN, ELDER, KID, BOY, GIRL)
+  - [ ] Rules: Detect emotion from keywords (ZOMBIE → angry, GHOST → calm)
+  - [ ] Return: Map of character → voice preset
+  - [ ] Fallback: Random appropriate voice if no match
+
+- [ ] **Create SessionService**
+  - [ ] Method: `createSession(scriptId, userId, selectedCharacter, voiceAssignments)`
+  - [ ] Save to database (sessions table)
+  - [ ] Return: Session object with ID
+  - [ ] Method: `getSession(sessionId)`
+  - [ ] Method: `updateVoiceAssignment(sessionId, characterId, voiceParams)`
+
+- [ ] **Create GET /api/voices endpoint**
+  - [ ] Return list of voice presets
+  - [ ] Format: {presets: [{id, name, description, params}]}
+
+- [ ] **Create POST /api/sessions endpoint**
+  - [ ] Input: {scriptId, selectedCharacter, voiceAssignments}
+  - [ ] Validate: scriptId exists, selectedCharacter in script
+  - [ ] Call SessionService.createSession()
+  - [ ] Return: {sessionId, ...sessionData}
+
+- [ ] **Create GET /api/sessions/:id endpoint**
+  - [ ] Return session state (selected character, voice assignments)
+  - [ ] Include script metadata
+  - [ ] 404 if not found
+
+- [ ] **Create POST /api/sessions/:id/voice-preview endpoint**
+  - [ ] Input: {voiceParams: {gender, emotion, age}}
+  - [ ] Call TTS service (generate 30-second sample)
+  - [ ] Return: {audioUrl: "/tmp/preview-xyz.wav"}
+
+- [ ] **🔍 CHECKPOINT 2B**: Backend session API test
+  - [ ] Test: GET /api/voices returns 8-10 presets
+  - [ ] Test: POST /api/sessions creates session
+  - [ ] Test: GET /api/sessions/:id returns session
+  - [ ] Test: Voice preview generates audio
+
+### 🤖 TTS Track - Voice Integration
+
+- [ ] **Research Index TTS voice parameters**
+  - [ ] Explore: How to control gender (speaker embedding?)
+  - [ ] Explore: How to control emotion (text prompt? model param?)
+  - [ ] Explore: How to control age (pitch shift? speed?)
+  - [ ] Use tts-specialist agent for deep dive
+  - [ ] Document in `.claude/docs/tts-voice-control.md`
+
+- [ ] **Create voice preset → TTS param mapping**
+  - [ ] Map: gender slider (0-100) → speaker embedding index
+  - [ ] Map: emotion slider (0-100) → prosody parameters
+  - [ ] Map: age slider (0-100) → pitch shift amount
+  - [ ] Test with Chatterbox (easier to control?)
+  - [ ] Document in `.claude/docs/tts-voice-control.md`
+
+- [ ] **Implement voice preview generation**
+  - [ ] Update TTS service: `/synthesize-preview` endpoint
+  - [ ] Input: {text, voiceParams: {gender, emotion, age}}
+  - [ ] Generate 30-second sample
+  - [ ] Cache result (avoid regenerating same preview)
+  - [ ] Return audio file path
+
+- [ ] **Create voice sample test script**
+  - [ ] Generate 10 samples with different params
+  - [ ] Listen to verify quality
+  - [ ] Adjust mappings if needed
+
+- [ ] **🔍 CHECKPOINT 2C**: TTS voice control validation
+  - [ ] Test: Generate 10 voices with different params
+  - [ ] Verify: Gender changes are audible
+  - [ ] Verify: Emotion changes are audible
+  - [ ] Verify: Age changes are audible
+
+### 🔗 Integration Milestone
+
+- [ ] **INTEGRATION CHECKPOINT 2**: Session Setup End-to-End
+  - [ ] Test: Upload script → Click "Select Character" → See character cards
+  - [ ] Test: Click character card → Highlights and selects
+  - [ ] Test: Assign voices using presets → See all characters with voices
+  - [ ] Test: Adjust sliders → Click "Preview Voice" → Hear audio
+  - [ ] Test: Click "Auto-Assign" → All voices assigned instantly
+  - [ ] Test: Click "Start Rehearsal" → (Shows "Coming soon" for now)
+  - [ ] **✅ DECISION**: Approved - Sprint 3 complete, moving to Sprint 4
+
+---
+
+## 📅 Future Sprints (Overview)
 
 ### Sprint 4: Audio Generation & Caching (Week 2-3)
 - [ ] Frontend: Progress bar, audio generation UI
@@ -303,17 +507,31 @@
 ### Active Blockers:
 *None currently - infrastructure is unblocked*
 
+### Sprint 3 Decisions (Resolved):
+
+1. **✅ Character Selection UX** (Resolved: 2025-10-23 17:50)
+   - Decision: Large character cards (video game style)
+   - Rationale: Teen-friendly, visual, playful
+
+2. **✅ Voice Assignment UI** (Resolved: 2025-10-23 17:50)
+   - Decision: Presets + fine-tune sliders
+   - Rationale: Quick setup + creative control
+
+3. **✅ Auto-assignment Rules** (Resolved: 2025-10-23 17:50)
+   - Decision: Yes, with smart defaults (user can override)
+   - Rationale: Saves time for large casts (30+ characters)
+
+4. **✅ Voice Preview Generation** (Resolved: 2025-10-23 17:50)
+   - Decision: On-demand (click "Preview" button)
+   - Rationale: Saves GPU time during setup
+
 ### Upcoming Decisions:
 
-1. **Script Parser Edge Cases** (Sprint 2)
-   - Question: How to handle "GUARD 1", "GUARD 2" (numbers in character names)?
-   - Options:
-     - A) Allow numbers, treat as separate characters
-     - B) Normalize to "GUARD" (lose distinction)
-     - C) Manual tagging in UI
-   - Decision needed by: Start of Sprint 2
+1. **Voice Preset List** (Sprint 3)
+   - Question: Which 8-10 voice presets should we include?
+   - Examples: "Angry Teen", "Wise Elder", "Cheerful Kid", "Mysterious Narrator"
+   - Decision needed by: Before implementing VoicePresetService
    - Owner: @corey
-   - **Recommendation**: Test with throwaway-tests/002-markdown-parser/
 
 2. **TTS Engine Selection** (Sprint 4)
    - Question: Index TTS vs Chatterbox for MVP default?
@@ -321,34 +539,34 @@
    - Decision needed by: Start of Sprint 4
    - Owner: @corey + data
 
-3. **Voice Cloning** (Sprint 3)
+3. **Voice Cloning** (Future)
    - Question: Allow users to upload their own voice samples?
    - Trade-off: Cool feature vs complexity
-   - Decision needed by: Start of Sprint 3
+   - Decision needed by: After MVP
    - Owner: @corey
 
 ---
 
 ## 📊 Progress Dashboard
 
-### Overall MVP Phase 1 Progress: 8%
+### Overall MVP Phase 1 Progress: 30%
 
 | Sprint | Status | Progress | Target Date |
 |--------|--------|----------|-------------|
-| Infrastructure | 🟢 Active | 80% | 2025-10-23 (today) |
-| Script Upload | ⏸️ Not Started | 0% | 2025-10-30 |
-| Role Selection | ⏸️ Not Started | 0% | 2025-11-06 |
+| Infrastructure | ✅ Complete | 100% | 2025-10-23 |
+| Script Upload | ✅ Complete | 100% | 2025-10-23 |
+| Role Selection | 🟢 Active | 0% | 2025-10-30 |
 | Audio Generation | ⏸️ Not Started | 0% | 2025-11-13 |
 | Rehearsal Playback | ⏸️ Not Started | 0% | 2025-11-20 |
 
 ### Track-Specific Progress:
 
-| Track | Sprint Current | Sprint Next |
-|-------|----------------|-------------|
-| 🎨 Frontend | 🟡 Ready (0%) | ⏸️ Not Started |
-| ⚙️ Backend | 🟡 Ready (0%) | ⏸️ Not Started |
-| 🤖 TTS | ⏸️ Not Started | ⏸️ Not Started |
-| 🔗 Integration | ⏸️ Waiting | ⏸️ Waiting |
+| Track | Sprint 2 (Upload) | Sprint 3 (Selection) |
+|-------|-------------------|----------------------|
+| 🎨 Frontend | ✅ 100% | 🟡 Ready (0%) |
+| ⚙️ Backend | ✅ 100% | 🟡 Ready (0%) |
+| 🤖 TTS | ⏸️ N/A | 🟡 Ready (0%) |
+| 🔗 Integration | ✅ 100% | ⏸️ Waiting |
 
 ---
 
