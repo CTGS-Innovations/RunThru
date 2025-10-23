@@ -1,16 +1,17 @@
 # RunThru - Task Tracking & Progress
 
-**Last Updated**: 2025-10-23 16:30
-**Current Phase**: MVP Phase 1 - Ready for Sprint 2 🚀
-**Overall Progress**: 100% infrastructure ✅, 100% scaffolding ✅, CHECKPOINT 0 passed ✅
+**Last Updated**: 2025-10-23 16:40
+**Current Phase**: MVP Phase 1 - Sprint 1 Complete, Ready for Sprint 2 🚀
+**Overall Progress**: 100% infrastructure ✅, 100% scaffolding ✅, 100% integration ✅
 
 ---
 
-## 🎯 Active Sprint: Infrastructure Setup (Current)
+## 🎯 Sprint 1: Infrastructure Setup & Scaffolding (Complete)
 
 **Status**: ✅ Complete (100%)
 **Started**: 2025-10-23
 **Completed**: 2025-10-23
+**Duration**: ~4 hours
 
 ### ✅ Completed Infrastructure Tasks
 
@@ -119,36 +120,36 @@
   - [x] Test: Health endpoints respond (GET /api/health, GET /health) ✅
   - [x] Merge feature/frontend to main (commit: 6f6744a)
   - [x] Merge feature/backend to main (commit: 8cb805a)
+  - [x] Set up TTS symlinks in main worktree (venv + index-tts)
   - [x] **✅ DECISION**: Scaffold approved - all services working
 
-**Testing Instructions:**
-```bash
-# Terminal 1: Frontend
-cd /home/corey/projects/RunThru-frontend
-npm install
-npm run dev
-# Should start on http://localhost:3000
+**Key Decision**: TTS service in main uses **symlinks** to backend worktree's venv and models (avoids 20GB duplication). Development happens in backend worktree, main is for integration testing only.
 
-# Terminal 2: Backend API
-cd /home/corey/projects/RunThru-backend/backend
-npm install
-npm run dev
-# Should start on http://localhost:4000
+**Sprint 1 Summary:**
+- ✅ 41 files created (17 frontend, 24 backend)
+- ✅ Parallel development workflow established
+- ✅ Git worktrees configured (main, frontend, backend branches)
+- ✅ All three services smoke-tested successfully
+- ✅ Symlink strategy for TTS models/venv
+- ✅ Ready for feature development (Sprint 2)
 
-# Terminal 3: TTS Service
-cd /home/corey/projects/RunThru-backend/tts-service
-# Already has venv with dependencies
-python main.py
-# Should start on http://localhost:5000
-```
+**Git Commits (Sprint 1):**
+- c917b31 - Fix TTS symlinks in gitignore
+- 64cbfb5 - Add TTS README + gitignore update
+- cc70856 - Mark CHECKPOINT 0 complete
+- 8cb805a - Merge feature/backend
+- 6f6744a - Merge feature/frontend
+- afc84e3 - Add scaffold summary docs
+- Previous: Infrastructure validation + subagent planning
 
 ---
 
-## 📅 Next Sprint: Script Upload Feature (Week 1)
+## 📅 Sprint 2: Script Upload Feature (Next - Week 1)
 
-**Status**: ⏸️ Not Started
-**Depends on**: Infrastructure Setup completion
+**Status**: 📋 Ready to Start
+**Depends on**: Infrastructure Setup ✅ Complete
 **Target**: 2025-10-30
+**Focus**: Upload markdown scripts, parse to JSON, store in SQLite
 
 ### 🎨 Frontend Track - Script Upload UI
 
