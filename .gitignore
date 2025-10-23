@@ -8,6 +8,9 @@ data/audio-cache/
 data/database/*.db
 data/database/*.db-*
 
+# TTS Service installations (~20GB of downloaded models and venvs)
+tts-service/
+
 # =============================================================================
 # Python Virtual Environments
 # =============================================================================
