@@ -9,7 +9,10 @@ data/database/*.db
 data/database/*.db-*
 
 # TTS Service installations (~20GB of downloaded models and venvs)
+# Ignore both symlinks and actual directories
+tts-service/index-tts
 tts-service/index-tts/
+tts-service/venv
 tts-service/venv/
 tts-service/.venv/
 tts-service/__pycache__/
