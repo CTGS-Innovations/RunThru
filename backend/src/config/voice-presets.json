@@ -1,0 +1,74 @@
+[
+  {
+    "id": "teen-male",
+    "name": "Teen Male",
+    "description": "Neutral young male voice - upbeat and energetic",
+    "gender": 60,
+    "emotion": 50,
+    "age": 25,
+    "referenceAudioPath": "../tts-service/reference-voices/teen-male.wav"
+  },
+  {
+    "id": "teen-female",
+    "name": "Teen Female",
+    "description": "Natural female voice - clear and friendly",
+    "gender": 40,
+    "emotion": 50,
+    "age": 25,
+    "referenceAudioPath": "../tts-service/reference-voices/teen-female.wav"
+  },
+  {
+    "id": "angry-teen",
+    "name": "Angry Teen",
+    "description": "Intense, dramatic voice - perfect for villains",
+    "gender": 65,
+    "emotion": 85,
+    "age": 30,
+    "referenceAudioPath": "../tts-service/reference-voices/angry-teen.wav"
+  },
+  {
+    "id": "cheerful-kid",
+    "name": "Cheerful Kid",
+    "description": "Soft-spoken, gentle voice - warm and caring",
+    "gender": 35,
+    "emotion": 60,
+    "age": 20,
+    "referenceAudioPath": "../tts-service/reference-voices/cheerful-kid.wav"
+  },
+  {
+    "id": "wise-elder",
+    "name": "Wise Elder",
+    "description": "Old wizard voice - calm and authoritative",
+    "gender": 70,
+    "emotion": 30,
+    "age": 75,
+    "referenceAudioPath": "../tts-service/reference-voices/wise-elder.wav"
+  },
+  {
+    "id": "mysterious-narrator",
+    "name": "Mysterious Narrator",
+    "description": "Deep, villainous voice - dramatic storyteller",
+    "gender": 75,
+    "emotion": 40,
+    "age": 65,
+    "referenceAudioPath": "../tts-service/reference-voices/mysterious-narrator.wav"
+  },
+  {
+    "id": "angry-monster",
+    "name": "Angry Monster",
+    "description": "Deep, intimidating voice - powerful presence",
+    "gender": 80,
+    "emotion": 75,
+    "age": 50,
+    "referenceAudioPath": "../tts-service/reference-voices/angry-monster.wav"
+  },
+  {
+    "id": "scared-character",
+    "name": "Scared Character",
+    "description": "Frantic, energetic voice - wild and unpredictable",
+    "gender": 65,
+    "emotion": 90,
+    "age": 40,
+    "referenceAudioPath": "../tts-service/reference-voices/scared-character.wav"
+  }
+]

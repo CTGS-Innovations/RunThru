@@ -9,4 +9,8 @@ router.use('/health', healthRoutes);
 router.use('/scripts', scriptsRoutes);
 router.use('/sessions', sessionsRoutes);
 
+// Note: /voices endpoint is also in sessionsRoutes
+// Mounted here to make it /api/voices instead of /api/sessions/voices
+router.use('/', sessionsRoutes);
+
 export default router;

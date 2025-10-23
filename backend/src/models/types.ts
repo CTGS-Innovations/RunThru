@@ -34,3 +34,25 @@ export interface AudioCache {
   fileSize: number;
   createdAt: string;
 }
+
+export interface VoicePreset {
+  id: string;
+  name: string;
+  description: string;
+  gender: number;        // 0-100 (0 = female, 100 = male)
+  emotion: number;       // 0-100 (0 = calm, 100 = excited)
+  age: number;           // 0-100 (0 = young, 100 = old)
+  referenceAudioPath: string;
+}
+
+export interface VoiceAssignment {
+  characterId: string;
+  voicePresetId: string;
+  gender: number;        // 0-100 (customized from preset)
+  emotion: number;       // 0-100 (customized from preset)
+  age: number;           // 0-100 (customized from preset)
+}
+
+export interface SessionWithVoices extends Omit<Session, 'voiceAssignments'> {
+  voiceAssignments: VoiceAssignment[];  // Parsed from JSON string
+}
