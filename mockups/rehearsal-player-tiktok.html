@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rehearsal Player - TikTok Style 📱</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: #000;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    .video-container {
+      height: 100vh;
+      position: relative;
+      background: linear-gradient(135deg, #1a0a2e 0%, #0a0a0a 50%, #1a0a2e 100%);
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    .slide-up { animation: slideUp 0.5s ease-out; }
+    .pulse-ring {
+      animation: pulse 2s ease-in-out infinite;
+    }
+    .line-glow {
+      text-shadow: 0 0 20px currentColor;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- FULL SCREEN VERTICAL VIDEO STYLE -->
+  <div class="video-container flex flex-col">
+
+    <!-- Top bar - floating -->
+    <div class="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/80 to-transparent z-20">
+      <div class="flex items-center justify-between">
+        <button class="text-white text-2xl">✕</button>
+        <div class="text-center flex-1">
+          <div class="text-lg font-bold">Zombie Apocalypse</div>
+          <div class="text-sm text-gray-400">Playing as NARRATOR 1</div>
+        </div>
+        <div class="text-right">
+          <div class="text-yellow-400 font-bold">23/87</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTER CONTENT - where the magic happens -->
+    <div class="flex-1 flex flex-col items-center justify-center px-6 relative">
+
+      <!-- Previous line - small, faded -->
+      <div class="mb-12 opacity-40 text-center slide-up">
+        <div class="text-cyan-400 text-sm mb-2 flex items-center justify-center gap-2">
+          <div class="w-2 h-2 rounded-full bg-cyan-400"></div>
+          ZOMBIE
+        </div>
+        <div class="text-xl text-gray-400">
+          "Braaains..."
+        </div>
+      </div>
+
+      <!-- CURRENT LINE - MASSIVE, CENTER STAGE -->
+      <div class="slide-up mb-12 text-center">
+        <!-- Your turn indicator -->
+        <div class="mb-6">
+          <div class="inline-flex items-center gap-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-6 py-3 rounded-full text-xl font-black pulse-ring">
+            <span class="text-3xl">🎤</span>
+            YOUR LINE
+          </div>
+        </div>
+
+        <!-- The actual line - HUGE -->
+        <div class="text-4xl md:text-6xl font-black leading-tight mb-6 line-glow text-yellow-400">
+          "Never go into the basement alone!"
+        </div>
+
+        <!-- Stage direction -->
+        <div class="text-xl text-gray-400 italic">
+          (dramatically to audience)
+        </div>
+
+        <!-- Quick stats - TikTok style -->
+        <div class="mt-8 flex items-center justify-center gap-8">
+          <div class="text-center">
+            <div class="text-3xl mb-1">🔥</div>
+            <div class="text-sm text-gray-400">Streak</div>
+            <div class="text-2xl font-bold text-yellow-400">12</div>
+          </div>
+          <div class="text-center">
+            <div class="text-3xl mb-1">⚡</div>
+            <div class="text-sm text-gray-400">Energy</div>
+            <div class="text-2xl font-bold text-orange-400">87%</div>
+          </div>
+          <div class="text-center">
+            <div class="text-3xl mb-1">💎</div>
+            <div class="text-sm text-gray-400">Points</div>
+            <div class="text-2xl font-bold text-cyan-400">1.2K</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Next line hint - very subtle -->
+      <div class="opacity-20 text-center text-gray-500 text-sm slide-up">
+        Next: GIRL "But what if..."
+      </div>
+
+    </div>
+
+    <!-- RIGHT SIDE ACTIONS - TikTok style vertical buttons -->
+    <div class="absolute right-4 bottom-32 flex flex-col gap-6 z-20">
+      <!-- Like/React -->
+      <button class="flex flex-col items-center gap-1 group">
+        <div class="w-14 h-14 rounded-full bg-white/10 backdrop-blur flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">
+          ❤️
+        </div>
+        <span class="text-xs font-bold">328</span>
+      </button>
+
+      <!-- Comment/Note -->
+      <button class="flex flex-col items-center gap-1 group">
+        <div class="w-14 h-14 rounded-full bg-white/10 backdrop-blur flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">
+          💬
+        </div>
+        <span class="text-xs font-bold">12</span>
+      </button>
+
+      <!-- Share -->
+      <button class="flex flex-col items-center gap-1 group">
+        <div class="w-14 h-14 rounded-full bg-white/10 backdrop-blur flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">
+          ↗️
+        </div>
+        <span class="text-xs font-bold">Share</span>
+      </button>
+
+      <!-- Bookmark -->
+      <button class="flex flex-col items-center gap-1 group">
+        <div class="w-14 h-14 rounded-full bg-white/10 backdrop-blur flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">
+          🔖
+        </div>
+      </button>
+    </div>
+
+    <!-- BOTTOM CONTROLS - Minimal, sleek -->
+    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-6 z-10">
+
+      <!-- Progress bar - thin and sleek -->
+      <div class="mb-6">
+        <div class="h-1 bg-white/20 rounded-full overflow-hidden">
+          <div class="h-full bg-gradient-to-r from-yellow-400 to-orange-500 w-1/3 rounded-full transition-all duration-300"></div>
+        </div>
+      </div>
+
+      <!-- Main controls - centered, big -->
+      <div class="flex items-center justify-center gap-4 mb-4">
+
+        <!-- Previous -->
+        <button class="w-12 h-12 rounded-full bg-white/10 backdrop-blur flex items-center justify-center hover:bg-white/20 transition-all">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+          </svg>
+        </button>
+
+        <!-- Play/Pause - MASSIVE -->
+        <button class="w-20 h-20 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 flex items-center justify-center shadow-2xl shadow-yellow-500/50 hover:scale-110 transition-transform">
+          <svg class="w-10 h-10 text-black" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z"/>
+          </svg>
+        </button>
+
+        <!-- Next -->
+        <button class="w-12 h-12 rounded-full bg-white/10 backdrop-blur flex items-center justify-center hover:bg-white/20 transition-all">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+          </svg>
+        </button>
+
+      </div>
+
+      <!-- Quick actions -->
+      <div class="flex items-center justify-center gap-3 text-sm">
+        <button class="px-4 py-2 rounded-full bg-white/10 backdrop-blur hover:bg-white/20 transition-all">
+          🔁 Repeat
+        </button>
+        <button class="px-4 py-2 rounded-full bg-white/10 backdrop-blur hover:bg-white/20 transition-all">
+          ⏩ Skip Mine
+        </button>
+        <button class="px-4 py-2 rounded-full bg-white/10 backdrop-blur hover:bg-white/20 transition-all">
+          🎵 Slow Down
+        </button>
+      </div>
+
+    </div>
+
+    <!-- SWIPE HINT - Bottom center -->
+    <div class="absolute bottom-40 left-1/2 transform -translate-x-1/2 text-center text-gray-500 text-sm animate-bounce">
+      <div class="text-2xl mb-1">👆</div>
+      <div>Swipe for next line</div>
+    </div>
+
+  </div>
+
+  <!-- Version badge -->
+  <div class="fixed top-20 left-4 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full px-3 py-1 text-xs font-bold shadow-lg z-30">
+    📱 Vertical Mode
+  </div>
+
+</body>
+</html>
