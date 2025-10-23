@@ -88,21 +88,25 @@
 
 ---
 
-### 5. Auto-Assign Fallback
-**Decision**: Option A - Random appropriate voice (fastest)
+### 5. Voice Assignment Strategy
+**Decision**: Pure random assignment with persistence and shuffle
 
 **Implementation**:
-- If auto-assign rules can't detect gender/age/emotion, pick random from appropriate pool
-- **Appropriate pool**: Exclude extreme voices (Angry Monster, Scared Character) for generic characters
-- **Safe defaults**: Teen Male, Teen Female, Mysterious Narrator (neutral voices)
-- User can always override after auto-assign
+- **Initial setup**: Randomly assign each character a voice from all 8 presets
+- **Persistence**: Save voice assignments to session (load same voices on return)
+- **Manual override**: User can click any character to customize their voice
+- **Shuffle button**: Re-randomize ALL character voices (creates variety between rehearsals)
 
-**Example**:
-- Character: "PERSON 1" (no keywords detected)
-- Auto-assign: Randomly picks Teen Male or Teen Female
-- User can click to customize if needed
+**Flow**:
+1. User creates session → Backend randomly assigns voices → Save to database
+2. User can click character → Change voice (preset + sliders)
+3. User can click "Shuffle Voices" → Re-randomize all characters → Save new assignments
 
-**Rationale**: Fast setup for large casts (30+ characters). Teens can experiment and adjust later.
+**Rationale**:
+- Theater doesn't care about gender/age matching (anyone plays any role)
+- Random assignment is simple and bug-free
+- Shuffle creates variety in speech patterns between practice sessions
+- No complex keyword detection needed
 
 ---
 
