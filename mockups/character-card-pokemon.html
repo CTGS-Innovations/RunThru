@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Character Card - Pokemon Style</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            background: "hsl(240 10% 3.9%)",
+            foreground: "hsl(0 0% 98%)",
+            card: "hsl(240 10% 7%)",
+            border: "hsl(240 3.7% 15.9%)",
+            muted: "hsl(240 5% 64.9%)",
+            primary: "hsl(24 90% 60%)",
+            accent: "hsl(180 80% 60%)",
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    body {
+      background: hsl(240 10% 3.9%);
+      color: hsl(0 0% 98%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    }
+    .stat-bar {
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .card-shine {
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      animation: shine 3s infinite;
+    }
+    @keyframes shine {
+      0% { left: -100%; }
+      20%, 100% { left: 100%; }
+    }
+    .portrait-glow {
+      box-shadow:
+        0 0 20px hsl(24 90% 60% / 0.3),
+        0 0 40px hsl(180 80% 60% / 0.2);
+    }
+  </style>
+</head>
+<body class="min-h-screen p-6 flex items-center justify-center">
+
+  <!-- Character Card -->
+  <div class="w-full max-w-sm bg-gradient-to-br from-card via-card to-card/80 rounded-3xl border-2 border-primary/30 shadow-2xl overflow-hidden relative">
+
+    <!-- Shine effect -->
+    <div class="card-shine"></div>
+
+    <!-- Portrait Section (Full Width, Larger) -->
+    <div class="relative h-80 overflow-hidden">
+      <!-- Portrait Image -->
+      <img
+        src="http://localhost:4000/portraits/01af3528-4dd3-401d-a5c5-d17c96c445ac/girl.webp"
+        alt="Girl character portrait"
+        class="w-full h-full object-cover portrait-glow"
+      />
+
+      <!-- Gradient overlays for readability -->
+      <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent via-30% to-card"></div>
+
+      <!-- Header Text Overlay (Pokemon Style) -->
+      <div class="absolute top-0 left-0 right-0 p-4">
+        <div class="flex items-start justify-between">
+          <div class="relative">
+            <!-- Extra dark backing for text legibility -->
+            <div class="absolute inset-0 -inset-x-2 -inset-y-1 bg-black/40 blur-xl"></div>
+            <h2 class="text-4xl font-black text-white relative drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">GIRL</h2>
+            <p class="text-sm font-bold text-primary relative drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">Brave Survivor</p>
+          </div>
+          <div class="flex flex-col gap-2">
+            <div class="px-3 py-1.5 bg-primary rounded-full text-xs font-black text-black uppercase shadow-lg">
+              Lead
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Line Count Badge (Bottom Right on Image) -->
+      <div class="absolute bottom-4 right-4">
+        <div class="px-4 py-2 bg-accent/90 backdrop-blur-sm border-2 border-white/30 rounded-xl text-sm font-black text-black shadow-lg">
+          38 LINES
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="px-6 py-6 space-y-6">
+
+      <!-- Power Stats -->
+      <div>
+        <div class="text-xs font-black text-muted uppercase tracking-wider mb-3">⚡ Power Stats</div>
+
+        <!-- Stage Presence -->
+        <div class="mb-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-semibold text-foreground">💪 Stage Presence</span>
+            <span class="text-sm font-bold text-primary">85%</span>
+          </div>
+          <div class="h-2.5 bg-border/30 rounded-full overflow-hidden">
+            <div class="stat-bar h-full bg-gradient-to-r from-primary to-orange-500 rounded-full" style="width: 85%"></div>
+          </div>
+        </div>
+
+        <!-- Emotional Range -->
+        <div class="mb-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-semibold text-foreground">🎭 Emotional Range</span>
+            <span class="text-sm font-bold text-accent">92%</span>
+          </div>
+          <div class="h-2.5 bg-border/30 rounded-full overflow-hidden">
+            <div class="stat-bar h-full bg-gradient-to-r from-accent to-blue-500 rounded-full" style="width: 92%"></div>
+          </div>
+        </div>
+
+        <!-- Energy Level -->
+        <div class="mb-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-semibold text-foreground">⚡ Energy Level</span>
+            <span class="text-sm font-bold text-green-400">78%</span>
+          </div>
+          <div class="h-2.5 bg-border/30 rounded-full overflow-hidden">
+            <div class="stat-bar h-full bg-gradient-to-r from-green-400 to-emerald-500 rounded-full" style="width: 78%"></div>
+          </div>
+        </div>
+
+        <!-- Star Moments -->
+        <div class="mb-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-semibold text-foreground">💫 Star Moments</span>
+            <span class="text-sm font-bold text-yellow-400">4</span>
+          </div>
+          <div class="flex gap-1.5">
+            <div class="h-2.5 flex-1 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full"></div>
+            <div class="h-2.5 flex-1 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full"></div>
+            <div class="h-2.5 flex-1 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full"></div>
+            <div class="h-2.5 flex-1 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full"></div>
+            <div class="h-2.5 flex-1 bg-border/30 rounded-full"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Character Arc -->
+      <div>
+        <div class="text-xs font-black text-muted uppercase tracking-wider mb-3">🎯 Character Journey</div>
+        <div class="flex items-center gap-3 text-base">
+          <span class="font-medium text-muted">Scared</span>
+          <svg class="w-5 h-5 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+          </svg>
+          <span class="font-bold text-primary">Leader</span>
+        </div>
+      </div>
+
+      <!-- Skills -->
+      <div>
+        <div class="text-xs font-black text-muted uppercase tracking-wider mb-3">🎪 Skills Required</div>
+        <div class="flex flex-wrap gap-2.5">
+          <div class="px-3 py-2 bg-accent/10 border border-accent/30 rounded-lg text-sm font-bold text-accent">
+            Physical Comedy
+          </div>
+          <div class="px-3 py-2 bg-primary/10 border border-primary/30 rounded-lg text-sm font-bold text-primary">
+            Stage Combat
+          </div>
+          <div class="px-3 py-2 bg-green-400/10 border border-green-400/30 rounded-lg text-sm font-bold text-green-400">
+            Screaming
+          </div>
+        </div>
+      </div>
+
+      <!-- Personality Traits -->
+      <div>
+        <div class="text-xs font-black text-muted uppercase tracking-wider mb-3">✨ Personality</div>
+        <div class="flex flex-wrap gap-2">
+          <span class="px-3 py-1.5 bg-foreground/5 border border-border rounded-full text-sm font-medium">Brave</span>
+          <span class="px-3 py-1.5 bg-foreground/5 border border-border rounded-full text-sm font-medium">Resourceful</span>
+          <span class="px-3 py-1.5 bg-foreground/5 border border-border rounded-full text-sm font-medium">Determined</span>
+          <span class="px-3 py-1.5 bg-foreground/5 border border-border rounded-full text-sm font-medium">Caring</span>
+        </div>
+      </div>
+
+      <!-- Breakout Scenes -->
+      <div>
+        <div class="text-xs font-black text-muted uppercase tracking-wider mb-3">⭐ Breakout Scenes</div>
+        <div class="space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="w-7 h-7 rounded-lg bg-primary/20 border border-primary/40 flex items-center justify-center flex-shrink-0">
+              <span class="text-sm font-black text-primary">3</span>
+            </div>
+            <span class="text-sm font-medium">First Zombie Encounter</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-7 h-7 rounded-lg bg-accent/20 border border-accent/40 flex items-center justify-center flex-shrink-0">
+              <span class="text-sm font-black text-accent">7</span>
+            </div>
+            <span class="text-sm font-medium">The Escape Plan</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-7 h-7 rounded-lg bg-yellow-400/20 border border-yellow-400/40 flex items-center justify-center flex-shrink-0">
+              <span class="text-sm font-black text-yellow-400">11</span>
+            </div>
+            <span class="text-sm font-medium">Saves Everyone</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Card Footer -->
+    <div class="px-6 py-5 bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5 border-t border-border/30">
+      <button class="w-full py-4 bg-gradient-to-r from-primary to-accent rounded-xl text-base font-black text-black hover:opacity-90 transition-opacity shadow-lg">
+        SELECT THIS ROLE
+      </button>
+    </div>
+
+  </div>
+
+</body>
+</html>
