@@ -156,9 +156,13 @@ export default function ScriptDetailPage() {
         </Card>
 
         {/* Actions */}
-        <div className="flex gap-4">
-          <Button size="lg" className="flex-1">
-            Start Rehearsal
+        <div className="flex justify-center">
+          <Button
+            size="lg"
+            className="min-w-[300px] bg-amber-500 hover:bg-amber-600 text-black font-bold"
+            onClick={() => router.push(`/scripts/${scriptId}/setup`)}
+          >
+            Select Your Character
           </Button>
         </div>
       </div>

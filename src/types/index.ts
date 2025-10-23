@@ -62,3 +62,38 @@ export interface EmotionParams {
   intensity: number  // 0.0-1.0
   valence: 'positive' | 'negative' | 'neutral'
 }
+
+// Sprint 3: Voice Assignment Types
+export interface VoicePreset {
+  id: string
+  name: string
+  description: string
+  defaultParams: {
+    gender: number  // 0-100
+    emotion: number  // 0-100
+    age: number     // 0-100
+  }
+}
+
+export interface VoiceAssignment {
+  characterId: string
+  voicePresetId: string
+  gender: number
+  emotion: number
+  age: number
+}
+
+export interface Character {
+  name: string
+  lineCount: number
+  firstAppearance: number
+  aliases?: string[]
+}
+
+export interface Session {
+  id: string
+  scriptId: string
+  selectedCharacter: string
+  voiceAssignments: VoiceAssignment[]
+  createdAt: string
+}
