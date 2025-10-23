@@ -1,8 +1,8 @@
 # RunThru - Task Tracking & Progress
 
-**Last Updated**: 2025-10-23 19:30
-**Current Phase**: MVP Phase 1 - Sprint 3 Complete 🔍 (Role Selection & Voice Assignment)
-**Overall Progress**: Sprint 1: 100% ✅ | Sprint 2: 100% ✅ | Sprint 3: 100% ✅ (Ready for testing)
+**Last Updated**: 2025-10-23 22:00
+**Current Phase**: MVP Phase 1 - Sprint 4 Starting (OpenAI Integration)
+**Overall Progress**: Sprint 1: 100% ✅ | Sprint 2: 100% ✅ | Sprint 3: 100% ✅ | Sprint 4: 0% 🟡 Ready
 
 ---
 
@@ -551,22 +551,126 @@
 - Backend: 5 files created/modified (VoicePresetService, SessionService, voice-presets.json, sessions.routes.ts, schema.sql)
 - Total: 13 files
 
-**Next Steps**: Sprint 4 (Audio Generation & Caching)
+**Next Steps**: Sprint 4 (OpenAI Integration)
+
+---
+
+## 📅 Sprint 4: OpenAI Script Analysis & Character Portraits (Current)
+
+**Status**: 🟡 Ready to Start - 0%
+**Depends on**: Script Upload ✅ Complete
+**Target**: 2025-10-30
+**Focus**: AI-powered metadata extraction + character portrait generation on script upload
+
+### 🎯 Design Resources Created
+
+- [x] **✅ COMPLETE**: OpenAI integration designs documented
+  - [x] Created `docs/script-analysis-service.md` - Text analysis strategy
+  - [x] Created `docs/script-analysis-v2-with-images.md` - Portrait generation strategy
+  - [x] Cost analysis: ~$0.45 per script ($0.013 text + $0.44 portraits)
+  - [x] Created UI mockups (character-cards-influencer.html, rehearsal-player-final.html)
+
+### 🎯 Sprint Goals
+
+1. **Integrate OpenAI APIs** when scripts are uploaded
+2. **Generate character portraits** (GPT-image-1) for each character
+3. **Extract rich metadata**: Character arcs, breakout moments, scene context
+4. **Store in database** for UI consumption
+5. **Update UI** to display real AI-generated data
+
+### ⚙️ Backend Track - OpenAI Integration
+
+- [ ] **Setup OpenAI SDK**
+  - [ ] Add `openai` package to backend/package.json
+  - [ ] Create `.env` variable for `OPENAI_API_KEY`
+  - [ ] Test connection with simple API call
+
+- [ ] **Create ScriptAnalysisService**
+  - [ ] File: `backend/src/services/scriptAnalysis.service.ts`
+  - [ ] Method: `analyzeScript(script)` - Main orchestrator
+  - [ ] Method: `analyzeScriptLevel(script)` - Genre, runtime, themes
+  - [ ] Method: `analyzeCharacters(script)` - Descriptions, arcs, breakout moments
+  - [ ] Method: `analyzeScenes(script)` - Scene names, moods, objectives
+  - [ ] Use GPT-5 mini for text analysis (~$0.013 per script)
+
+- [ ] **Create CharacterPortraitService**
+  - [ ] File: `backend/src/services/characterPortrait.service.ts`
+  - [ ] Method: `generatePortrait(character, analysis)` - Single portrait
+  - [ ] Method: `generateAllPortraits(characters)` - Batch generate
+  - [ ] Use GPT-image-1 (1024x1024 medium quality, $0.04 per image)
+  - [ ] Store images: Choose storage (local filesystem vs S3 vs database base64)
+
+- [ ] **Update Database Schema**
+  - [ ] Add `analysis` JSONB column to `scripts` table
+  - [ ] Add `analysis_tokens_used` INTEGER column
+  - [ ] Add `analysis_cost_usd` DECIMAL column
+  - [ ] Add `analyzed_at` DATETIME column
+  - [ ] Optional: Create `character_portraits` table for images
+
+- [ ] **Integrate with Script Upload Flow**
+  - [ ] Update `POST /api/scripts` endpoint
+  - [ ] After parsing script → trigger analysis
+  - [ ] Run asynchronously (don't block upload response)
+  - [ ] Return script immediately, analysis populates in background
+  - [ ] Add status tracking: "analyzing", "complete", "failed"
+
+- [ ] **Error Handling & Fallbacks**
+  - [ ] Handle OpenAI API failures gracefully
+  - [ ] If analysis fails → script still works (just no AI metadata)
+  - [ ] Retry logic for transient failures
+  - [ ] Log errors for debugging
+
+### 🎨 Frontend Track - UI Updates
+
+- [ ] **Update Script Library**
+  - [ ] Display character portraits in cards (when available)
+  - [ ] Show "Analyzing..." status for pending scripts
+  - [ ] Graceful degradation if no portraits (show placeholder)
+
+- [ ] **Update Character Selection**
+  - [ ] Use real character portraits from OpenAI
+  - [ ] Display character descriptions, arcs, breakout moments
+  - [ ] Show "Lead", "Featured", "Ensemble" badges
+  - [ ] Implement card expansion for full character details
+
+- [ ] **Update Rehearsal Player**
+  - [ ] Use scene context (mood, location, objectives)
+  - [ ] Display character portraits in current line cards
+  - [ ] Show timing hints from AI analysis
+
+- [ ] **Add API Hooks**
+  - [ ] Update `useScript()` to include analysis data
+  - [ ] Handle loading states for portrait generation
+  - [ ] Cache portraits in frontend
+
+### 🧪 Testing & Validation
+
+- [ ] **Test with Real Script**
+  - [ ] Upload "10 Ways to Survive Zombie Apocalypse"
+  - [ ] Verify 11 portraits generated correctly
+  - [ ] Verify metadata extracted (genres, character arcs)
+  - [ ] Check cost: Should be ~$0.45
+
+- [ ] **Integration Checkpoint 3**
+  - [ ] Upload script → Wait for analysis → See portraits in UI
+  - [ ] Verify character cards show AI-generated descriptions
+  - [ ] Verify rehearsal player uses scene context
+  - [ ] **CHECKPOINT 3**: OpenAI integration working end-to-end
 
 ---
 
 ## 📅 Future Sprints (Overview)
 
-### Sprint 4: Audio Generation & Caching (Week 2-3)
+### Sprint 5: Audio Generation & Caching (Week 2-3)
 - [ ] Frontend: Progress bar, audio generation UI
 - [ ] Backend: Batch generation (SSE), audio cache service
 - [ ] TTS: Emotion mapping, batch processing
-- [ ] **CHECKPOINT 3**: Audio generation complete
+- [ ] **CHECKPOINT 4**: Audio generation complete
 
-### Sprint 5: Rehearsal Playback (Week 3)
-- [ ] Frontend: LineDisplay, AudioPlayer, NavigationControls
+### Sprint 6: Rehearsal Playback (Week 3)
+- [ ] Frontend: LineDisplay with word-sync, AudioPlayer, NavigationControls
 - [ ] Backend: Session state management, audio serving
-- [ ] **CHECKPOINT 4**: Rehearsal mode working end-to-end
+- [ ] **CHECKPOINT 5**: Rehearsal mode working end-to-end
 
 ---
 
@@ -595,19 +699,32 @@
 
 ### Upcoming Decisions:
 
-1. **Voice Preset List** (Sprint 3)
-   - Question: Which 8-10 voice presets should we include?
-   - Examples: "Angry Teen", "Wise Elder", "Cheerful Kid", "Mysterious Narrator"
-   - Decision needed by: Before implementing VoicePresetService
+1. **OpenAI Image Storage** (Sprint 4 - NEXT)
+   - Question: Where to store character portrait images?
+   - Options:
+     - A) Local filesystem (simplest, works for single server)
+     - B) Database base64 (easy, but large DB size)
+     - C) S3/Cloud Storage (scalable, costs money)
+   - Decision needed by: Before implementing CharacterPortraitService
    - Owner: @corey
+   - **Recommendation**: Start with local filesystem for MVP, migrate to S3 if needed
 
-2. **TTS Engine Selection** (Sprint 4)
+2. **Analysis Timing** (Sprint 4)
+   - Question: Run OpenAI analysis synchronously (user waits) or asynchronously (background)?
+   - Options:
+     - A) Synchronous: User waits 30-60 seconds, sees portraits immediately
+     - B) Asynchronous: Instant upload, portraits populate in background
+   - Decision needed by: Before implementing script upload integration
+   - Owner: @corey
+   - **Recommendation**: Asynchronous with "Analyzing..." status
+
+3. **TTS Engine Selection** (Sprint 5)
    - Question: Index TTS vs Chatterbox for MVP default?
    - Needs: throwaway-tests/003-tts-latency/ benchmark
-   - Decision needed by: Start of Sprint 4
+   - Decision needed by: Start of Sprint 5
    - Owner: @corey + data
 
-3. **Voice Cloning** (Future)
+4. **Voice Cloning** (Future)
    - Question: Allow users to upload their own voice samples?
    - Trade-off: Cool feature vs complexity
    - Decision needed by: After MVP
@@ -624,17 +741,18 @@
 | Infrastructure | ✅ Complete | 100% | 2025-10-23 |
 | Script Upload | ✅ Complete | 100% | 2025-10-23 |
 | Role Selection | ✅ Complete | 100% | 2025-10-23 |
+| OpenAI Integration | 🟡 Ready | 0% | 2025-10-30 |
 | Audio Generation | ⏸️ Not Started | 0% | 2025-11-13 |
 | Rehearsal Playback | ⏸️ Not Started | 0% | 2025-11-20 |
 
 ### Track-Specific Progress:
 
-| Track | Sprint 2 (Upload) | Sprint 3 (Selection) | Sprint 4 (Audio) |
-|-------|-------------------|----------------------|------------------|
-| 🎨 Frontend | ✅ 100% | ✅ 100% | 🟡 Ready (0%) |
-| ⚙️ Backend | ✅ 100% | ✅ 100% | 🟡 Ready (0%) |
-| 🤖 TTS | ⏸️ N/A | ✅ 100% (Planning) | 🟡 Ready (0%) |
-| 🔗 Integration | ✅ 100% | ✅ 100% | ⏸️ Waiting |
+| Track | Sprint 3 (Selection) | Sprint 4 (OpenAI) | Sprint 5 (Audio) |
+|-------|----------------------|-------------------|------------------|
+| 🎨 Frontend | ✅ 100% | 🟡 Ready (0%) | ⏸️ Waiting |
+| ⚙️ Backend | ✅ 100% | 🟡 Ready (0%) | ⏸️ Waiting |
+| 🤖 AI/ML | ✅ 100% (TTS Planning) | 🟡 Ready (0%) | ⏸️ Waiting |
+| 🔗 Integration | ✅ 100% | ⏸️ Waiting | ⏸️ Waiting |
 
 ---
 
