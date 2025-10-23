@@ -62,10 +62,14 @@ Next steps:
 ```
 
 **What it does:**
-1. Installs HuggingFace CLI
-2. Downloads Index TTS models (~6GB) to `data/models/index-tts/`
-3. Installs Chatterbox TTS (via pip)
-4. Installs PyTorch with CUDA 12.1 support
+1. **Creates Python virtual environment** at `/home/corey/projects/RunThru-backend/tts-service/venv/`
+2. Installs HuggingFace CLI (in venv)
+3. Installs PyTorch with CUDA 12.1 support (in venv)
+4. Downloads Index TTS models (~6GB) to `data/models/index-tts/`
+5. Installs Chatterbox TTS (in venv)
+
+**Why virtual environment?**
+Modern Linux distros use PEP 668 to prevent breaking system Python packages. A venv keeps TTS dependencies isolated and clean.
 
 **Expected output:**
 ```
@@ -82,9 +86,23 @@ Model locations:
 
 ### Step 3: Validate TTS Inference
 
-**Run:**
+**Run (choose one):**
+
+**Option A:** Direct execution
 ```bash
 ./validate-tts.py
+```
+
+**Option B:** Using venv helper
+```bash
+./run-in-venv.sh python validate-tts.py
+```
+
+**Option C:** Activate venv manually
+```bash
+source /home/corey/projects/RunThru-backend/tts-service/venv/bin/activate
+python validate-tts.py
+deactivate
 ```
 
 **What it tests:**

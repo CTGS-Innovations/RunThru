@@ -1,7 +1,12 @@
-#!/usr/bin/env python3
+#!/home/corey/projects/RunThru-backend/tts-service/venv/bin/python
 """
 TTS Validation Script for RunThru
 Tests that Index TTS and Chatterbox work with your GPU
+
+NOTE: This script uses the virtual environment at:
+      /home/corey/projects/RunThru-backend/tts-service/venv/
+
+If the venv doesn't exist, run: ./download-tts-models.sh first
 """
 
 import sys
