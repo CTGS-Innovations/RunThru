@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useScript } from '@/hooks/useScripts';
-import { ArrowLeft, Users, FileText } from 'lucide-react';
+import { ArrowLeft, Sparkles, Zap } from 'lucide-react';
 
 export default function ScriptDetailPage() {
   const params = useParams();
@@ -50,72 +50,92 @@ export default function ScriptDetailPage() {
         Back to Scripts
       </Button>
 
-      <div className="space-y-6">
-        {/* Compact Summary Card */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-start justify-between">
-              <div>
-                <CardTitle className="text-3xl mb-2">{parsed.title}</CardTitle>
-                {parsed.author && (
-                  <CardDescription className="text-base">by {parsed.author}</CardDescription>
-                )}
+      <div className="space-y-8">
+        {/* Quest Card - Make it feel like a mission briefing */}
+        <Card className="border-2 border-amber-500/30 bg-gradient-to-br from-amber-500/5 to-transparent">
+          <CardHeader className="pb-4">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center">
+                <Sparkles className="w-6 h-6 text-amber-500" />
               </div>
-              <div className="flex gap-4 text-sm text-muted-foreground">
-                <div className="text-center">
-                  <div className="text-2xl font-bold">{parsed.characters.length}</div>
-                  <div>Characters</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold">{parsed.scenes.length}</div>
-                  <div>Scenes</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold">
-                    {parsed.content.filter((c) => c.type === 'dialogue').length}
-                  </div>
-                  <div>Lines</div>
-                </div>
+              <div className="flex-1">
+                <CardTitle className="text-3xl font-bold">{parsed.title}</CardTitle>
+                {parsed.author && (
+                  <CardDescription className="text-base mt-1">by {parsed.author}</CardDescription>
+                )}
               </div>
             </div>
           </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-3 gap-6">
+              <div className="text-center p-4 rounded-lg bg-gradient-to-br from-cyan-500/10 to-transparent border border-cyan-500/20">
+                <div className="text-3xl font-bold text-cyan-400">{parsed.characters.length}</div>
+                <div className="text-sm font-medium mt-1">Characters</div>
+                <div className="text-xs text-muted-foreground mt-1">Choose your role</div>
+              </div>
+              <div className="text-center p-4 rounded-lg bg-gradient-to-br from-purple-500/10 to-transparent border border-purple-500/20">
+                <div className="text-3xl font-bold text-purple-400">{parsed.scenes.length}</div>
+                <div className="text-sm font-medium mt-1">Scenes</div>
+                <div className="text-xs text-muted-foreground mt-1">Act by act</div>
+              </div>
+              <div className="text-center p-4 rounded-lg bg-gradient-to-br from-magenta-500/10 to-transparent border border-pink-500/20">
+                <div className="text-3xl font-bold text-pink-400">
+                  {parsed.content.filter((c) => c.type === 'dialogue').length}
+                </div>
+                <div className="text-sm font-medium mt-1">Lines</div>
+                <div className="text-xs text-muted-foreground mt-1">Master them all</div>
+              </div>
+            </div>
+          </CardContent>
         </Card>
 
-        {/* Direct to Character Selection */}
+        {/* Hero Selection - Make it gaming-style */}
         <div>
-          <h2 className="text-2xl font-bold mb-4">Select Your Character</h2>
-          <p className="text-muted-foreground mb-6">
-            Choose which role you want to play, then we'll assign voices to the other characters.
-          </p>
+          <div className="flex items-center gap-3 mb-6">
+            <Zap className="w-6 h-6 text-amber-500" />
+            <div>
+              <h2 className="text-2xl font-bold">Pick Your Character</h2>
+              <p className="text-sm text-muted-foreground">
+                Who will you become? Choose wisely...
+              </p>
+            </div>
+          </div>
 
-          <Button
-            size="lg"
-            className="w-full mb-8 bg-amber-500 hover:bg-amber-600 text-black font-bold text-lg h-16"
-            onClick={() => router.push(`/scripts/${scriptId}/setup`)}
-          >
-            Choose Your Character →
-          </Button>
-
-          {/* Character Preview Grid */}
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {/* Character Grid - Compact, Gaming Style */}
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 mb-6">
             {parsed.characters.map((character) => (
-              <div
+              <Card
                 key={character.name}
-                className="rounded-lg border p-4 bg-card cursor-pointer hover:bg-accent/5 transition-colors"
+                className="cursor-pointer transition-all duration-200 hover:scale-105 hover:border-amber-500/50 hover:shadow-lg hover:shadow-amber-500/20 group"
                 onClick={() => router.push(`/scripts/${scriptId}/setup`)}
               >
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">🎭</span>
-                  <div>
-                    <div className="font-semibold">{character.name}</div>
-                    <div className="text-sm text-muted-foreground">
-                      {character.lineCount} lines
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-500/20 to-cyan-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                      🎭
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-bold text-lg truncate">{character.name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        <span className="font-mono text-amber-500">{character.lineCount}</span> lines
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
+
+          {/* Big Action Button */}
+          <Button
+            size="lg"
+            className="w-full h-20 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black font-bold text-xl shadow-lg shadow-amber-500/30"
+            onClick={() => router.push(`/scripts/${scriptId}/setup`)}
+          >
+            <Sparkles className="w-6 h-6 mr-3" />
+            START REHEARSAL
+            <Sparkles className="w-6 h-6 ml-3" />
+          </Button>
         </div>
       </div>
     </div>

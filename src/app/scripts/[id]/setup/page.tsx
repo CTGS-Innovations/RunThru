@@ -11,7 +11,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useScript } from '@/hooks/useScripts'
 import { useVoices, useCreateSession, useSession, useShuffleVoices, useUpdateVoice } from '@/hooks/useSessions'
-import { Shuffle, Sparkles } from 'lucide-react'
+import { Shuffle, Sparkles, Zap, CheckCircle2, Play } from 'lucide-react'
 import type { Character, VoiceAssignment } from '@/types'
 
 export default function SessionSetupPage() {
@@ -40,12 +40,11 @@ export default function SessionSetupPage() {
   const assignedCount = voiceAssignments.length
   const totalCharacters = characters.length
   const progress = totalCharacters > 0 ? (assignedCount / totalCharacters) * 100 : 0
+  const isReady = assignedCount === totalCharacters && totalCharacters > 0
 
   // Handlers
   const handleCharacterSelect = async (characterName: string) => {
     setSelectedCharacter(characterName)
-
-    // Create session with this character
     try {
       const session = await createSession.mutateAsync({
         scriptId,
@@ -59,7 +58,6 @@ export default function SessionSetupPage() {
 
   const handleShuffle = async () => {
     if (!sessionId) return
-
     try {
       await shuffleVoices.mutateAsync()
     } catch (error) {
@@ -73,7 +71,6 @@ export default function SessionSetupPage() {
     value: number
   ) => {
     if (!sessionId) return
-
     try {
       await updateVoice.mutateAsync({
         characterId,
@@ -86,11 +83,9 @@ export default function SessionSetupPage() {
 
   const handlePresetChange = async (characterId: string, voicePresetId: string) => {
     if (!sessionId) return
-
     try {
       const preset = voices?.find(v => v.id === voicePresetId)
       if (!preset) return
-
       await updateVoice.mutateAsync({
         characterId,
         voicePresetId,
@@ -105,13 +100,10 @@ export default function SessionSetupPage() {
 
   const handleResetToPreset = async (characterId: string) => {
     if (!sessionId) return
-
     const assignment = voiceAssignments.find(va => va.characterId === characterId)
     if (!assignment) return
-
     const preset = voices?.find(v => v.id === assignment.voicePresetId)
     if (!preset) return
-
     try {
       await updateVoice.mutateAsync({
         characterId,
@@ -125,7 +117,6 @@ export default function SessionSetupPage() {
   }
 
   const handleStartRehearsal = () => {
-    // Navigate to rehearsal page (to be implemented in Sprint 5)
     router.push(`/rehearsal/${sessionId}`)
   }
 
@@ -134,9 +125,9 @@ export default function SessionSetupPage() {
     return (
       <div className="container mx-auto px-4 py-8 space-y-8">
         <Skeleton className="h-12 w-3/4" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3, 4, 5, 6].map(i => (
-            <Skeleton key={i} className="h-40" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
+            <Skeleton key={i} className="h-32" />
           ))}
         </div>
       </div>
@@ -152,67 +143,108 @@ export default function SessionSetupPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-8">
-      {/* Header */}
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold">{scriptData.title}</h1>
-        <p className="text-muted-foreground">Set up your rehearsal session</p>
-      </div>
-
-      {/* Step 1: Character Selection */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-3">
-          <h2 className="text-2xl font-semibold">Step 1: Select Your Character</h2>
-          {selectedCharacter && (
-            <span className="text-sm text-muted-foreground">
-              (Playing as: <span className="font-medium text-foreground">{selectedCharacter}</span>)
-            </span>
-          )}
+    <div className="container mx-auto px-4 py-8 space-y-6 max-w-7xl">
+      {/* Header with Progress */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold flex items-center gap-3">
+            <Zap className="w-8 h-8 text-amber-500" />
+            {scriptData.title}
+          </h1>
+          <p className="text-muted-foreground mt-1">Assemble your cast</p>
         </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {characters.map((character) => (
-            <CharacterCard
-              key={character.name}
-              character={{
-                id: character.name,
-                name: character.name,
-                lineCount: character.lineCount,
-                firstAppearance: character.firstAppearance
-              }}
-              isSelected={selectedCharacter === character.name}
-              onClick={() => handleCharacterSelect(character.name)}
-            />
-          ))}
+        <div className="text-right">
+          <div className="text-2xl font-bold text-amber-500">
+            {assignedCount}/{totalCharacters}
+          </div>
+          <div className="text-sm text-muted-foreground">Team Ready</div>
         </div>
       </div>
 
-      {/* Step 2: Voice Assignment (only shown after character selection) */}
-      {sessionId && sessionData && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <h2 className="text-2xl font-semibold">Step 2: Assign Voices</h2>
-              <p className="text-sm text-muted-foreground">
-                {assignedCount} of {totalCharacters} characters assigned
-              </p>
+      {!selectedCharacter ? (
+        /* STEP 1: Character Selection - Hero Picker */
+        <div className="space-y-6">
+          <Card className="border-2 border-amber-500/30 bg-gradient-to-r from-amber-500/10 to-transparent">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center">
+                  <Sparkles className="w-8 h-8 text-amber-500" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold">Step 1: Choose Your Role</h2>
+                  <p className="text-muted-foreground">Pick the character you want to play</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            {characters.map((character) => (
+              <CharacterCard
+                key={character.name}
+                character={{
+                  id: character.name,
+                  name: character.name,
+                  lineCount: character.lineCount,
+                  firstAppearance: character.firstAppearance
+                }}
+                isSelected={false}
+                onClick={() => handleCharacterSelect(character.name)}
+              />
+            ))}
+          </div>
+        </div>
+      ) : (
+        /* STEP 2: Voice Assignment - Team Builder */
+        <div className="space-y-6">
+          {/* Your Character Badge */}
+          <Card className="border-2 border-cyan-500/50 bg-gradient-to-r from-cyan-500/10 to-transparent">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-full bg-cyan-500/20 flex items-center justify-center text-3xl">
+                    🎭
+                  </div>
+                  <div>
+                    <div className="text-sm text-muted-foreground">You're playing</div>
+                    <div className="text-2xl font-bold text-cyan-400">{selectedCharacter}</div>
+                  </div>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setSelectedCharacter(null)
+                    setSessionId(null)
+                  }}
+                >
+                  Change Character
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Progress Bar */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <div className="font-semibold">Cast Assembly</div>
+              <div className="flex items-center gap-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleShuffle}
+                  disabled={shuffleVoices.isPending}
+                >
+                  <Shuffle className="w-4 h-4 mr-2" />
+                  {shuffleVoices.isPending ? 'Shuffling...' : 'Shuffle All'}
+                </Button>
+              </div>
             </div>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={handleShuffle}
-                disabled={shuffleVoices.isPending}
-              >
-                <Shuffle className="w-4 h-4 mr-2" />
-                {shuffleVoices.isPending ? 'Shuffling...' : 'Shuffle Voices'}
-              </Button>
-            </div>
+            <Progress value={progress} className="h-3" />
           </div>
 
-          <Progress value={progress} className="w-full" />
-
-          {/* Voice assignments for each character */}
-          <div className="space-y-4">
+          {/* Voice Assignment Cards - Compact */}
+          <div className="grid gap-3">
             {characters.map((character) => {
               const assignment = voiceAssignments.find(va => va.characterId === character.name)
               if (!assignment) return null
@@ -221,68 +253,71 @@ export default function SessionSetupPage() {
               const preset = voices.find(v => v.id === assignment.voicePresetId)
 
               return (
-                <Card key={character.name}>
-                  <CardHeader
-                    className="cursor-pointer hover:bg-accent/50 transition-colors"
-                    onClick={() => setExpandedCharacter(isExpanded ? null : character.name)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <CardTitle>{character.name}</CardTitle>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          Voice: {preset?.name || 'Unknown'}
-                        </p>
+                <Card
+                  key={character.name}
+                  className={isExpanded ? 'border-amber-500/50' : ''}
+                >
+                  <CardContent className="p-4">
+                    <div
+                      className="flex items-center justify-between cursor-pointer"
+                      onClick={() => setExpandedCharacter(isExpanded ? null : character.name)}
+                    >
+                      <div className="flex items-center gap-3 flex-1">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center text-xl">
+                          🎭
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-bold">{character.name}</div>
+                          <div className="text-xs text-muted-foreground truncate">
+                            {preset?.name || 'Unknown Voice'}
+                          </div>
+                        </div>
                       </div>
-                      <span className="text-sm text-muted-foreground">
-                        {isExpanded ? '▼' : '▶'}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-5 h-5 text-green-500" />
+                        <span className="text-sm text-muted-foreground">
+                          {isExpanded ? '▼' : '▶'}
+                        </span>
+                      </div>
                     </div>
-                  </CardHeader>
 
-                  {isExpanded && (
-                    <CardContent className="space-y-6 pt-4">
-                      {/* Preset Selector */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Voice Preset</label>
-                        <VoicePresetSelector
-                          presets={voices}
-                          selectedPreset={assignment.voicePresetId}
-                          onSelect={(presetId) => handlePresetChange(character.name, presetId)}
+                    {isExpanded && (
+                      <div className="mt-4 pt-4 border-t space-y-4">
+                        <div>
+                          <div className="text-sm font-medium mb-2">Voice Preset</div>
+                          <VoicePresetSelector
+                            presets={voices}
+                            selectedPreset={assignment.voicePresetId}
+                            onSelect={(presetId) => handlePresetChange(character.name, presetId)}
+                          />
+                        </div>
+
+                        <VoiceSliders
+                          gender={assignment.gender}
+                          emotion={assignment.emotion}
+                          age={assignment.age}
+                          onChange={(param, value) => handleVoiceChange(character.name, param, value)}
+                          onReset={() => handleResetToPreset(character.name)}
                         />
                       </div>
-
-                      {/* Voice Sliders */}
-                      <VoiceSliders
-                        gender={assignment.gender}
-                        emotion={assignment.emotion}
-                        age={assignment.age}
-                        onChange={(param, value) => handleVoiceChange(character.name, param, value)}
-                        onReset={() => handleResetToPreset(character.name)}
-                      />
-
-                      {/* Preview button (Sprint 4) */}
-                      <Button variant="outline" className="w-full" disabled>
-                        <Sparkles className="w-4 h-4 mr-2" />
-                        Preview Voice (Coming Soon)
-                      </Button>
-                    </CardContent>
-                  )}
+                    )}
+                  </CardContent>
                 </Card>
               )
             })}
           </div>
 
-          {/* Start Rehearsal Button */}
-          <div className="flex justify-center pt-6">
-            <Button
-              size="lg"
-              onClick={handleStartRehearsal}
-              disabled={assignedCount < totalCharacters}
-              className="min-w-[200px]"
-            >
-              Start Rehearsal
-            </Button>
-          </div>
+          {/* Launch Button */}
+          <Button
+            size="lg"
+            onClick={handleStartRehearsal}
+            disabled={!isReady}
+            className="w-full h-20 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold text-xl shadow-lg shadow-green-500/30 disabled:opacity-50"
+          >
+            <Play className="w-6 h-6 mr-3" />
+            {isReady ? 'LAUNCH REHEARSAL' : `Assign ${totalCharacters - assignedCount} more voices`}
+            <Play className="w-6 h-6 ml-3" />
+          </Button>
         </div>
       )}
     </div>
