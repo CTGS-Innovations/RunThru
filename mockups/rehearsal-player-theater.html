@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rehearsal Player - Theater Mode 🎭</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: #000;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    .video-container {
+      height: 100vh;
+      position: relative;
+      background: linear-gradient(135deg, #1a0a2e 0%, #0a0a0a 50%, #1a0a2e 100%);
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    @keyframes spotlightSweep {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.6; }
+    }
+    .slide-up { animation: slideUp 0.5s ease-out; }
+    .pulse-ring { animation: pulse 2s ease-in-out infinite; }
+    .spotlight { animation: spotlightSweep 3s ease-in-out infinite; }
+    .line-glow {
+      text-shadow: 0 0 20px currentColor;
+    }
+    .stage-diagram {
+      background: linear-gradient(180deg, rgba(255,215,0,0.1) 0%, transparent 100%);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- FULL SCREEN VERTICAL REHEARSAL MODE -->
+  <div class="video-container flex flex-col">
+
+    <!-- Top bar - Scene Context -->
+    <div class="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/90 to-transparent z-20">
+      <div class="flex items-center justify-between mb-3">
+        <button class="text-white text-2xl">✕</button>
+        <div class="text-right">
+          <div class="text-yellow-400 font-bold">Line 23/87</div>
+        </div>
+      </div>
+
+      <!-- SCENE HEADER - Theater context -->
+      <div class="bg-black/60 backdrop-blur rounded-2xl p-4 border border-yellow-500/30">
+        <div class="flex items-start gap-3">
+          <div class="text-4xl">🏚️</div>
+          <div class="flex-1">
+            <div class="text-lg font-bold text-yellow-400 mb-1">SCENE 3: THE BASEMENT</div>
+            <div class="text-sm text-gray-300 mb-2">The group discovers a zombie in the basement</div>
+            <div class="flex items-center gap-2 text-xs">
+              <div class="px-2 py-1 bg-purple-500/20 border border-purple-500/50 rounded-full">
+                🎯 Objective: Warn them about danger
+              </div>
+              <div class="px-2 py-1 bg-cyan-500/20 border border-cyan-500/50 rounded-full">
+                🎭 Tone: Dramatic & Urgent
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WHO'S ON STAGE WITH YOU -->
+      <div class="mt-3 flex items-center gap-2 flex-wrap">
+        <div class="text-xs text-gray-400">On stage:</div>
+        <div class="flex items-center gap-2 px-3 py-1 bg-yellow-500/20 border border-yellow-500/50 rounded-full text-sm">
+          <span class="text-lg">🎤</span>
+          <span class="font-bold">YOU (Narrator 1)</span>
+        </div>
+        <div class="flex items-center gap-2 px-3 py-1 bg-white/10 border border-white/30 rounded-full text-sm">
+          <span class="text-lg">🧟</span>
+          <span>Zombie</span>
+        </div>
+        <div class="flex items-center gap-2 px-3 py-1 bg-white/10 border border-white/30 rounded-full text-sm">
+          <span class="text-lg">👧</span>
+          <span>Girl</span>
+        </div>
+        <div class="flex items-center gap-2 px-3 py-1 bg-white/10 border border-white/30 rounded-full text-sm">
+          <span class="text-lg">👦</span>
+          <span>Boy</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEFT SIDE - Mini Stage Diagram -->
+    <div class="absolute left-4 top-1/2 transform -translate-y-1/2 z-10">
+      <div class="bg-black/70 backdrop-blur rounded-2xl p-4 border border-yellow-500/30 w-32">
+        <div class="text-xs text-gray-400 mb-2 text-center font-bold">STAGE</div>
+        <!-- Simple stage top-down view -->
+        <div class="stage-diagram rounded-lg border-2 border-yellow-500/50 p-2 relative h-40">
+          <div class="absolute top-2 left-1/2 transform -translate-x-1/2 text-xs text-yellow-400">
+            AUDIENCE
+          </div>
+
+          <!-- Stage positions -->
+          <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2">
+            <div class="w-8 h-8 rounded-full bg-yellow-500 border-2 border-white flex items-center justify-center text-xs pulse-ring">
+              🎤
+            </div>
+            <div class="text-xs text-center text-yellow-400 font-bold mt-1">YOU</div>
+          </div>
+
+          <div class="absolute top-12 left-4">
+            <div class="w-6 h-6 rounded-full bg-green-500/50 border border-green-500 flex items-center justify-center text-xs">
+              🧟
+            </div>
+          </div>
+
+          <div class="absolute top-12 right-4">
+            <div class="w-6 h-6 rounded-full bg-pink-500/50 border border-pink-500 flex items-center justify-center text-xs">
+              👧
+            </div>
+          </div>
+
+          <div class="absolute bottom-12 right-6">
+            <div class="w-6 h-6 rounded-full bg-blue-500/50 border border-blue-500 flex items-center justify-center text-xs">
+              👦
+            </div>
+          </div>
+        </div>
+        <div class="text-xs text-center text-gray-400 mt-2">
+          📍 Center Stage<br/>Facing Audience
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTER CONTENT - The lines -->
+    <div class="flex-1 flex flex-col items-center justify-center px-6 lg:px-32 relative">
+
+      <!-- Previous line - context -->
+      <div class="mb-8 opacity-40 text-center slide-up max-w-2xl">
+        <div class="flex items-center justify-center gap-2 mb-2">
+          <div class="w-8 h-8 rounded-full bg-green-500/30 flex items-center justify-center">
+            🧟
+          </div>
+          <div class="text-cyan-400 text-sm font-bold">ZOMBIE</div>
+          <div class="text-xs text-gray-500">(Stage Left)</div>
+        </div>
+        <div class="text-xl text-gray-400 italic">
+          "Braaains... Must have braaains..."
+        </div>
+      </div>
+
+      <!-- CURRENT LINE - MASSIVE, CENTER STAGE -->
+      <div class="slide-up mb-8 text-center max-w-3xl">
+        <!-- Your cue indicator -->
+        <div class="mb-6 flex items-center justify-center gap-4">
+          <div class="inline-flex items-center gap-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-8 py-4 rounded-full text-2xl font-black pulse-ring shadow-2xl shadow-yellow-500/50">
+            <span class="text-4xl">🎤</span>
+            YOUR CUE
+          </div>
+          <div class="px-4 py-2 bg-purple-500/20 border border-purple-500 rounded-full text-sm font-bold">
+            🎭 TO AUDIENCE
+          </div>
+        </div>
+
+        <!-- The actual line - HUGE & dramatic -->
+        <div class="text-4xl md:text-6xl font-black leading-tight mb-6 line-glow text-yellow-400">
+          "Rule number one: Never, and I mean NEVER, go into the basement alone!"
+        </div>
+
+        <!-- Stage direction - prominent -->
+        <div class="flex items-center justify-center gap-3 text-xl text-gray-300 italic mb-6">
+          <span class="text-2xl">🎭</span>
+          <span>(dramatically, warning gesture)</span>
+        </div>
+
+        <!-- Beat/Motivation -->
+        <div class="inline-flex items-center gap-2 px-4 py-2 bg-orange-500/20 border border-orange-500/50 rounded-full text-sm">
+          <span>💡</span>
+          <span>Beat: You're trying to save their lives</span>
+        </div>
+      </div>
+
+      <!-- Next line preview -->
+      <div class="opacity-30 text-center text-gray-500 text-sm slide-up max-w-2xl">
+        <div class="flex items-center justify-center gap-2 mb-1">
+          <div class="w-6 h-6 rounded-full bg-pink-500/30 flex items-center justify-center text-xs">
+            👧
+          </div>
+          <div class="font-bold">GIRL</div>
+        </div>
+        <div>"But what if that's where all the supplies are?"</div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT SIDE STATS - Theater metrics -->
+    <div class="absolute right-4 bottom-40 flex flex-col gap-6 z-20">
+      <!-- Energy/Performance -->
+      <button class="flex flex-col items-center gap-1 group">
+        <div class="w-14 h-14 rounded-full bg-gradient-to-br from-orange-500/30 to-red-500/30 backdrop-blur border-2 border-orange-500 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform spotlight">
+          🔥
+        </div>
+        <span class="text-xs font-bold">Energy</span>
+        <span class="text-xs text-yellow-400">87%</span>
+      </button>
+
+      <!-- Timing -->
+      <button class="flex flex-col items-center gap-1 group">
+        <div class="w-14 h-14 rounded-full bg-gradient-to-br from-cyan-500/30 to-blue-500/30 backdrop-blur border-2 border-cyan-500 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">
+          ⏱️
+        </div>
+        <span class="text-xs font-bold">Pace</span>
+        <span class="text-xs text-cyan-400">Good</span>
+      </button>
+
+      <!-- Emotion -->
+      <button class="flex flex-col items-center gap-1 group">
+        <div class="w-14 h-14 rounded-full bg-gradient-to-br from-purple-500/30 to-pink-500/30 backdrop-blur border-2 border-purple-500 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">
+          🎭
+        </div>
+        <span class="text-xs font-bold">Emotion</span>
+        <span class="text-xs text-purple-400">Urgent</span>
+      </button>
+
+      <!-- Scene Progress -->
+      <button class="flex flex-col items-center gap-1 group">
+        <div class="w-14 h-14 rounded-full bg-gradient-to-br from-green-500/30 to-lime-500/30 backdrop-blur border-2 border-green-500 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+          3/12
+        </div>
+        <span class="text-xs font-bold">Scene</span>
+      </button>
+    </div>
+
+    <!-- BOTTOM CONTROLS -->
+    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/95 to-transparent p-6 z-10">
+
+      <!-- Progress through scene -->
+      <div class="mb-4">
+        <div class="flex items-center justify-between text-xs text-gray-400 mb-2">
+          <span>Scene 3 Progress</span>
+          <span>5 of 18 lines</span>
+        </div>
+        <div class="h-1 bg-white/20 rounded-full overflow-hidden">
+          <div class="h-full bg-gradient-to-r from-yellow-400 to-orange-500 w-1/4 rounded-full transition-all duration-300"></div>
+        </div>
+      </div>
+
+      <!-- Main controls -->
+      <div class="flex items-center justify-center gap-4 mb-4">
+
+        <!-- Previous -->
+        <button class="w-12 h-12 rounded-full bg-white/10 backdrop-blur flex items-center justify-center hover:bg-white/20 transition-all border border-white/30">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+          </svg>
+        </button>
+
+        <!-- Play/Pause -->
+        <button class="w-20 h-20 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 flex items-center justify-center shadow-2xl shadow-yellow-500/50 hover:scale-110 transition-transform">
+          <svg class="w-10 h-10 text-black" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z"/>
+          </svg>
+        </button>
+
+        <!-- Next -->
+        <button class="w-12 h-12 rounded-full bg-white/10 backdrop-blur flex items-center justify-center hover:bg-white/20 transition-all border border-white/30">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+          </svg>
+        </button>
+
+      </div>
+
+      <!-- Theater-specific quick actions -->
+      <div class="flex items-center justify-center gap-2 text-sm flex-wrap">
+        <button class="px-4 py-2 rounded-full bg-white/10 backdrop-blur hover:bg-white/20 transition-all border border-white/30">
+          🔁 Repeat Line
+        </button>
+        <button class="px-4 py-2 rounded-full bg-white/10 backdrop-blur hover:bg-white/20 transition-all border border-white/30">
+          🎯 Practice Blocking
+        </button>
+        <button class="px-4 py-2 rounded-full bg-white/10 backdrop-blur hover:bg-white/20 transition-all border border-white/30">
+          🎭 Scene from Top
+        </button>
+        <button class="px-4 py-2 rounded-full bg-white/10 backdrop-blur hover:bg-white/20 transition-all border border-white/30">
+          ⚡ My Lines Only
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Version badge -->
+  <div class="fixed top-20 left-4 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full px-3 py-1 text-xs font-bold text-black shadow-lg z-30">
+    🎭 Theater Mode
+  </div>
+
+</body>
+</html>

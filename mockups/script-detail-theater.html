@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Script Detail - Theater Edition 🎭</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            background: "hsl(240 10% 3.9%)",
+            foreground: "hsl(0 0% 98%)",
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a0a2e 50%, #0a0a0a 100%);
+      color: #fff;
+      overflow-x: hidden;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.05); opacity: 0.8; }
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes curtainRise {
+      from { transform: scaleY(1); }
+      to { transform: scaleY(0); }
+    }
+    .float { animation: float 3s ease-in-out infinite; }
+    .pulse { animation: pulse 2s ease-in-out infinite; }
+    .slide-in { animation: slideIn 0.5s ease-out forwards; }
+    .card-hover {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .card-hover:hover {
+      transform: scale(1.05) rotate(-1deg);
+      box-shadow: 0 20px 40px rgba(255, 215, 0, 0.3);
+    }
+  </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
+  <div class="max-w-6xl mx-auto">
+
+    <!-- Back button -->
+    <button class="mb-4 text-gray-400 hover:text-white transition-colors text-sm">← Back to Scripts</button>
+
+    <!-- PRODUCTION HEADER - Theater marquee style -->
+    <div class="bg-gradient-to-r from-yellow-500/10 via-orange-500/10 to-red-500/10 border-2 border-yellow-500/50 rounded-2xl p-8 mb-8 relative overflow-hidden slide-in">
+      <!-- Spotlight effect -->
+      <div class="absolute top-0 left-1/4 w-32 h-32 bg-yellow-500/20 rounded-full blur-3xl"></div>
+      <div class="absolute bottom-0 right-1/4 w-32 h-32 bg-orange-500/20 rounded-full blur-3xl"></div>
+
+      <div class="relative z-10">
+        <!-- Production info -->
+        <div class="text-center mb-6">
+          <div class="text-sm text-gray-400 mb-2 uppercase tracking-wider">A Teen Theater Collaborative Production</div>
+
+          <!-- MASSIVE TITLE -->
+          <div class="text-5xl md:text-7xl font-black leading-none mb-4">
+            <span class="bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 bg-clip-text text-transparent">
+              10 WAYS TO SURVIVE
+            </span>
+          </div>
+          <div class="text-4xl md:text-6xl font-black leading-none mb-6">
+            <span class="bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 bg-clip-text text-transparent">
+              THE ZOMBIE APOCALYPSE
+            </span>
+          </div>
+
+          <div class="text-lg text-gray-300 mb-6">A comedy in 12 scenes</div>
+
+          <!-- Production stats - theater style -->
+          <div class="flex items-center justify-center gap-8 text-lg flex-wrap">
+            <div class="flex items-center gap-2">
+              <span class="text-3xl">🎭</span>
+              <div class="text-left">
+                <div class="text-2xl font-bold text-yellow-400">11</div>
+                <div class="text-xs text-gray-400">Roles</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-3xl">🎬</span>
+              <div class="text-left">
+                <div class="text-2xl font-bold text-purple-400">12</div>
+                <div class="text-xs text-gray-400">Scenes</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-3xl">💬</span>
+              <div class="text-left">
+                <div class="text-2xl font-bold text-pink-400">428</div>
+                <div class="text-xs text-gray-400">Lines</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-3xl">⏱️</span>
+              <div class="text-left">
+                <div class="text-2xl font-bold text-cyan-400">~45</div>
+                <div class="text-xs text-gray-400">Minutes</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Genre/Style tags -->
+          <div class="flex items-center justify-center gap-2 mt-6 flex-wrap">
+            <span class="px-3 py-1 bg-purple-500/20 border border-purple-500 rounded-full text-sm">🎭 Comedy</span>
+            <span class="px-3 py-1 bg-green-500/20 border border-green-500 rounded-full text-sm">🧟 Horror Parody</span>
+            <span class="px-3 py-1 bg-blue-500/20 border border-blue-500 rounded-full text-sm">👥 Ensemble Cast</span>
+            <span class="px-3 py-1 bg-orange-500/20 border border-orange-500 rounded-full text-sm">🎪 Physical Comedy</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CAST YOUR ROLE -->
+    <div class="text-center mb-12 slide-in" style="animation-delay: 0.2s;">
+      <div class="text-5xl mb-4 float">🎭</div>
+      <h2 class="text-4xl md:text-5xl font-black mb-2">CHOOSE YOUR ROLE</h2>
+      <p class="text-xl text-gray-400">Every character is essential to the story</p>
+    </div>
+
+    <!-- CHARACTER CARDS - With theater context -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+
+      <!-- Lead Role 1 -->
+      <div class="card-hover cursor-pointer relative group">
+        <div class="rounded-3xl bg-gradient-to-br from-yellow-500/20 to-orange-500/20 border-4 border-yellow-500/50 p-6 h-full">
+          <!-- Role badge -->
+          <div class="absolute -top-3 -right-3 bg-gradient-to-r from-pink-500 to-red-500 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg pulse z-10">
+            🌟 LEAD
+          </div>
+
+          <!-- Character emoji -->
+          <div class="text-6xl mb-4 text-center group-hover:scale-125 transition-transform">
+            🎤
+          </div>
+
+          <!-- Character name -->
+          <div class="text-3xl font-black text-center mb-3">NARRATOR 1</div>
+
+          <!-- Theater stats -->
+          <div class="space-y-2 mb-4">
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-gray-400">Lines:</span>
+              <span class="text-yellow-400 font-bold">87 lines</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-gray-400">Scenes:</span>
+              <span class="text-yellow-400 font-bold">12 of 12</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-gray-400">First Scene:</span>
+              <span class="text-yellow-400 font-bold">Opening</span>
+            </div>
+          </div>
+
+          <!-- Character description -->
+          <div class="bg-black/30 rounded-lg p-3 mb-3">
+            <div class="text-xs text-gray-300">
+              <strong>Character:</strong> Quick-witted storyteller, breaks the fourth wall, guides the audience through chaos
+            </div>
+          </div>
+
+          <!-- Skills needed -->
+          <div class="flex flex-wrap gap-1">
+            <span class="px-2 py-1 bg-orange-500/20 border border-orange-500/50 rounded-full text-xs">Comedy Timing</span>
+            <span class="px-2 py-1 bg-purple-500/20 border border-purple-500/50 rounded-full text-xs">Direct Address</span>
+            <span class="px-2 py-1 bg-cyan-500/20 border border-cyan-500/50 rounded-full text-xs">Storytelling</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lead Role 2 -->
+      <div class="card-hover cursor-pointer relative group">
+        <div class="rounded-3xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border-4 border-cyan-500/50 p-6 h-full">
+          <div class="absolute -top-3 -right-3 bg-gradient-to-r from-pink-500 to-red-500 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg pulse z-10">
+            🌟 LEAD
+          </div>
+
+          <div class="text-6xl mb-4 text-center group-hover:scale-125 transition-transform">
+            🎬
+          </div>
+
+          <div class="text-3xl font-black text-center mb-3">NARRATOR 2</div>
+
+          <div class="space-y-2 mb-4">
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-gray-400">Lines:</span>
+              <span class="text-cyan-400 font-bold">87 lines</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-gray-400">Scenes:</span>
+              <span class="text-cyan-400 font-bold">12 of 12</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-gray-400">First Scene:</span>
+              <span class="text-cyan-400 font-bold">Opening</span>
+            </div>
+          </div>
+
+          <div class="bg-black/30 rounded-lg p-3 mb-3">
+            <div class="text-xs text-gray-300">
+              <strong>Character:</strong> Sarcastic counterpart, comic foil, plays off Narrator 1's energy
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-1">
+            <span class="px-2 py-1 bg-orange-500/20 border border-orange-500/50 rounded-full text-xs">Sarcasm</span>
+            <span class="px-2 py-1 bg-purple-500/20 border border-purple-500/50 rounded-full text-xs">Reactions</span>
+            <span class="px-2 py-1 bg-cyan-500/20 border border-cyan-500/50 rounded-full text-xs">Ensemble</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Featured Role -->
+      <div class="card-hover cursor-pointer relative group">
+        <div class="rounded-3xl bg-gradient-to-br from-green-500/20 to-lime-500/20 border-4 border-green-500/50 p-6 h-full">
+          <div class="absolute -top-3 -right-3 bg-gradient-to-r from-green-500 to-lime-500 text-black px-3 py-1 rounded-full text-sm font-bold shadow-lg z-10">
+            👑 ICONIC
+          </div>
+
+          <div class="text-6xl mb-4 text-center group-hover:scale-125 transition-transform">
+            🧟
+          </div>
+
+          <div class="text-3xl font-black text-center mb-3">ZOMBIE</div>
+
+          <div class="space-y-2 mb-4">
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-gray-400">Lines:</span>
+              <span class="text-green-400 font-bold">42 lines</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-gray-400">Scenes:</span>
+              <span class="text-green-400 font-bold">8 of 12</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-gray-400">First Scene:</span>
+              <span class="text-green-400 font-bold">Scene 2</span>
+            </div>
+          </div>
+
+          <div class="bg-black/30 rounded-lg p-3 mb-3">
+            <div class="text-xs text-gray-300">
+              <strong>Character:</strong> Not your typical mindless zombie - has personality, comedic timing, and surprising depth
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-1">
+            <span class="px-2 py-1 bg-orange-500/20 border border-orange-500/50 rounded-full text-xs">Physical Comedy</span>
+            <span class="px-2 py-1 bg-purple-500/20 border border-purple-500/50 rounded-full text-xs">Vocal Work</span>
+            <span class="px-2 py-1 bg-green-500/20 border border-green-500/50 rounded-full text-xs">Monster Acting</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Supporting Role -->
+      <div class="card-hover cursor-pointer relative group">
+        <div class="rounded-3xl bg-gradient-to-br from-pink-500/20 to-purple-500/20 border-4 border-pink-500/50 p-6 h-full">
+          <div class="text-6xl mb-4 text-center group-hover:scale-125 transition-transform">
+            👧
+          </div>
+
+          <div class="text-3xl font-black text-center mb-3">GIRL</div>
+
+          <div class="space-y-2 mb-4">
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-gray-400">Lines:</span>
+              <span class="text-pink-400 font-bold">38 lines</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-gray-400">Scenes:</span>
+              <span class="text-pink-400 font-bold">7 of 12</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-gray-400">First Scene:</span>
+              <span class="text-pink-400 font-bold">Scene 1</span>
+            </div>
+          </div>
+
+          <div class="bg-black/30 rounded-lg p-3 mb-3">
+            <div class="text-xs text-gray-300">
+              <strong>Character:</strong> Brave and resourceful, questions the rules, emotional anchor of the group
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-1">
+            <span class="px-2 py-1 bg-orange-500/20 border border-orange-500/50 rounded-full text-xs">Emotional Range</span>
+            <span class="px-2 py-1 bg-purple-500/20 border border-purple-500/50 rounded-full text-xs">Character Arc</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add more characters with similar structure... -->
+      <div class="card-hover cursor-pointer relative group">
+        <div class="rounded-3xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border-4 border-blue-500/50 p-6 h-full">
+          <div class="text-6xl mb-4 text-center group-hover:scale-125 transition-transform">
+            👦
+          </div>
+          <div class="text-3xl font-black text-center mb-3">BOY</div>
+          <div class="space-y-2 mb-4">
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-gray-400">Lines:</span>
+              <span class="text-blue-400 font-bold">35 lines</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-gray-400">Scenes:</span>
+              <span class="text-blue-400 font-bold">7 of 12</span>
+            </div>
+          </div>
+          <div class="bg-black/30 rounded-lg p-3 mb-3">
+            <div class="text-xs text-gray-300">
+              <strong>Character:</strong> Skeptical and nervous, comic relief through fear reactions
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-hover cursor-pointer relative group">
+        <div class="rounded-3xl bg-gradient-to-br from-red-500/20 to-orange-500/20 border-4 border-red-500/50 p-6 h-full">
+          <div class="text-6xl mb-4 text-center group-hover:scale-125 transition-transform">
+            🔫
+          </div>
+          <div class="text-3xl font-black text-center mb-3">GUARD</div>
+          <div class="space-y-2 mb-4">
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-gray-400">Lines:</span>
+              <span class="text-red-400 font-bold">28 lines</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-gray-400">Scenes:</span>
+              <span class="text-red-400 font-bold">5 of 12</span>
+            </div>
+          </div>
+          <div class="bg-black/30 rounded-lg p-3 mb-3">
+            <div class="text-xs text-gray-300">
+              <strong>Character:</strong> Over-confident authority figure, comedic incompetence
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- MASSIVE CTA -->
+    <div class="text-center">
+      <button class="w-full md:w-auto px-16 py-8 text-4xl md:text-5xl font-black rounded-3xl bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 text-black shadow-2xl hover:shadow-yellow-500/50 hover:scale-105 transition-all duration-300 relative overflow-hidden group">
+        <span class="relative z-10 flex items-center justify-center gap-4">
+          <span class="text-5xl">🎭</span>
+          START REHEARSAL
+          <span class="text-5xl">🎭</span>
+        </span>
+        <div class="absolute inset-0 bg-gradient-to-r from-red-500 via-orange-500 to-yellow-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+      </button>
+      <p class="mt-4 text-gray-400 text-lg">Choose your role and begin your theatrical journey</p>
+    </div>
+
+  </div>
+
+  <!-- Version badge -->
+  <div class="fixed bottom-4 right-4 bg-gradient-to-r from-yellow-500 to-orange-500 text-black rounded-full px-4 py-2 text-sm font-bold shadow-lg">
+    🎭 Theater Edition
+  </div>
+
+</body>
+</html>
