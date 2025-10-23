@@ -1,8 +1,8 @@
 # RunThru - Task Tracking & Progress
 
-**Last Updated**: 2025-10-23 16:40
-**Current Phase**: MVP Phase 1 - Sprint 1 Complete, Ready for Sprint 2 🚀
-**Overall Progress**: 100% infrastructure ✅, 100% scaffolding ✅, 100% integration ✅
+**Last Updated**: 2025-10-23 16:50
+**Current Phase**: MVP Phase 1 - Sprint 2 In Progress 🔄
+**Overall Progress**: Sprint 1: 100% ✅ | Sprint 2: 15% 🔄 (Schema design complete)
 
 ---
 
@@ -144,12 +144,31 @@
 
 ---
 
-## 📅 Sprint 2: Script Upload Feature (Next - Week 1)
+## 📅 Sprint 2: Script Upload Feature (Current - Week 1)
 
-**Status**: 📋 Ready to Start
+**Status**: 🟢 Active - 15% Complete
 **Depends on**: Infrastructure Setup ✅ Complete
 **Target**: 2025-10-30
+**Started**: 2025-10-23 16:45
 **Focus**: Upload markdown scripts, parse to JSON, store in SQLite
+
+### 🎯 Pre-Work (Design & Planning)
+
+- [x] **Design universal script JSON schema**
+  - [x] Analyzed real script (10 Ways to Survive Zombie Apocalypse)
+  - [x] Identified universal elements (title, dialogue, stage directions, scenes)
+  - [x] Identified edge cases (character variants, offstage, multi-paragraph)
+  - [x] Documented schema in `.claude/docs/script-schema.md`
+- [x] **Finalize key decisions with @corey**
+  - [x] Decision 1: Character variants (JIMMY/JAMIE) = same character
+  - [x] Decision 2: Keep all front matter (acknowledgments, etc.)
+  - [x] Decision 3: Display production notes on screen
+  - [x] Decision 4: Multi-paragraph dialogue = one turn
+  - [x] Decision 5: Stage directions = visual only (not spoken)
+  - [x] Decision 6: Batch audio generation (not real-time)
+  - [x] Decision 7: Simple voice sliders (gender/emotion/age)
+  - [x] Decision 8: NARRATOR is a character (not system)
+  - [x] Decision 9: Auto-assign voices for 30-50 character scripts
 
 ### 🎨 Frontend Track - Script Upload UI
 
@@ -175,12 +194,19 @@
 
 ### ⚙️ Backend Track - Script Parser & API
 
-- [ ] Create ScriptParserService
+- [ ] 🔄 **IN PROGRESS**: Create ScriptParserService
   - [ ] Parse markdown → JSON (character names, scenes, lines)
-  - [ ] Extract stage directions: (angrily), (softly), etc.
-  - [ ] Handle multiple formats: "CHARACTER" and "**CHARACTER:**"
-  - [ ] Edge cases: numbers in names (GUARD 1), mixed case
-  - [ ] Return: `{ title, characters[], scenes[] }`
+  - [ ] Extract metadata (title, subtitle, author)
+  - [ ] Separate front matter from script content
+  - [ ] Parse scenes (markdown headings)
+  - [ ] Parse dialogue (**CHARACTER:** patterns)
+  - [ ] Parse stage directions (*(text)* patterns)
+  - [ ] Handle multi-paragraph dialogue continuation
+  - [ ] Extract inline directions: (angrily), (to audience), (offstage)
+  - [ ] Extract character metadata (names, line counts, first appearance)
+  - [ ] Generate IDs for all elements (scene-1, line-1, direction-1)
+  - [ ] Edge cases: numbers in names (GUARD 1), character variants
+  - [ ] Return schema: `{ title, author, frontMatter[], content[], characters[], scenes[] }`
 
 - [ ] Create POST /api/scripts endpoint
   - [ ] Validate markdown input (Zod schema)
