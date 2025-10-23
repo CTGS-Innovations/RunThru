@@ -25,11 +25,40 @@
 
 ### 🔄 Current Tasks
 
+#### 🧪 Infrastructure Validation (CRITICAL - Do First!)
+**Status**: 🔴 **BLOCKING** - Must complete before scaffolding
+**Owner**: @corey
+
+- [ ] **🚨 BLOCKING**: Run infrastructure validation
+  - [ ] Run `./validate-infrastructure.sh`
+  - [ ] Verify: Git worktrees, GPU, Node.js, Python, Docker
+  - [ ] Fix any issues found
+- [ ] **🚨 BLOCKING**: Download TTS models (~6GB, 5-10 min)
+  - [ ] Run `./download-tts-models.sh`
+  - [ ] Verify: Index TTS models in data/models/index-tts/
+  - [ ] Verify: Disk space sufficient
+- [ ] **🚨 BLOCKING**: Validate TTS inference
+  - [ ] Run `./validate-tts.py`
+  - [ ] Verify: GPU accessible, models load
+  - [ ] Verify: Audio generation works (< 5s per line)
+  - [ ] Listen to: data/test-index-tts.wav (sounds natural?)
+  - [ ] Check VRAM: < 10GB usage acceptable
+- [ ] **✅ DECISION**: Infrastructure validation passed
+  - [ ] Update this checklist with results
+  - [ ] Document any issues in "Blockers" section
+  - [ ] Approve to proceed with scaffolding
+
+**Why blocking?** If GPU or TTS models don't work, we need to know NOW before building features that depend on them. This prevents wasting time on code that can't run.
+
+**See**: `VALIDATION.md` for detailed instructions
+
+---
+
 #### 🎨 Frontend Track (RunThru-frontend)
-**Status**: 🟡 Ready to start
+**Status**: ⏸️ **BLOCKED** - Waiting for infrastructure validation
 **Branch**: feature/frontend
 
-- [ ] **NEXT**: Scaffold Next.js 15 project structure
+- [ ] **NEXT** (after validation): Scaffold Next.js 15 project structure
   - [ ] Initialize with create-next-app
   - [ ] Configure shadcn/ui
   - [ ] Set up Tailwind with custom theme (dark mode, teen-friendly colors)
