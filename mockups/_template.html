@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RunThru - New Mockup</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            border: "hsl(240 3.7% 15.9%)",
+            background: "hsl(240 10% 3.9%)",
+            foreground: "hsl(0 0% 98%)",
+            muted: {
+              DEFAULT: "hsl(240 3.7% 15.9%)",
+              foreground: "hsl(240 5% 64.9%)",
+            },
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    body { background-color: hsl(240 10% 3.9%); color: hsl(0 0% 98%); }
+  </style>
+</head>
+<body class="p-8">
+  <div class="container mx-auto max-w-5xl">
+
+    <!-- START YOUR MOCKUP HERE -->
+
+    <h1 class="text-4xl font-bold mb-4">Page Title</h1>
+    <p class="text-muted-foreground">Start building your mockup here!</p>
+
+    <!-- Common Components You Might Need: -->
+
+    <!-- Button (Primary) -->
+    <button class="px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black font-bold rounded-lg shadow-lg shadow-amber-500/30 transition-all">
+      Primary Action
+    </button>
+
+    <!-- Button (Secondary) -->
+    <button class="px-6 py-3 border border-border hover:border-amber-500/50 rounded-lg transition-colors">
+      Secondary Action
+    </button>
+
+    <!-- Card -->
+    <div class="border border-border rounded-lg p-6 bg-card">
+      <h3 class="font-bold mb-2">Card Title</h3>
+      <p class="text-sm text-muted-foreground">Card content goes here</p>
+    </div>
+
+    <!-- Quest/Highlight Card -->
+    <div class="border-2 border-amber-500/30 bg-gradient-to-br from-amber-500/5 to-transparent rounded-lg p-6">
+      <h3 class="font-bold mb-2">Special Card</h3>
+      <p class="text-sm text-muted-foreground">For important content</p>
+    </div>
+
+    <!-- Badge -->
+    <div class="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/20 border border-amber-500/50 rounded-full text-sm">
+      <div class="w-2 h-2 rounded-full bg-amber-500"></div>
+      Status Badge
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="w-full h-2 bg-muted rounded-full overflow-hidden">
+      <div class="h-full bg-gradient-to-r from-amber-500 to-amber-600 w-2/3"></div>
+    </div>
+
+    <!-- Icon Buttons (use heroicons or lucide) -->
+    <!-- Play -->
+    <button class="w-12 h-12 rounded-full bg-amber-500 flex items-center justify-center">
+      <svg class="w-6 h-6 text-black" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M8 5v14l11-7z"/>
+      </svg>
+    </button>
+
+    <!-- Sparkles Icon -->
+    <svg class="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+    </svg>
+
+    <!-- Arrow Right -->
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+    </svg>
+
+  </div>
+
+  <div class="fixed bottom-4 right-4 bg-purple-500/20 border border-purple-500/50 rounded-lg px-4 py-2 text-sm">
+    Template
+  </div>
+</body>
+</html>

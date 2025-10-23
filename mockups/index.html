@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RunThru - HTML Mockups</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            border: "hsl(240 3.7% 15.9%)",
+            input: "hsl(240 3.7% 15.9%)",
+            ring: "hsl(240 4.9% 83.9%)",
+            background: "hsl(240 10% 3.9%)",
+            foreground: "hsl(0 0% 98%)",
+            primary: {
+              DEFAULT: "hsl(0 0% 98%)",
+              foreground: "hsl(240 5.9% 10%)",
+            },
+            secondary: {
+              DEFAULT: "hsl(240 3.7% 15.9%)",
+              foreground: "hsl(0 0% 98%)",
+            },
+            muted: {
+              DEFAULT: "hsl(240 3.7% 15.9%)",
+              foreground: "hsl(240 5% 64.9%)",
+            },
+            accent: {
+              DEFAULT: "hsl(240 3.7% 15.9%)",
+              foreground: "hsl(0 0% 98%)",
+            },
+            card: {
+              DEFAULT: "hsl(240 10% 3.9%)",
+              foreground: "hsl(0 0% 98%)",
+            },
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    body {
+      background-color: hsl(240 10% 3.9%);
+      color: hsl(0 0% 98%);
+    }
+  </style>
+</head>
+<body class="p-8">
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-4xl font-bold mb-2 bg-gradient-to-r from-amber-400 to-cyan-400 bg-clip-text text-transparent">
+      RunThru - HTML Mockups
+    </h1>
+    <p class="text-muted-foreground mb-8">
+      Quick iteration playground - no build process, just refresh!
+    </p>
+
+    <div class="space-y-4">
+      <div class="border border-border rounded-lg p-4 hover:border-amber-500/50 transition-colors">
+        <h2 class="text-xl font-bold mb-2">📄 Script Detail Page</h2>
+        <p class="text-sm text-muted-foreground mb-4">
+          Quest card aesthetic, character selection
+        </p>
+        <div class="flex gap-2">
+          <a href="script-detail-v1.html" class="text-sm text-amber-500 hover:underline">v1 - Current Design</a>
+          <a href="script-detail-v2.html" class="text-sm text-cyan-500 hover:underline">v2 - Experiment Here</a>
+        </div>
+      </div>
+
+      <div class="border border-border rounded-lg p-4 hover:border-amber-500/50 transition-colors">
+        <h2 class="text-xl font-bold mb-2">⚙️ Session Setup Page</h2>
+        <p class="text-sm text-muted-foreground mb-4">
+          Character picker, voice assignment, team builder
+        </p>
+        <div class="flex gap-2">
+          <a href="session-setup-v1.html" class="text-sm text-amber-500 hover:underline">v1 - Current Design</a>
+          <a href="session-setup-v2.html" class="text-sm text-cyan-500 hover:underline">v2 - Experiment Here</a>
+        </div>
+      </div>
+
+      <div class="border border-border rounded-lg p-4 hover:border-amber-500/50 transition-colors">
+        <h2 class="text-xl font-bold mb-2">🎭 Rehearsal Player</h2>
+        <p class="text-sm text-muted-foreground mb-4">
+          Sprint 5 - Line-by-line audio playback (coming soon)
+        </p>
+        <div class="flex gap-2">
+          <a href="rehearsal-player-v1.html" class="text-sm text-amber-500 hover:underline">v1 - Initial Concept</a>
+          <a href="rehearsal-player-v2.html" class="text-sm text-cyan-500 hover:underline">v2 - Alternate Layout</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-8 p-4 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+      <h3 class="font-bold mb-2 flex items-center gap-2">
+        <span>💡</span> How to Use
+      </h3>
+      <ul class="text-sm space-y-1 text-muted-foreground">
+        <li>• Edit HTML files directly (no build step!)</li>
+        <li>• Refresh browser to see changes instantly</li>
+        <li>• Copy HTML → React components when design is approved</li>
+        <li>• Use same Tailwind classes as the real app</li>
+        <li>• Version with -v1, -v2, -v3 to compare approaches</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>

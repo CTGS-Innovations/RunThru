@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Script Detail - v1 Current Design</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            border: "hsl(240 3.7% 15.9%)",
+            background: "hsl(240 10% 3.9%)",
+            foreground: "hsl(0 0% 98%)",
+            muted: {
+              DEFAULT: "hsl(240 3.7% 15.9%)",
+              foreground: "hsl(240 5% 64.9%)",
+            },
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    body { background-color: hsl(240 10% 3.9%); color: hsl(0 0% 98%); }
+  </style>
+</head>
+<body class="p-8">
+  <div class="container mx-auto max-w-5xl">
+
+    <!-- Back Button -->
+    <button class="mb-8 flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+      Back to Scripts
+    </button>
+
+    <!-- Quest Card - Gaming Aesthetic -->
+    <div class="border-2 border-amber-500/30 bg-gradient-to-br from-amber-500/5 to-transparent rounded-lg p-6 mb-8">
+      <div class="flex items-center gap-4 mb-6">
+        <div class="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center">
+          <svg class="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+          </svg>
+        </div>
+        <div class="flex-1">
+          <h1 class="text-3xl font-bold">10 Ways to Survive the Zombie Apocalypse</h1>
+          <p class="text-muted-foreground mt-1">by Teen Theater Collaborative</p>
+        </div>
+      </div>
+
+      <!-- Achievement Stats -->
+      <div class="grid grid-cols-3 gap-6">
+        <div class="text-center p-4 rounded-lg bg-gradient-to-br from-cyan-500/10 to-transparent border border-cyan-500/20">
+          <div class="text-3xl font-bold text-cyan-400">11</div>
+          <div class="text-sm font-medium mt-1">Characters</div>
+          <div class="text-xs text-muted-foreground mt-1">Choose your role</div>
+        </div>
+        <div class="text-center p-4 rounded-lg bg-gradient-to-br from-purple-500/10 to-transparent border border-purple-500/20">
+          <div class="text-3xl font-bold text-purple-400">12</div>
+          <div class="text-sm font-medium mt-1">Scenes</div>
+          <div class="text-xs text-muted-foreground mt-1">Act by act</div>
+        </div>
+        <div class="text-center p-4 rounded-lg bg-gradient-to-br from-pink-500/10 to-transparent border border-pink-500/20">
+          <div class="text-3xl font-bold text-pink-400">428</div>
+          <div class="text-sm font-medium mt-1">Lines</div>
+          <div class="text-xs text-muted-foreground mt-1">Master them all</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Character Selection Section -->
+    <div class="mb-8">
+      <div class="flex items-center gap-3 mb-6">
+        <svg class="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+        <div>
+          <h2 class="text-2xl font-bold">Pick Your Character</h2>
+          <p class="text-sm text-muted-foreground">Who will you become? Choose wisely...</p>
+        </div>
+      </div>
+
+      <!-- Character Grid -->
+      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 mb-6">
+        <!-- Character Card 1 -->
+        <div class="border border-border rounded-lg p-4 cursor-pointer hover:scale-105 hover:border-amber-500/50 hover:shadow-lg hover:shadow-amber-500/20 transition-all duration-200 group">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-amber-500/20 to-cyan-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+              🎭
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="font-bold text-lg truncate">NARRATOR 1</div>
+              <div class="text-xs text-muted-foreground">
+                <span class="font-mono text-amber-500">87</span> lines
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Character Card 2 -->
+        <div class="border border-border rounded-lg p-4 cursor-pointer hover:scale-105 hover:border-amber-500/50 hover:shadow-lg hover:shadow-amber-500/20 transition-all duration-200 group">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-amber-500/20 to-cyan-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+              🎭
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="font-bold text-lg truncate">NARRATOR 2</div>
+              <div class="text-xs text-muted-foreground">
+                <span class="font-mono text-amber-500">87</span> lines
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add more character cards as needed -->
+        <div class="border border-border rounded-lg p-4 cursor-pointer hover:scale-105 hover:border-amber-500/50 hover:shadow-lg hover:shadow-amber-500/20 transition-all duration-200 group">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-amber-500/20 to-cyan-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+              🎭
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="font-bold text-lg truncate">ZOMBIE</div>
+              <div class="text-xs text-muted-foreground">
+                <span class="font-mono text-amber-500">42</span> lines
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="border border-border rounded-lg p-4 cursor-pointer hover:scale-105 hover:border-amber-500/50 hover:shadow-lg hover:shadow-amber-500/20 transition-all duration-200 group">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-amber-500/20 to-cyan-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+              🎭
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="font-bold text-lg truncate">GIRL</div>
+              <div class="text-xs text-muted-foreground">
+                <span class="font-mono text-amber-500">38</span> lines
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Big CTA Button -->
+      <button class="w-full h-20 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black font-bold text-xl shadow-lg shadow-amber-500/30 rounded-lg flex items-center justify-center gap-3 transition-all">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+        </svg>
+        START REHEARSAL
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+        </svg>
+      </button>
+    </div>
+
+  </div>
+
+  <div class="fixed bottom-4 right-4 bg-amber-500/20 border border-amber-500/50 rounded-lg px-4 py-2 text-sm">
+    <strong>v1</strong> - Current Design
+  </div>
+</body>
+</html>

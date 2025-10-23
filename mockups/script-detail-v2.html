@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Script Detail - v2 Experiment</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            border: "hsl(240 3.7% 15.9%)",
+            background: "hsl(240 10% 3.9%)",
+            foreground: "hsl(0 0% 98%)",
+            muted: {
+              DEFAULT: "hsl(240 3.7% 15.9%)",
+              foreground: "hsl(240 5% 64.9%)",
+            },
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    body { background-color: hsl(240 10% 3.9%); color: hsl(0 0% 98%); }
+  </style>
+</head>
+<body class="p-8">
+  <div class="container mx-auto max-w-5xl">
+
+    <!-- EXPERIMENT HERE -->
+    <!-- Copy from v1 and modify, or start from scratch! -->
+
+    <div class="text-center py-20">
+      <h1 class="text-4xl font-bold mb-4">✨ Experiment Zone ✨</h1>
+      <p class="text-muted-foreground">
+        Copy HTML from v1 and iterate on the design here.<br>
+        No build process - just save and refresh!
+      </p>
+    </div>
+
+  </div>
+
+  <div class="fixed bottom-4 right-4 bg-cyan-500/20 border border-cyan-500/50 rounded-lg px-4 py-2 text-sm">
+    <strong>v2</strong> - Experiment
+  </div>
+</body>
+</html>
