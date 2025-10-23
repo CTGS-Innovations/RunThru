@@ -52,6 +52,26 @@ Use **throwaway-tests/** for performance validation:
 
 Example: "Should we use Zustand or Context?" → Create `throwaway-tests/001-state-management/` → Run benchmark → Document winner → Delete test
 
+## Task Tracking
+**IMPORTANT**: This project uses `TASKS.md` for progress tracking.
+
+### Your Responsibilities:
+1. **Read TASKS.md** at start of each session to understand current sprint
+2. **Update TASKS.md** as you complete tasks:
+   - Change `[ ]` to `[x]` when done
+   - Update 🔄 **IN PROGRESS** markers
+   - Update progress percentages
+   - Commit changes: `git add TASKS.md && git commit -m "tasks: Complete X"`
+3. **Flag blockers** in "Blockers & Decisions Needed" section
+4. **Notify @corey** when reaching 🔍 **CHECKPOINT** markers
+5. **Update timestamps** ("Last Updated" field)
+
+### TASKS.md is Synced:
+- Lives in main worktree: `RunThru/TASKS.md`
+- Symlinked to: `RunThru-frontend/TASKS.md` and `RunThru-backend/TASKS.md`
+- All three point to the same file
+- Git-tracked, so history is preserved
+
 ## Workflow
 ```
 1. Research Phase
@@ -61,17 +81,23 @@ Example: "Should we use Zustand or Context?" → Create `throwaway-tests/001-sta
 2. Decision Phase
    └─ Review plans with human (critical decisions)
    └─ Run throwaway tests if data needed
+   └─ Update TASKS.md with decisions
 
 3. Implementation Phase
    └─ Main agent reads plan and implements
    └─ Work in appropriate worktree (frontend OR backend)
+   └─ Mark tasks [x] in TASKS.md as you go
 
 4. Integration Phase
+   └─ Mark sprint complete in TASKS.md
+   └─ Update status to 🔍 CHECKPOINT
+   └─ Notify @corey for review
    └─ Merge feature branches to main
    └─ Test full stack in this worktree
 
 5. Pattern Extraction
    └─ Document reusable patterns as Claude Code skills
+   └─ Update TASKS.md with new sprint tasks
 ```
 
 ## Commands to Remember
