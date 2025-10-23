@@ -1,0 +1,289 @@
+Excellent — here’s a **foundational PRD for *RunThru***, formatted in full Markdown and ready to drop directly into your code agent or repo. It includes product goals, architecture, flows, UI states, and extensibility specs so it can evolve into a full build document later.
+
+---
+
+````markdown
+# 🎭 RunThru – Product Requirements Document (PRD)
+**Version:** 1.0  
+**Owner:** Corey Gorman  
+**Last Updated:** 2025-10-23  
+
+---
+
+## 1. Overview
+
+**RunThru** is an interactive rehearsal platform that enables actors and students to practice play or film scripts collaboratively.  
+It supports:
+- Solo practice with AI voices for other roles  
+- Group sessions (2–4 users) with real-time synchronization  
+- Pro rehearsal mode where actors perform from memory  
+- Modular Text-to-Speech (TTS) backend with swappable providers  
+
+RunThru uses Markdown scripts as input, automatically identifies characters and dialogue lines, and creates an interactive reading environment optimized for desktop, tablet, and mobile.
+
+---
+
+## 2. Goals & Non-Goals
+
+### 🎯 Goals
+- Provide a **modern, minimalist rehearsal app** for teens and students  
+- Automatically parse Markdown scripts into **character roles and scenes**  
+- Support **multi-user rehearsal sessions** with synchronized progress  
+- Enable **voice playback via TTS** for any missing roles  
+- Allow **TTS providers to be swapped dynamically** without code changes  
+- Provide an **offline/solo rehearsal mode** for single-actor use  
+- Support **Pro Mode** where an actor rehearses lines from memory  
+- Enable **session persistence and playback recording**
+
+### 🚫 Non-Goals
+- Not intended for full theatrical production management (props, stage blocking, etc.)
+- No embedded AI line rewriting or script generation (future roadmap only)
+- No live video streaming (audio and text only for now)
+
+---
+
+## 3. Target Users
+
+| Persona | Description | Primary Needs |
+|----------|--------------|---------------|
+| **Student Actor (Teen)** | High-school or community theater student rehearsing a play | Memorize lines, rehearse solo or with friends |
+| **Drama Teacher / Coach** | Runs class rehearsals remotely | Observe or guide multiple students |
+| **Parent / Helper** | Supports a child practicing at home | Play missing characters, simplify process |
+
+---
+
+## 4. Core Features
+
+### 4.1 Script Upload & Parsing
+- Accept Markdown (.md, .txt) input  
+- Parse:
+  - Character names (uppercase lines or Markdown headings)
+  - Dialogue blocks under each character
+  - Scene/Act delimiters (e.g., `## Act I`, `### Scene 2`)
+- Output internal JSON model:
+  ```json
+  {
+    "title": "Romeo and Juliet",
+    "characters": ["ROMEO", "JULIET", "MERCUTIO"],
+    "scenes": [
+      {
+        "scene": "Act 1, Scene 1",
+        "lines": [
+          { "character": "ROMEO", "text": "O, she doth teach the torches to burn bright!" },
+          { "character": "JULIET", "text": "Good pilgrim, you do wrong your hand too much..." }
+        ]
+      }
+    ]
+  }
+````
+
+### 4.2 Role Selection
+
+* Display all detected characters with line counts
+* User selects **their role(s)**
+* Assign voices to other characters:
+
+  * Manual or auto-assign (gender/tone-based)
+  * Preview voice playback
+
+### 4.3 Rehearsal Modes
+
+| Mode              | Description                             | Features                              |
+| ----------------- | --------------------------------------- | ------------------------------------- |
+| **Solo Mode**     | User performs one role, AI reads others | Play/pause, replay, scene navigation  |
+| **Team Mode**     | Multiple users rehearse in real-time    | WebSocket sync, character lock        |
+| **Pro Mode**      | User’s lines hidden                     | Manual cue advancement                |
+| **Director Mode** | Observer/coach                          | Scene control, notes, playback record |
+
+### 4.4 Voice System
+
+* Abstracted **TTS Adapter Layer**
+
+  ```ts
+  interface TTSProvider {
+    id: string;
+    name: string;
+    listVoices(): Promise<VoiceInfo[]>;
+    synthesize(text: string, voiceId: string): Promise<AudioBuffer>;
+  }
+  ```
+* Supported providers: OpenAI, ElevenLabs, Play.ht, AWS Polly (pluggable)
+* Voice cache stored locally for latency reduction
+* User-selectable tone: *“natural,” “dramatic,” “comic,” “robotic,” etc.*
+
+### 4.5 Session Sync (Team Mode)
+
+* Cloudflare Durable Object session manager
+* WebSocket channel for live state updates
+* Maintains:
+
+  * Active scene index
+  * Current line
+  * Active speaker
+  * Voice assignment
+* Supports reconnects and late joins
+
+### 4.6 Rehearsal Interface
+
+* Central text view with highlighted line
+* Next/Previous buttons for navigation
+* “Mic On” toggle (records or streams live voice)
+* Visual cue when AI speaks
+* Optional **notes** sidebar for director comments
+
+### 4.7 Pro Mode (Memory Practice)
+
+* User’s lines are hidden
+* TTS or human partners read surrounding lines
+* “Next Cue” button manually advances
+* Optional audio feedback: “✅ nailed it!” or “💡 missed timing”
+
+---
+
+## 5. Technical Architecture
+
+### 5.1 High-Level Overview
+
+```mermaid
+flowchart TD
+
+  subgraph frontend["Frontend (Web + Mobile)"]
+    ui["React/Next.js UI"]
+    audio["Web Audio Engine"]
+    ws_client["WebSocket Client"]
+  end
+
+  subgraph backend["Backend (Edge / Cloudflare)"]
+    do_session["Durable Object: Session Manager"]
+    tts_service["TTS Provider Adapters"]
+    storage["R2 Storage (Scripts + Audio Cache)"]
+    db["D1 / PostgreSQL Metadata"]
+  end
+
+  ui --> ws_client
+  ws_client <--> do_session
+  do_session --> storage
+  do_session --> db
+  do_session --> tts_service
+  tts_service --> storage
+  audio --> ui
+```
+
+---
+
+### 5.2 Key Components
+
+| Component                  | Description                                                  |
+| -------------------------- | ------------------------------------------------------------ |
+| **Script Parser Worker**   | Converts Markdown → JSON model of scenes and characters      |
+| **Session Durable Object** | Manages user connections, roles, and current script position |
+| **TTS Service Adapter**    | Interface to synthesize speech; swappable providers          |
+| **Storage (R2/D1)**        | Stores uploaded scripts, cached audio files, and metadata    |
+| **Client UI**              | Interactive web/mobile front-end for practice and playback   |
+
+---
+
+## 6. Data Model
+
+| Entity         | Fields                                                           | Notes                       |
+| -------------- | ---------------------------------------------------------------- | --------------------------- |
+| `Script`       | id, title, markdown, parsed_json, owner_id, created_at           | Stored in R2/D1             |
+| `Session`      | id, script_id, current_scene, current_line, participants[], mode | Managed by Durable Object   |
+| `Participant`  | user_id, role, mic_enabled, connected_at                         | Real-time participant state |
+| `VoiceProfile` | character, provider, voice_id, pitch, rate                       | Cached per session          |
+
+---
+
+## 7. UI / UX Design
+
+### 7.1 Color & Style
+
+* Dark Mode default
+* Accent colors: **stage magenta**, **electric cyan**, **amber highlights**
+* Rounded cards and bold typography for character names
+* Voice waveform animations when characters “speak”
+
+### 7.2 Screen Flow
+
+1. **Welcome Screen**
+
+   * “Start RunThru” or “Join Session”
+2. **Script Upload**
+
+   * Paste Markdown or upload file
+3. **Character Assignment**
+
+   * Auto-detected cast list, voice preview
+4. **Mode Selection**
+
+   * Solo / Team / Pro / Director
+5. **Rehearsal**
+
+   * Active scene view, AI/human playback, notes
+6. **Summary / Save**
+
+   * Review performance, download recording, share
+
+---
+
+## 8. Integrations
+
+| Provider               | Purpose                          | Status   |
+| ---------------------- | -------------------------------- | -------- |
+| **OpenAI TTS**         | Default speech synthesis         | MVP      |
+| **ElevenLabs**         | High-fidelity emotional voices   | Optional |
+| **Firebase Auth**      | Simple multi-user authentication | MVP      |
+| **Cloudflare R2**      | Script + audio file storage      | MVP      |
+| **WebRTC / WebSocket** | Real-time voice and session sync | MVP      |
+
+---
+
+## 9. Future Enhancements
+
+* **AI Director Feedback:** Evaluate pacing, emotion, clarity
+* **Scene Library:** Famous monologues and plays pre-loaded
+* **Gamification:** Achievements, streaks, badges
+* **Offline Mobile Mode:** Cached scripts and TTS audio
+* **Voice Cloning (Opt-in):** Personalized practice partner voices
+
+---
+
+## 10. Success Metrics
+
+| Metric                            | Target                         |
+| --------------------------------- | ------------------------------ |
+| First rehearsal setup < 2 minutes | ✅                              |
+| Average solo session duration     | ≥ 15 minutes                   |
+| Script parsing accuracy           | ≥ 95% character/line detection |
+| TTS latency                       | ≤ 400 ms average               |
+| Active retention (7-day)          | ≥ 50%                          |
+
+---
+
+## 11. Open Questions
+
+* Should users be able to edit or annotate scripts inline?
+* Should recordings automatically upload to the cloud for playback?
+* Will Pro Mode support timing metrics for pacing feedback?
+* How to handle overlapping dialogue (simultaneous lines)?
+
+---
+
+## 12. MVP Scope (v1)
+
+✅ Script upload + parsing
+✅ Role assignment + TTS playback
+✅ Solo mode with next/prev cue controls
+✅ Basic WebSocket sync for 2 users
+✅ UI skeleton for Pro Mode
+✅ Modular TTS provider support
+
+---
+
+**End of Document**
+
+```
+---
+
+Would you like me to follow this with a **Mermaid UI state diagram** (screen → component → interaction flow), so your dev team can immediately wireframe it in Figma or code?
+```
