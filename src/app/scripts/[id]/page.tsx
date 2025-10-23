@@ -114,7 +114,7 @@ export default function ScriptDetailPage() {
               {parsed.characters.map((character) => (
                 <div
                   key={character.name}
-                  className="rounded-lg border p-3 hover:border-amber-500/50"
+                  className="rounded-lg border p-3 bg-card"
                 >
                   <div className="font-medium">{character.name}</div>
                   <div className="text-sm text-muted-foreground">
@@ -137,7 +137,7 @@ export default function ScriptDetailPage() {
               {parsed.scenes.map((scene, index) => (
                 <div
                   key={scene.id}
-                  className="rounded-lg border p-3 hover:border-cyan-500/50"
+                  className="rounded-lg border p-3 bg-card"
                 >
                   <div className="flex items-center justify-between">
                     <div>
@@ -156,14 +156,22 @@ export default function ScriptDetailPage() {
         </Card>
 
         {/* Actions */}
-        <div className="flex justify-center">
-          <Button
-            size="lg"
-            className="min-w-[300px] bg-amber-500 hover:bg-amber-600 text-black font-bold"
-            onClick={() => router.push(`/scripts/${scriptId}/setup`)}
-          >
-            Select Your Character
-          </Button>
+        <div className="space-y-4">
+          <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-6 text-center space-y-4">
+            <div>
+              <h3 className="text-lg font-semibold text-amber-500 mb-2">Ready to Start?</h3>
+              <p className="text-sm text-muted-foreground">
+                Choose which character you want to play, then we'll assign voices to the other roles.
+              </p>
+            </div>
+            <Button
+              size="lg"
+              className="min-w-[300px] bg-amber-500 hover:bg-amber-600 text-black font-bold text-lg h-14"
+              onClick={() => router.push(`/scripts/${scriptId}/setup`)}
+            >
+              Select Your Character →
+            </Button>
+          </div>
         </div>
       </div>
     </div>
