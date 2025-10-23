@@ -1,8 +1,8 @@
 # RunThru - Task Tracking & Progress
 
-**Last Updated**: 2025-10-23 17:50
+**Last Updated**: 2025-10-23 18:10
 **Current Phase**: MVP Phase 1 - Sprint 3 Active 🔄 (Role Selection & Voice Assignment)
-**Overall Progress**: Sprint 1: 100% ✅ | Sprint 2: 100% ✅ | Sprint 3: 0% 🔄
+**Overall Progress**: Sprint 1: 100% ✅ | Sprint 2: 100% ✅ | Sprint 3: 10% 🔄 (Planning complete)
 
 ---
 
@@ -310,30 +310,33 @@
 
 ### 🎯 Pre-Work (Design & Planning)
 
-- [ ] 🔄 **IN PROGRESS**: Use frontend-specialist to research teen-friendly UX patterns
-  - [ ] Research: Video game character selection patterns
-  - [ ] Research: Card-based UI designs for teens
-  - [ ] Research: Voice customization UIs (Sims, video games)
-  - [ ] Document findings in `.claude/docs/sprint3-ux-research.md`
+- [x] **✅ COMPLETE**: Use frontend-specialist to research teen-friendly UX patterns
+  - [x] Research: Video game character selection patterns
+  - [x] Research: Card-based UI designs for teens
+  - [x] Research: Voice customization UIs (Sims, video games)
+  - [x] Document findings in `.claude/docs/sprint3-ux-research.md`
 
-- [ ] **Design character selection flow (mockup)**
-  - [ ] Wireframe: Character card layout (grid vs list)
-  - [ ] Wireframe: Selected state (highlight, checkmark, etc.)
-  - [ ] Wireframe: Mobile vs desktop layout
-  - [ ] Document in `.claude/docs/sprint3-mockups.md`
+- [x] **✅ COMPLETE**: Make design decisions with @corey
+  - [x] Character selection: Large cards (video game style)
+  - [x] Voice assignment: Presets + fine-tune sliders
+  - [x] Auto-assignment: Pure random (no keyword detection)
+  - [x] Voice preview: On-demand (click "Preview" button)
+  - [x] Documented in `.claude/docs/sprint3-decisions.md`
 
-- [ ] **Design voice assignment flow (mockup)**
-  - [ ] Wireframe: Preset voice selector (dropdown vs cards)
-  - [ ] Wireframe: Slider layout (vertical vs horizontal)
-  - [ ] Wireframe: Preview button placement
-  - [ ] Document in `.claude/docs/sprint3-mockups.md`
+- [x] **✅ COMPLETE**: TTS voice control research
+  - [x] Researched Index TTS and Chatterbox parameters
+  - [x] Selected Chatterbox (has built-in exaggeration parameter)
+  - [x] Mapped sliders to TTS params (gender, emotion, age)
+  - [x] Documented in `.claude/docs/tts-voice-control.md`
 
-- [ ] **Define voice auto-assignment rules**
-  - [ ] Create throwaway test: Test with 30-character script
-  - [ ] Rules: Gender detection (male/female names)
-  - [ ] Rules: Age detection (TEEN, ELDER, KID)
-  - [ ] Rules: Emotion detection (ZOMBIE, GHOST, NARRATOR)
-  - [ ] Document in `docs/decisions/003-voice-auto-assignment.md`
+- [x] **✅ COMPLETE**: Voice reference files
+  - [x] Mapped 8 voice files to presets (teen-male, teen-female, etc.)
+  - [x] Copied to `tts-service/reference-voices/`
+  - [x] Committed to feature/backend branch
+
+- [x] **✅ COMPLETE**: Install frontend dependencies
+  - [x] Installed shadcn components: select, slider, progress, label
+  - [x] Committed to feature/frontend branch
 
 ### 🎨 Frontend Track - Session Setup UI
 
