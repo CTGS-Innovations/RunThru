@@ -143,7 +143,7 @@ router.get('/:id', (req: Request, res: Response) => {
       SELECT *
       FROM scripts
       WHERE id = ?
-    `).get(id) as Script | undefined;
+    `).get(id) as any;
 
     if (!script) {
       return res.status(404).json({
@@ -153,15 +153,16 @@ router.get('/:id', (req: Request, res: Response) => {
     }
 
     // Parse JSON and return full script
-    const parsed = JSON.parse(script.parsedJson);
+    // Note: SQLite returns column names in snake_case
+    const parsed = JSON.parse(script.parsed_json);
 
     res.json({
       id: script.id,
       title: script.title,
-      markdown: script.markdownSource,
+      markdown: script.markdown_source,
       parsed,
-      createdAt: script.createdAt,
-      updatedAt: script.updatedAt,
+      createdAt: script.created_at,
+      updatedAt: script.updated_at,
     });
   } catch (error) {
     console.error('Error retrieving script:', error);
