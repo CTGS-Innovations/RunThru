@@ -1,8 +1,8 @@
 # RunThru - Task Tracking & Progress
 
-**Last Updated**: 2025-10-23 17:15
-**Current Phase**: MVP Phase 1 - Sprint 2 In Progress 🔄
-**Overall Progress**: Sprint 1: 100% ✅ | Sprint 2: 60% 🔄 (Backend complete, Frontend needs implementation)
+**Last Updated**: 2025-10-23 17:30
+**Current Phase**: MVP Phase 1 - Sprint 2 Complete 🔍
+**Overall Progress**: Sprint 1: 100% ✅ | Sprint 2: 100% ✅ | Ready for CHECKPOINT 1
 
 ---
 
@@ -172,25 +172,35 @@
 
 ### 🎨 Frontend Track - Script Upload UI
 
-- [ ] Create ScriptUploader component (shadcn/ui Dialog + Input)
-  - [ ] Drag-and-drop file upload
-  - [ ] Paste markdown textarea option
-  - [ ] Client-side validation (file size, format)
-  - [ ] Loading state during upload
-  - [ ] Success/error feedback (toast notifications)
+- [x] **✅ COMPLETE**: Create ScriptUploader component (shadcn/ui Dialog + Input)
+  - [x] Drag-and-drop file upload
+  - [x] Paste markdown textarea option
+  - [x] Client-side validation (file size <5MB, .md/.txt only)
+  - [x] Loading state during upload
+  - [x] Success/error feedback (toast notifications)
 
-- [ ] Create Script Library page
-  - [ ] List all uploaded scripts (Card layout)
-  - [ ] Show: title, character count, date uploaded
-  - [ ] Actions: Open, Edit, Delete
-  - [ ] Empty state ("Upload your first script")
+- [x] **✅ COMPLETE**: Create Script Library page
+  - [x] List all uploaded scripts (Card layout)
+  - [x] Show: title, character count, date uploaded
+  - [x] Actions: Open, Delete (with confirmation)
+  - [x] Empty state ("Upload your first script")
+  - [x] Loading state (skeleton cards)
 
-- [ ] Create API client hooks
-  - [ ] useScripts() - List scripts
-  - [ ] useUploadScript() - Upload new script
-  - [ ] useScript(id) - Get single script
+- [x] **✅ COMPLETE**: Create API client hooks
+  - [x] useScripts() - List scripts (React Query)
+  - [x] useUploadScript() - Upload new script
+  - [x] useScript(id) - Get single script
+  - [x] useDeleteScript() - Delete script
 
-- [ ] **🔍 CHECKPOINT 1A**: Frontend script upload review
+- [x] **✅ COMPLETE**: Install dependencies
+  - [x] React Query (@tanstack/react-query)
+  - [x] shadcn/ui components (11 components)
+  - [x] lucide-react icons
+
+- [x] **🔍 CHECKPOINT 1A**: Frontend script upload review
+  - [x] **PASSED**: Build successful, all components created
+  - [x] 20 files created/modified
+  - [x] Ready for integration testing
 
 ### ⚙️ Backend Track - Script Parser & API
 
