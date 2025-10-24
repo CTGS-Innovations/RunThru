@@ -5,10 +5,13 @@ import { ScriptParserService } from '../services/scriptParser.service';
 import { scriptAnalysisService } from '../services/scriptAnalysis.service';
 import { characterPortraitService } from '../services/characterPortrait.service';
 import { uploadProgressService } from '../services/uploadProgress.service';
+import { CharacterCardAudioService } from '../services/characterCardAudio.service';
+import { voicePresetService } from '../services/voicePreset.service';
 import { validatePIN } from '../middleware/auth.middleware';
 
 const router = Router();
 const parser = new ScriptParserService();
+const characterCardAudioService = new CharacterCardAudioService();
 
 // ============================================================================
 // Types
@@ -455,6 +458,77 @@ router.delete('/:id', async (req: Request, res: Response) => {
     res.status(500).json({
       error: 'Failed to delete script',
       message: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
+// ============================================================================
+// POST /api/scripts/:id/generate-card-audio
+// Generate character card audio clips (script-level, reusable across sessions)
+// ============================================================================
+
+router.post('/:id/generate-card-audio', async (req: Request, res: Response) => {
+  try {
+    const { id: scriptId } = req.params;
+    const { sessionId } = req.body; // Optional: use voice assignments from a specific session
+
+    console.log(`Generating character card audio for script: ${scriptId}`);
+
+    const db = getDatabase();
+
+    // Get script to verify it exists
+    const script = db.prepare('SELECT id, parsed_json FROM scripts WHERE id = ?').get(scriptId) as any;
+    if (!script) {
+      return res.status(404).json({
+        error: 'Not Found',
+        message: 'Script not found'
+      });
+    }
+
+    const parsedScript = JSON.parse(script.parsed_json);
+    const characters = parsedScript.characters || [];
+
+    // Get voice assignments
+    let voiceAssignments: Map<string, any>;
+
+    if (sessionId) {
+      // Use voice assignments from the specified session
+      const assignments = db.prepare(`
+        SELECT character_id, voice_preset_id, gender, emotion, age
+        FROM voice_assignments
+        WHERE session_id = ?
+      `).all(sessionId) as any[];
+
+      voiceAssignments = new Map(
+        assignments.map(v => [v.character_id, v])
+      );
+    } else {
+      // Generate random voice assignments for this script
+      voiceAssignments = new Map();
+
+      for (const character of characters) {
+        const randomPreset = voicePresetService.getRandomPreset();
+        voiceAssignments.set(character.name, {
+          voice_preset_id: randomPreset.id,
+          gender: randomPreset.gender,
+          emotion: randomPreset.emotion,
+          age: randomPreset.age
+        });
+      }
+    }
+
+    // Generate audio files (script-level, reusable)
+    const results = await characterCardAudioService.generateForScript(scriptId, voiceAssignments);
+
+    res.json({
+      success: true,
+      characters: results
+    });
+  } catch (error) {
+    console.error('Error generating character card audio:', error);
+    res.status(500).json({
+      error: 'Failed to generate audio',
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });

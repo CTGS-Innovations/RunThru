@@ -24,7 +24,16 @@ export class TTSClientService {
    */
   async synthesize(request: TTSRequest): Promise<Buffer> {
     try {
-      const response = await axios.post(`${this.baseURL}/synthesize`, request, {
+      // Convert camelCase to snake_case for Python API
+      const pythonRequest = {
+        text: request.text,
+        character: request.character,
+        engine: request.engine,
+        voice_id: request.voiceId,  // Convert voiceId → voice_id
+        emotion: request.emotion
+      };
+
+      const response = await axios.post(`${this.baseURL}/synthesize`, pythonRequest, {
         responseType: 'arraybuffer',
         timeout: 30000,
       });

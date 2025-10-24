@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 
 from adapters.base import TTSRequest
 from adapters.index_tts_adapter import IndexTTSAdapter
+from adapters.chatterbox_adapter import ChatterboxAdapter
 
 load_dotenv()
 
@@ -39,8 +40,10 @@ app.add_middleware(
 )
 
 # Initialize TTS adapters
+import torch
+
 MODEL_DIR = os.getenv('MODEL_DIR', './index-tts')
-DEVICE = "cuda:0" if os.getenv('CUDA_VISIBLE_DEVICES') else "cpu"
+DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
 
 adapters = {}
 
@@ -50,6 +53,13 @@ try:
     logger.info("Index TTS adapter initialized")
 except Exception as e:
     logger.error(f"Failed to initialize Index TTS: {e}")
+
+try:
+    logger.info(f"Initializing Chatterbox adapter (device: {DEVICE})...")
+    adapters["chatterbox"] = ChatterboxAdapter(MODEL_DIR, DEVICE)
+    logger.info("Chatterbox adapter initialized")
+except Exception as e:
+    logger.error(f"Failed to initialize Chatterbox: {e}")
 
 
 @app.on_event("startup")

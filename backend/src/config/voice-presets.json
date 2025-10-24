@@ -18,22 +18,22 @@
     "referenceAudioPath": "../tts-service/reference-voices/teen-female.wav"
   },
   {
-    "id": "angry-teen",
-    "name": "Angry Teen",
-    "description": "Intense, dramatic voice - perfect for villains",
+    "id": "zombie-grumbly",
+    "name": "Zombie Grumbly",
+    "description": "Grumbly, low monster voice - perfect for zombies",
     "gender": 65,
     "emotion": 85,
     "age": 30,
-    "referenceAudioPath": "../tts-service/reference-voices/angry-teen.wav"
+    "referenceAudioPath": "../tts-service/reference-voices/zombie-grumbly.wav"
   },
   {
-    "id": "cheerful-kid",
-    "name": "Cheerful Kid",
-    "description": "Soft-spoken, gentle voice - warm and caring",
+    "id": "cheerful-female",
+    "name": "Cheerful Female",
+    "description": "Soft-spoken female voice - warm and caring",
     "gender": 35,
     "emotion": 60,
     "age": 20,
-    "referenceAudioPath": "../tts-service/reference-voices/cheerful-kid.wav"
+    "referenceAudioPath": "../tts-service/reference-voices/cheerful-female.wav"
   },
   {
     "id": "wise-elder",
@@ -54,21 +54,21 @@
     "referenceAudioPath": "../tts-service/reference-voices/mysterious-narrator.wav"
   },
   {
-    "id": "angry-monster",
-    "name": "Angry Monster",
-    "description": "Deep, intimidating voice - powerful presence",
+    "id": "adult-male",
+    "name": "Adult Male",
+    "description": "Mature male voice - strong and authoritative",
     "gender": 80,
-    "emotion": 75,
+    "emotion": 50,
     "age": 50,
-    "referenceAudioPath": "../tts-service/reference-voices/angry-monster.wav"
+    "referenceAudioPath": "../tts-service/reference-voices/adult-male.wav"
   },
   {
-    "id": "scared-character",
-    "name": "Scared Character",
-    "description": "Frantic, energetic voice - wild and unpredictable",
+    "id": "pirate-voice",
+    "name": "Pirate Voice",
+    "description": "Piratey character voice - adventurous and dramatic",
     "gender": 65,
-    "emotion": 90,
+    "emotion": 70,
     "age": 40,
-    "referenceAudioPath": "../tts-service/reference-voices/scared-character.wav"
+    "referenceAudioPath": "../tts-service/reference-voices/pirate-voice.wav"
   }
 ]
