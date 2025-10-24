@@ -2,8 +2,21 @@
 const nextConfig = {
   reactStrictMode: true,
   output: 'standalone',
-  env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000',
+  // Images are served via Next.js proxy routes from same domain
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'drama.ctgs.link',
+        pathname: '/portraits/**',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '3000',
+        pathname: '/portraits/**',
+      },
+    ],
   },
 }
 

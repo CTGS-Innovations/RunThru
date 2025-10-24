@@ -1,4 +1,9 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+// Use relative URLs - Next.js API routes will proxy to backend
+const API_BASE_URL = ''
+
+export const apiConfig = {
+  baseURL: API_BASE_URL,
+}
 
 export class APIError extends Error {
   constructor(
@@ -15,7 +20,7 @@ async function fetchAPI(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<any> {
-  const url = `${API_BASE_URL}${endpoint}`
+  const url = `${endpoint}`
 
   const response = await fetch(url, {
     ...options,
@@ -69,6 +74,6 @@ export const api = {
   // Audio
   audio: {
     getUrl: (scriptId: string, lineId: string) =>
-      `${API_BASE_URL}/api/audio/${scriptId}/${lineId}`,
+      `/api/audio/${scriptId}/${lineId}`,
   },
 }
