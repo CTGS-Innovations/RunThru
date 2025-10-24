@@ -64,7 +64,7 @@ export default function CharacterSelectionPage() {
   const getCharacterAudioUrl = (characterName: string): string => {
     const sanitizedName = sanitizeCharacterName(characterName)
     // Add version param to bust Cloudflare cache (increment when regenerating audio)
-    return `/audio/${scriptId}/character-cards/${sanitizedName}-catchphrase.wav?v=2`
+    return `/audio/${scriptId}/character-cards/${sanitizedName}-catchphrase.wav?v=3`
   }
 
   // Sort characters by role: Lead → Featured → Ensemble
