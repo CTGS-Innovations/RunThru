@@ -5,6 +5,7 @@ import { ScriptParserService } from '../services/scriptParser.service';
 import { scriptAnalysisService } from '../services/scriptAnalysis.service';
 import { characterPortraitService } from '../services/characterPortrait.service';
 import { uploadProgressService } from '../services/uploadProgress.service';
+import { validatePIN } from '../middleware/auth.middleware';
 
 const router = Router();
 const parser = new ScriptParserService();
@@ -82,9 +83,10 @@ router.get('/', (req: Request, res: Response) => {
 // ============================================================================
 // POST /api/scripts
 // Upload and parse new script (with OpenAI analysis)
+// Requires PIN authentication
 // ============================================================================
 
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', validatePIN, async (req: Request, res: Response) => {
   try {
     const { markdown, uploadId } = req.body;
 

@@ -21,12 +21,16 @@ CREATE INDEX IF NOT EXISTS idx_scripts_created_at ON scripts(created_at DESC);
 CREATE TABLE IF NOT EXISTS sessions (
   id TEXT PRIMARY KEY,
   script_id TEXT NOT NULL,
-  selected_character TEXT NOT NULL,  -- Character the user is playing
+  selected_character TEXT,  -- Character the user is playing (nullable for multiplayer)
   current_scene_index INTEGER DEFAULT 0,
   current_line_index INTEGER DEFAULT 0,
   user_role TEXT,  -- Deprecated: use selected_character instead
   voice_assignments TEXT,  -- JSON backup: use voice_assignments table instead
   tts_engine TEXT DEFAULT 'chatterbox',  -- Default to chatterbox (faster)
+  shareable_token TEXT UNIQUE,  -- UUID for shareable lobby links
+  expires_at DATETIME,  -- Session expiration time (4 hours from creation)
+  is_active BOOLEAN DEFAULT 0,  -- True when rehearsal starts
+  started_at DATETIME,  -- When host started the rehearsal
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   last_accessed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (script_id) REFERENCES scripts(id) ON DELETE CASCADE
@@ -34,6 +38,7 @@ CREATE TABLE IF NOT EXISTS sessions (
 
 CREATE INDEX IF NOT EXISTS idx_sessions_script_id ON sessions(script_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_last_accessed ON sessions(last_accessed_at DESC);
+CREATE INDEX IF NOT EXISTS idx_sessions_shareable_token ON sessions(shareable_token);
 
 -- Voice assignments table (normalized, per-character voice settings)
 CREATE TABLE IF NOT EXISTS voice_assignments (
@@ -68,3 +73,20 @@ CREATE TABLE IF NOT EXISTS audio_cache (
 
 CREATE INDEX IF NOT EXISTS idx_audio_cache_script_id ON audio_cache(script_id);
 CREATE INDEX IF NOT EXISTS idx_audio_cache_lookup ON audio_cache(script_id, line_id, tts_engine, voice_id);
+
+-- Participants table (for multiplayer sessions)
+CREATE TABLE IF NOT EXISTS participants (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  session_id TEXT NOT NULL,
+  player_name VARCHAR(100) NOT NULL,
+  character_name VARCHAR(100),  -- NULL until character selected
+  is_ai BOOLEAN DEFAULT 0,  -- True for AI-controlled characters
+  is_host BOOLEAN DEFAULT 0,  -- True for session creator
+  is_ready BOOLEAN DEFAULT 0,  -- True when character assigned
+  joined_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE,
+  UNIQUE(session_id, character_name)  -- Character locking: one character per session
+);
+
+CREATE INDEX IF NOT EXISTS idx_participants_session ON participants(session_id);
+CREATE INDEX IF NOT EXISTS idx_participants_host ON participants(session_id, is_host);

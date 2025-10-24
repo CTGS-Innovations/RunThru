@@ -8,6 +8,7 @@ import { getDatabase } from '../services/database.service';
 import { sessionService } from '../services/session.service';
 import { voicePresetService } from '../services/voicePreset.service';
 import { ParsedScript } from '../services/scriptParser.service';
+import { getLobbyService } from '../services/lobby.service';
 
 const router = Router();
 
@@ -288,6 +289,38 @@ router.put('/:id/voice', async (req: Request, res: Response) => {
 
     res.status(500).json({
       error: 'Failed to update voice assignment',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// ============================================================================
+// GET /api/sessions/:id/config
+// Get frozen session config for rehearsal page (multiplayer)
+// ============================================================================
+
+router.get('/:id/config', (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const lobbyService = getLobbyService();
+    const config = lobbyService.getSessionConfig(id);
+
+    if (!config) {
+      return res.status(404).json({
+        error: 'Session not found',
+        message: 'Session not found or not yet started'
+      });
+    }
+
+    res.json({
+      success: true,
+      config
+    });
+  } catch (error) {
+    console.error('Error fetching session config:', error);
+    res.status(500).json({
+      error: 'Failed to fetch session config',
       message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
