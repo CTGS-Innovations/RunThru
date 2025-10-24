@@ -14,6 +14,7 @@ const COOLDOWN_BASE_MS = 2 * 60 * 1000 // 2 minutes
 export default function PINEntryPage() {
   const router = useRouter()
   const [pin, setPin] = useState('')
+  const [displayValue, setDisplayValue] = useState('') // Masked display (dots)
   const [error, setError] = useState('')
   const [attempts, setAttempts] = useState(0)
   const [cooldownUntil, setCooldownUntil] = useState<number | null>(null)
@@ -104,9 +105,9 @@ export default function PINEntryPage() {
     setError('')
 
     try {
-      // Validate PIN with backend
-      const response = await fetch('http://localhost:4000/api/scripts', {
-        method: 'HEAD',
+      // Validate PIN with backend (through Next.js API proxy)
+      const response = await fetch('/api/auth/verify', {
+        method: 'POST',
         headers: {
           'x-access-pin': pin,
         },
@@ -138,6 +139,7 @@ export default function PINEntryPage() {
         }
 
         setPin('')
+        setDisplayValue('')
       }
     } catch (err) {
       setError('Failed to connect to server. Is the backend running?')
@@ -181,15 +183,23 @@ export default function PINEntryPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Input
-                  type="password"
+                  type="text"
                   inputMode="numeric"
-                  pattern="[0-9]*"
-                  maxLength={7}
-                  value={pin}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, '')
-                    setPin(value)
-                    setError('')
+                  value={displayValue}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Backspace') {
+                      setPin(pin.slice(0, -1))
+                      setDisplayValue(displayValue.slice(0, -1))
+                      setError('')
+                    } else if (e.key >= '0' && e.key <= '9' && pin.length < 7) {
+                      setPin(pin + e.key)
+                      setDisplayValue(displayValue + '•')
+                      setError('')
+                    }
+                    e.preventDefault()
+                  }}
+                  onChange={() => {
+                    // Prevent default onChange behavior
                   }}
                   placeholder="0000000"
                   className="text-center text-3xl h-16 tracking-widest font-mono bg-slate-900 border-slate-600 focus:border-cyan-400"

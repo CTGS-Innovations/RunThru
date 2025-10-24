@@ -106,7 +106,7 @@ export default function ScriptDetailPage() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
             {parsed.characters.map((character) => {
               const analysis = script.analysis?.characters?.find(
-                (c) => c.characterName === character.name
+                (c: any) => c.characterName === character.name
               );
               const roleIcon = analysis?.roleType === 'Lead' ? Star : Users;
               const RoleIcon = roleIcon;

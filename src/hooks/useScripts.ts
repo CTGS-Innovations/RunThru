@@ -33,6 +33,7 @@ interface ScriptDetailResponse {
   title: string;
   markdown: string;
   parsed: ParsedScript;
+  analysis?: any;  // Sprint 4: OpenAI character analysis
   createdAt: string;
   updatedAt: string;
 }

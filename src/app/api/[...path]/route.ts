@@ -39,12 +39,21 @@ export async function POST(
   const url = `${BACKEND_URL}/api/${path}`
   const body = await request.text()
 
+  // Forward all headers, including x-access-pin
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  }
+
+  // Forward x-access-pin header if present
+  const accessPin = request.headers.get('x-access-pin')
+  if (accessPin) {
+    headers['x-access-pin'] = accessPin
+  }
+
   try {
     const response = await fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body,
     })
 

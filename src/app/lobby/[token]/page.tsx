@@ -17,6 +17,7 @@ import {
   useLobbyInfo,
 } from '@/hooks/useLobbies'
 import { useScript } from '@/hooks/useScripts'
+import { cn } from '@/lib/utils'
 
 type Phase = 'name' | 'character-select' | 'waiting'
 
@@ -138,6 +139,25 @@ export default function LobbyJoinPage() {
     participants.data?.filter((p) => p.characterName).map((p) => p.characterName!) || []
   )
 
+  // Helper: Get character analysis by name (same as SessionSetup)
+  const getCharacterAnalysis = (characterName: string) => {
+    return script.data?.analysis?.characters?.find(
+      (c: any) => c.characterName === characterName
+    )
+  }
+
+  // Sort characters by role: Lead → Featured → Ensemble (same as SessionSetup)
+  const characters = parsedScript?.characters || []
+  const sortedCharacters = [...characters].sort((a: any, b: any) => {
+    const analysisA = getCharacterAnalysis(a.name)
+    const analysisB = getCharacterAnalysis(b.name)
+    if (!analysisA || !analysisB) return 0
+    const roleOrder: Record<string, number> = { Lead: 0, Featured: 1, Ensemble: 2 }
+    const orderA = roleOrder[analysisA.roleType] ?? 3
+    const orderB = roleOrder[analysisB.roleType] ?? 3
+    return orderA - orderB
+  })
+
   return (
     <div className="container mx-auto px-4 py-12 max-w-6xl">
       {/* Header */}
@@ -203,12 +223,18 @@ export default function LobbyJoinPage() {
         </Card>
       )}
 
-      {/* Phase 2: Character Selection */}
-      {phase === 'character-select' && parsedScript && (
-        <div className="space-y-8">
-          <div className="text-center">
-            <h2 className="text-3xl font-bold mb-2">Choose Your Character</h2>
-            <p className="text-slate-400">
+      {/* Phase 2 & 3: Character Selection + Lobby (Same as SessionSetup) */}
+      {(phase === 'character-select' || phase === 'waiting') && parsedScript && (
+        <div className="container mx-auto px-4 py-8 space-y-8 max-w-7xl">
+          {/* Header - Same as SessionSetup */}
+          <div className="text-center space-y-2 md:space-y-4">
+            <div className="flex items-center justify-center gap-2 md:gap-3">
+              <Sparkles className="w-6 h-6 md:w-8 md:h-8 text-amber-500 flex-shrink-0" />
+              <h1 className="text-2xl md:text-4xl lg:text-5xl font-black bg-gradient-to-r from-amber-400 to-cyan-400 bg-clip-text text-transparent leading-tight">
+                Choose Character
+              </h1>
+            </div>
+            <p className="text-base md:text-lg text-muted-foreground font-semibold">
               Welcome, <span className="text-cyan-400">{playerName}</span>!
             </p>
           </div>
@@ -220,97 +246,119 @@ export default function LobbyJoinPage() {
             </Alert>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {parsedScript.characters.map((character: any) => {
-              const isTaken = takenCharacters.has(character.name)
-              // Find the character's analysis data (with portrait)
-              const characterAnalysis = script.data?.analysis?.characters?.find(
-                (c: any) => c.name === character.name
-              )
-              return (
-                <div
-                  key={character.name}
-                  className={isTaken ? 'opacity-50 cursor-not-allowed' : ''}
-                  onClick={() => !isTaken && handleCharacterSelect(character.name)}
-                >
-                  <CharacterCard
-                    character={character}
-                    analysis={characterAnalysis}
-                    onClick={() => {}}
-                    isSelected={false}
-                  />
-                  {isTaken && (
-                    <div className="text-center mt-2 text-sm text-red-400">Taken</div>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Phase 3: Waiting Room */}
-      {phase === 'waiting' && parsedScript && participants.data && (
-        <div className="space-y-8">
-          <div className="text-center">
-            <h2 className="text-3xl font-bold mb-2">
-              {isHost ? 'Your Lobby' : 'Waiting for Host'}
-            </h2>
-            <p className="text-slate-400">
-              You're playing:{' '}
-              <span className="text-cyan-400 font-semibold">{currentParticipant?.characterName}</span>
-            </p>
-          </div>
-
-          {error && (
-            <Alert variant="destructive" className="max-w-2xl mx-auto">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-
-          <div className="max-w-2xl mx-auto">
-            <LobbyStatus
-              participants={participants.data}
-              totalCharacters={parsedScript.characters.length}
-            />
-          </div>
-
-          {isHost && (
-            <div className="max-w-md mx-auto">
-              <Button
-                onClick={handleStartRehearsal}
-                className="w-full h-14 text-lg bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 font-bold"
-                disabled={startRehearsal.isPending}
-              >
-                {startRehearsal.isPending ? (
-                  <>
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    Starting...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-5 h-5 mr-2" />
-                    LAUNCH REHEARSAL
-                  </>
-                )}
-              </Button>
-              <p className="text-xs text-center text-slate-500 mt-2">
-                AI will be auto-assigned to unselected characters
-              </p>
+          {/* Character Carousel - Exact copy from SessionSetup */}
+          <div className="relative">
+            <div
+              className="flex gap-4 lg:gap-6 overflow-x-auto pb-6 snap-x snap-mandatory scrollbar-hide -mx-4 px-4 lg:px-16"
+            >
+              {sortedCharacters.map((character: any) => {
+                const isTaken = takenCharacters.has(character.name)
+                return (
+                  <div key={character.name} className="flex-none w-[85vw] sm:w-[45vw] lg:w-[400px] snap-center">
+                    <div onClick={() => !isTaken && phase === 'character-select' && handleCharacterSelect(character.name)}>
+                      <CharacterCard
+                        character={{
+                          id: character.name,
+                          name: character.name,
+                          lineCount: character.lineCount,
+                          firstAppearance: character.firstAppearance
+                        }}
+                        analysis={getCharacterAnalysis(character.name)}
+                        onClick={() => {}}
+                        isSelected={currentParticipant?.characterName === character.name}
+                      />
+                      {isTaken && (
+                        <div className="text-center mt-2 text-sm font-bold text-red-400">
+                          ✗ Already Taken
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
             </div>
-          )}
 
-          {!isHost && (
-            <div className="max-w-md mx-auto text-center">
-              <div className="flex items-center justify-center gap-2 text-slate-400">
-                <Loader2 className="w-5 h-5 animate-spin" />
-                <span>Waiting for host to start rehearsal...</span>
+            {/* Scroll indicators (dots) */}
+            <div className="flex justify-center gap-2 mt-4">
+              {sortedCharacters.map((character: any, idx: number) => (
+                <div
+                  key={idx}
+                  className={cn(
+                    "h-2 w-2 rounded-full transition-all",
+                    currentParticipant?.characterName === character.name
+                      ? "bg-amber-400 w-6"
+                      : "bg-primary/30"
+                  )}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Rehearsal Lobby - Exact copy from SessionSetup */}
+          {participants.data && (
+            <div className="relative overflow-hidden rounded-3xl border-2 border-cyan-500/30 bg-gradient-to-br from-card via-card to-card/80 shadow-2xl">
+              {/* Header */}
+              <div className="relative h-24 overflow-hidden bg-gradient-to-br from-cyan-500/20 via-primary/20 to-cyan-500/20">
+                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIwLjUiIG9wYWNpdHk9IjAuMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-20" />
+                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-b from-black/60 via-black/40 to-transparent">
+                  <div className="flex items-center gap-3">
+                    <Users className="w-6 h-6 md:w-8 md:h-8 text-cyan-400" />
+                    <h3 className="text-xl md:text-2xl font-black text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
+                      Rehearsal Lobby
+                    </h3>
+                  </div>
+                </div>
+              </div>
+
+              {/* Content - Show LobbyStatus component */}
+              <div className="px-4 md:px-6 py-4 md:py-5">
+                <LobbyStatus
+                  participants={participants.data}
+                  totalCharacters={sortedCharacters.length}
+                />
+              </div>
+
+              {/* Footer - Start button (host only) OR waiting message */}
+              <div className="border-t border-cyan-500/30 bg-gradient-to-r from-cyan-500/5 via-primary/5 to-cyan-500/5 px-6 py-4">
+                {isHost && phase === 'waiting' ? (
+                  <>
+                    <Button
+                      onClick={handleStartRehearsal}
+                      className="w-full h-14 text-lg bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 font-bold"
+                      disabled={startRehearsal.isPending}
+                    >
+                      {startRehearsal.isPending ? (
+                        <>
+                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                          Starting...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-5 h-5 mr-2" />
+                          LAUNCH REHEARSAL
+                        </>
+                      )}
+                    </Button>
+                    <p className="text-xs text-center text-slate-500 mt-2">
+                      AI will be auto-assigned to unselected characters
+                    </p>
+                  </>
+                ) : phase === 'waiting' ? (
+                  <div className="flex items-center justify-center gap-2 text-slate-400">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>Waiting for host to start rehearsal...</span>
+                  </div>
+                ) : (
+                  <div className="text-center text-xs text-slate-500">
+                    Select your character above
+                  </div>
+                )}
               </div>
             </div>
           )}
         </div>
       )}
+
 
       {/* Lobby Info */}
       {lobbyInfo.data && (

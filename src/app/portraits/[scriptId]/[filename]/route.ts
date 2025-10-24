@@ -4,9 +4,10 @@ const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:4000'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { scriptId: string; filename: string } }
+  { params }: { params: Promise<{ scriptId: string; filename: string }> }
 ) {
-  const { scriptId, filename } = params
+  const resolvedParams = await params
+  const { scriptId, filename } = resolvedParams
   const url = `${BACKEND_URL}/portraits/${scriptId}/${filename}`
 
   try {

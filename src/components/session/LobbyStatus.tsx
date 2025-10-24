@@ -53,7 +53,7 @@ export function LobbyStatus({ participants, totalCharacters }: LobbyStatusProps)
                 >
                   <div className="flex items-center gap-3">
                     {participant.isHost && (
-                      <Crown className="w-4 h-4 text-amber-400" title="Host" />
+                      <Crown className="w-4 h-4 text-amber-400" />
                     )}
                     <div>
                       <div className="font-medium text-slate-200">

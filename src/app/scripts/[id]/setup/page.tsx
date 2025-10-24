@@ -30,6 +30,7 @@ export default function CharacterSelectionPage() {
   const [selectedCharacter, setSelectedCharacter] = useState<string | null>(null)
   const [creatorName, setCreatorName] = useState('')
   const [lobbyDialogOpen, setLobbyDialogOpen] = useState(false)
+  const [createdLobbyUrl, setCreatedLobbyUrl] = useState<string | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
 
   // Queries
@@ -42,7 +43,7 @@ export default function CharacterSelectionPage() {
   // Helper: Get character analysis by name
   const getCharacterAnalysis = (characterName: string) => {
     return scriptData?.analysis?.characters?.find(
-      (c) => c.characterName === characterName
+      (c: any) => c.characterName === characterName
     )
   }
 
@@ -54,7 +55,7 @@ export default function CharacterSelectionPage() {
     // If no analysis, keep original order
     if (!analysisA || !analysisB) return 0
 
-    const roleOrder = { Lead: 0, Featured: 1, Ensemble: 2 }
+    const roleOrder: Record<string, number> = { Lead: 0, Featured: 1, Ensemble: 2 }
     const orderA = roleOrder[analysisA.roleType] ?? 3
     const orderB = roleOrder[analysisB.roleType] ?? 3
 
@@ -91,13 +92,26 @@ export default function CharacterSelectionPage() {
       localStorage.setItem('runthru_lobby_token', result.lobby.token)
       localStorage.setItem('runthru_participant_id', result.lobby.participantId.toString())
 
-      // Copy to clipboard
-      navigator.clipboard.writeText(lobbyUrl)
+      // Save the URL to state to display it
+      setCreatedLobbyUrl(lobbyUrl)
 
-      // Navigate to lobby
-      router.push(`/lobby/${result.lobby.token}`)
+      // Copy to clipboard automatically
+      navigator.clipboard.writeText(lobbyUrl)
     } catch (err) {
       console.error('Failed to create lobby:', err)
+    }
+  }
+
+  const handleCopyLink = () => {
+    if (createdLobbyUrl) {
+      navigator.clipboard.writeText(createdLobbyUrl)
+    }
+  }
+
+  const handleJoinOwnLobby = () => {
+    if (createdLobbyUrl) {
+      const token = createdLobbyUrl.split('/lobby/')[1]
+      router.push(`/lobby/${token}`)
     }
   }
 
@@ -312,35 +326,91 @@ export default function CharacterSelectionPage() {
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Create Multiplayer Lobby</DialogTitle>
+                <DialogTitle>
+                  {createdLobbyUrl ? 'Lobby Created!' : 'Create Multiplayer Lobby'}
+                </DialogTitle>
                 <DialogDescription>
-                  Enter your name to create a shareable rehearsal session
+                  {createdLobbyUrl
+                    ? 'Share this link with others to invite them to your rehearsal'
+                    : 'Enter your name to create a shareable rehearsal session'
+                  }
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 pt-4">
-                <Input
-                  placeholder="Your name"
-                  value={creatorName}
-                  onChange={(e) => setCreatorName(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleCreateLobby()}
-                />
-                <Button
-                  onClick={handleCreateLobby}
-                  disabled={!creatorName.trim() || createLobby.isPending}
-                  className="w-full"
-                >
-                  {createLobby.isPending ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Creating...
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-4 h-4 mr-2" />
-                      Create & Copy Link
-                    </>
-                  )}
-                </Button>
+                {createdLobbyUrl ? (
+                  // Show the shareable link after creation
+                  <>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Shareable Link</label>
+                      <div className="flex gap-2">
+                        <Input
+                          value={createdLobbyUrl}
+                          readOnly
+                          className="font-mono text-sm"
+                          onClick={(e) => e.currentTarget.select()}
+                        />
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={handleCopyLink}
+                          className="flex-shrink-0"
+                        >
+                          <Copy className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Link copied to clipboard! Share it with your scene partners.
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={handleJoinOwnLobby}
+                        className="flex-1"
+                      >
+                        <Users className="w-4 h-4 mr-2" />
+                        Join Lobby
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setCreatedLobbyUrl(null)
+                          setCreatorName('')
+                          setLobbyDialogOpen(false)
+                        }}
+                        className="flex-1"
+                      >
+                        Close
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  // Show name input form before creation
+                  <>
+                    <Input
+                      placeholder="Your name"
+                      value={creatorName}
+                      onChange={(e) => setCreatorName(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleCreateLobby()}
+                    />
+                    <Button
+                      onClick={handleCreateLobby}
+                      disabled={!creatorName.trim() || createLobby.isPending}
+                      className="w-full"
+                    >
+                      {createLobby.isPending ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Creating...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-4 h-4 mr-2" />
+                          Create Lobby
+                        </>
+                      )}
+                    </Button>
+                  </>
+                )}
               </div>
             </DialogContent>
           </Dialog>
