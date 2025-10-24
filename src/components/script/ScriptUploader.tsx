@@ -7,6 +7,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Upload, FileText, Loader2, Check, X } from 'lucide-react';
 
+// Use relative path to go through Next.js API proxy
+// This works with localhost, IP addresses, and Cloudflare Tunnel
+const API_BASE = '/api';
+
 interface ScriptUploaderProps {
   isOpen: boolean;
   onClose: () => void;
@@ -106,7 +110,7 @@ export function ScriptUploader({ isOpen, onClose, onSuccess }: ScriptUploaderPro
 
   // Connect to SSE for progress updates
   const connectToProgressStream = useCallback((uploadId: string) => {
-    const eventSource = new EventSource(`http://localhost:4000/api/scripts/upload-progress/${uploadId}`);
+    const eventSource = new EventSource(`${API_BASE}/scripts/upload-progress/${uploadId}`);
     eventSourceRef.current = eventSource;
 
     eventSource.onmessage = (event) => {
@@ -166,7 +170,7 @@ export function ScriptUploader({ isOpen, onClose, onSuccess }: ScriptUploaderPro
 
       // Start upload (pass uploadId for backend to track)
       const pin = localStorage.getItem('runthru_pin');
-      await fetch('http://localhost:4000/api/scripts', {
+      await fetch(`${API_BASE}/scripts`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

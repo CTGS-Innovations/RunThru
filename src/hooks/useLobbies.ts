@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+// Use relative path to go through Next.js API proxy
+// This works with localhost, IP addresses, and Cloudflare Tunnel
+const API_BASE = '/api'
 
 // ============================================================================
 // Types
@@ -64,7 +66,7 @@ export function useCreateLobby() {
         throw new Error('No PIN found. Please log in again.')
       }
 
-      const response = await fetch(`${API_BASE}/api/lobbies/create`, {
+      const response = await fetch(`${API_BASE}/lobbies/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -98,7 +100,7 @@ export function useJoinLobby() {
     mutationFn: async ({ token, playerName }: { token: string; playerName: string }) => {
       console.log('[useJoinLobby] Joining lobby with playerName:', playerName)
 
-      const response = await fetch(`${API_BASE}/api/lobbies/${token}/join`, {
+      const response = await fetch(`${API_BASE}/lobbies/${token}/join`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -130,7 +132,7 @@ export function useLobbyParticipants(token: string, enabled: boolean = true) {
   return useQuery({
     queryKey: ['participants', token],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE}/api/lobbies/${token}/participants`)
+      const response = await fetch(`${API_BASE}/lobbies/${token}/participants`)
 
       if (!response.ok) {
         const error = await response.json()
@@ -162,7 +164,7 @@ export function useSelectCharacter() {
       participantId: number
       characterName: string
     }) => {
-      const response = await fetch(`${API_BASE}/api/lobbies/${token}/select`, {
+      const response = await fetch(`${API_BASE}/lobbies/${token}/select`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -198,7 +200,7 @@ export function useStartRehearsal() {
       token: string
       hostParticipantId: number
     }) => {
-      const response = await fetch(`${API_BASE}/api/lobbies/${token}/start`, {
+      const response = await fetch(`${API_BASE}/lobbies/${token}/start`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -228,7 +230,7 @@ export function useLobbyInfo(token: string, enabled: boolean = true) {
   return useQuery({
     queryKey: ['lobby', token],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE}/api/lobbies/${token}`)
+      const response = await fetch(`${API_BASE}/lobbies/${token}`)
 
       if (!response.ok) {
         const error = await response.json()
@@ -251,7 +253,7 @@ export function useSessionConfig(sessionId: string, enabled: boolean = true) {
   return useQuery({
     queryKey: ['sessionConfig', sessionId],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE}/api/sessions/${sessionId}/config`)
+      const response = await fetch(`${API_BASE}/sessions/${sessionId}/config`)
 
       if (!response.ok) {
         const error = await response.json()

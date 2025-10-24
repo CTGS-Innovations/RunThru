@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Sparkles, Users, Loader2, AlertCircle } from 'lucide-react'
+import { Sparkles, Users, Loader2, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { CharacterCard } from '@/components/session/CharacterCard'
 import { LobbyStatus } from '@/components/session/LobbyStatus'
@@ -30,6 +30,7 @@ export default function LobbyJoinPage() {
   const [playerName, setPlayerName] = useState('')
   const [participantId, setParticipantId] = useState<number | null>(null)
   const [error, setError] = useState('')
+  const scrollRef = useRef<HTMLDivElement>(null)
 
   // API hooks
   const lobbyInfo = useLobbyInfo(token)
@@ -87,8 +88,10 @@ export default function LobbyJoinPage() {
     if (!participantId) return
 
     try {
+      setError('') // Clear any previous errors
       await selectCharacter.mutateAsync({ token, participantId, characterName })
-      setPhase('waiting')
+      // Stay in character-select phase to allow re-selection
+      // User will see their selection highlighted and can change it
     } catch (err: any) {
       if (err.message.includes('already taken')) {
         setError('Character already selected by another player')
@@ -108,6 +111,16 @@ export default function LobbyJoinPage() {
     } catch (err: any) {
       setError(err.message || 'Failed to start rehearsal')
     }
+  }
+
+  // Scroll navigation for desktop
+  const scroll = (direction: 'left' | 'right') => {
+    if (!scrollRef.current) return
+    const scrollAmount = scrollRef.current.offsetWidth * 0.8
+    scrollRef.current.scrollBy({
+      left: direction === 'left' ? -scrollAmount : scrollAmount,
+      behavior: 'smooth'
+    })
   }
 
   // Loading states
@@ -246,33 +259,53 @@ export default function LobbyJoinPage() {
             </Alert>
           )}
 
-          {/* Character Carousel - Exact copy from SessionSetup */}
+          {/* Character Carousel - Same as SessionSetup with navigation arrows */}
           <div className="relative">
+            {/* Navigation Arrows - Desktop/Tablet Only */}
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => scroll('left')}
+              className="hidden sm:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 h-14 w-14 rounded-full bg-card/95 backdrop-blur border-2 border-primary/30 hover:bg-primary/10 hover:border-primary/50 shadow-2xl"
+              aria-label="Previous character"
+            >
+              <ChevronLeft className="h-8 w-8" />
+            </Button>
+
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => scroll('right')}
+              className="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 h-14 w-14 rounded-full bg-card/95 backdrop-blur border-2 border-primary/30 hover:bg-primary/10 hover:border-primary/50 shadow-2xl"
+              aria-label="Next character"
+            >
+              <ChevronRight className="h-8 w-8" />
+            </Button>
+
+            {/* Horizontal scroll container */}
             <div
+              ref={scrollRef}
               className="flex gap-4 lg:gap-6 overflow-x-auto pb-6 snap-x snap-mandatory scrollbar-hide -mx-4 px-4 lg:px-16"
             >
               {sortedCharacters.map((character: any) => {
-                const isTaken = takenCharacters.has(character.name)
+                const isTakenByOther = takenCharacters.has(character.name) && currentParticipant?.characterName !== character.name
+                const takenBy = participants.data?.find((p) => p.characterName === character.name)
+
                 return (
                   <div key={character.name} className="flex-none w-[85vw] sm:w-[45vw] lg:w-[400px] snap-center">
-                    <div onClick={() => !isTaken && phase === 'character-select' && handleCharacterSelect(character.name)}>
-                      <CharacterCard
-                        character={{
-                          id: character.name,
-                          name: character.name,
-                          lineCount: character.lineCount,
-                          firstAppearance: character.firstAppearance
-                        }}
-                        analysis={getCharacterAnalysis(character.name)}
-                        onClick={() => {}}
-                        isSelected={currentParticipant?.characterName === character.name}
-                      />
-                      {isTaken && (
-                        <div className="text-center mt-2 text-sm font-bold text-red-400">
-                          ✗ Already Taken
-                        </div>
-                      )}
-                    </div>
+                    <CharacterCard
+                      character={{
+                        id: character.name,
+                        name: character.name,
+                        lineCount: character.lineCount,
+                        firstAppearance: character.firstAppearance
+                      }}
+                      analysis={getCharacterAnalysis(character.name)}
+                      onClick={() => !isTakenByOther && handleCharacterSelect(character.name)}
+                      isSelected={currentParticipant?.characterName === character.name}
+                      isTakenByOther={isTakenByOther}
+                      takenByPlayerName={takenBy?.playerName}
+                    />
                   </div>
                 )
               })}
@@ -320,7 +353,7 @@ export default function LobbyJoinPage() {
 
               {/* Footer - Start button (host only) OR waiting message */}
               <div className="border-t border-cyan-500/30 bg-gradient-to-r from-cyan-500/5 via-primary/5 to-cyan-500/5 px-6 py-4">
-                {isHost && phase === 'waiting' ? (
+                {isHost && currentParticipant?.characterName ? (
                   <>
                     <Button
                       onClick={handleStartRehearsal}
@@ -343,7 +376,7 @@ export default function LobbyJoinPage() {
                       AI will be auto-assigned to unselected characters
                     </p>
                   </>
-                ) : phase === 'waiting' ? (
+                ) : currentParticipant?.characterName ? (
                   <div className="flex items-center justify-center gap-2 text-slate-400">
                     <Loader2 className="w-5 h-5 animate-spin" />
                     <span>Waiting for host to start rehearsal...</span>

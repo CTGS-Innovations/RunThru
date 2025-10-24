@@ -12,10 +12,12 @@ interface CharacterCardProps {
   }
   analysis?: CharacterAnalysisWithPortrait  // OpenAI analysis (Sprint 4)
   isSelected: boolean
+  isTakenByOther?: boolean  // Character selected by another player (multiplayer)
+  takenByPlayerName?: string  // Name of player who took this character
   onClick: () => void
 }
 
-export function CharacterCard({ character, analysis, isSelected, onClick }: CharacterCardProps) {
+export function CharacterCard({ character, analysis, isSelected, isTakenByOther, takenByPlayerName, onClick }: CharacterCardProps) {
   // Role type badge styling
   const getRoleBadge = (roleType: string) => {
     switch (roleType) {
@@ -39,16 +41,19 @@ export function CharacterCard({ character, analysis, isSelected, onClick }: Char
   return (
     <div
       className={cn(
-        "group relative cursor-pointer transition-all duration-300",
-        "hover:scale-105",
-        isSelected && "scale-105"
+        "group relative transition-all duration-300",
+        isTakenByOther
+          ? "cursor-not-allowed opacity-60"
+          : "cursor-pointer hover:scale-105",
+        isSelected && !isTakenByOther && "scale-105"
       )}
-      onClick={onClick}
+      onClick={isTakenByOther ? undefined : onClick}
       role="button"
       aria-pressed={isSelected}
-      tabIndex={0}
+      aria-disabled={isTakenByOther}
+      tabIndex={isTakenByOther ? -1 : 0}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
+        if (!isTakenByOther && (e.key === 'Enter' || e.key === ' ')) {
           e.preventDefault()
           onClick()
         }
@@ -58,9 +63,11 @@ export function CharacterCard({ character, analysis, isSelected, onClick }: Char
       <div className={cn(
         "relative overflow-hidden rounded-3xl shadow-2xl transition-all duration-300",
         "bg-gradient-to-br from-card via-card to-card/80",
-        isSelected
-          ? "border-4 border-amber-500/50 shadow-[0_0_40px_hsl(24_90%_60%_/_0.4)] ring-4 ring-amber-500/20"
-          : "border-2 border-primary/30 hover:shadow-[0_0_40px_hsl(180_80%_60%_/_0.3)] hover:border-cyan-500/50"
+        isTakenByOther
+          ? "border-4 border-red-500/40 ring-4 ring-red-500/20"
+          : isSelected
+            ? "border-4 border-amber-500/50 shadow-[0_0_40px_hsl(24_90%_60%_/_0.4)] ring-4 ring-amber-500/20"
+            : "border-2 border-primary/30 hover:shadow-[0_0_40px_hsl(180_80%_60%_/_0.3)] hover:border-cyan-500/50"
       )}>
 
         {/* Shine effect */}
@@ -297,12 +304,20 @@ export function CharacterCard({ character, analysis, isSelected, onClick }: Char
           <button
             className={cn(
               "w-full py-4 rounded-xl text-base font-black transition-opacity shadow-lg",
-              isSelected
-                ? "bg-gradient-to-r from-green-500 to-green-600 text-white"
-                : "bg-gradient-to-r from-primary to-accent text-black hover:opacity-90"
+              isTakenByOther
+                ? "bg-red-500/20 text-red-400 border-2 border-red-500/40 cursor-not-allowed"
+                : isSelected
+                  ? "bg-gradient-to-r from-green-500 to-green-600 text-white"
+                  : "bg-gradient-to-r from-primary to-accent text-black hover:opacity-90"
             )}
+            disabled={isTakenByOther}
           >
-            {isSelected ? (
+            {isTakenByOther ? (
+              <span className="flex items-center justify-center gap-2">
+                <Check className="w-5 h-5" />
+                SELECTED BY {takenByPlayerName?.toUpperCase() || 'ANOTHER PLAYER'}
+              </span>
+            ) : isSelected ? (
               <span className="flex items-center justify-center gap-2">
                 <Check className="w-5 h-5" />
                 ROLE SELECTED
