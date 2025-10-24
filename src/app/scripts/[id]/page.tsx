@@ -7,13 +7,29 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useScript } from '@/hooks/useScripts';
 import { ArrowLeft, Sparkles, Zap, Star, Users } from 'lucide-react';
 import Image from 'next/image';
+import { useRequirePin } from '@/hooks/useAuth';
 
 export default function ScriptDetailPage() {
+  // Auth guard - requires PIN authentication
+  const { isChecking } = useRequirePin();
+
   const params = useParams();
   const router = useRouter();
   const scriptId = params.id as string;
 
   const { data: script, isLoading, error } = useScript(scriptId);
+
+  // Show loading while checking auth
+  if (isChecking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Sparkles className="w-12 h-12 animate-spin text-cyan-400 mx-auto mb-4" />
+          <p className="text-muted-foreground">Verifying access...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (

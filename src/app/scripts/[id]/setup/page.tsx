@@ -20,8 +20,12 @@ import { useCreateLobby } from '@/hooks/useLobbies'
 import { Sparkles, Zap, Users, ArrowRight, Check, ChevronLeft, ChevronRight, ArrowLeft, Copy, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { Character } from '@/types'
+import { useRequirePin } from '@/hooks/useAuth'
 
 export default function CharacterSelectionPage() {
+  // Auth guard - requires PIN authentication
+  const { isChecking } = useRequirePin()
+
   const params = useParams()
   const router = useRouter()
   const scriptId = params.id as string
@@ -123,6 +127,18 @@ export default function CharacterSelectionPage() {
       left: direction === 'left' ? -scrollAmount : scrollAmount,
       behavior: 'smooth'
     })
+  }
+
+  // Auth loading state
+  if (isChecking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Sparkles className="w-12 h-12 animate-spin text-cyan-400 mx-auto mb-4" />
+          <p className="text-muted-foreground">Verifying access...</p>
+        </div>
+      </div>
+    )
   }
 
   // Loading state
