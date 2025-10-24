@@ -1,8 +1,8 @@
 # RunThru - Task Tracking & Progress
 
-**Last Updated**: 2025-10-24 22:00
-**Current Phase**: MVP Phase 1 - Security & Multiplayer Complete + Cloudflare Tunnel Ready
-**Overall Progress**: Sprint 1: 100% ✅ | Sprint 2: 100% ✅ | Sprint 3: 100% ✅ | Sprint 4: 100% ✅ | Sprint 5: 100% ✅ | Sprint 7: 40% 🔄
+**Last Updated**: 2025-10-24 22:30
+**Current Phase**: MVP Phase 1 - Synchronized Multiplayer Rehearsal
+**Overall Progress**: Sprint 1: 100% ✅ | Sprint 2: 100% ✅ | Sprint 3: 100% ✅ | Sprint 4: 100% ✅ | Sprint 5: 100% ✅ | Sprint 6A: 0% 🔄 | Sprint 7: 40% ✅
 
 ---
 
@@ -939,17 +939,218 @@
 
 ---
 
-## 📅 Sprint 6: Audio Generation & Caching (Week 3)
+## 📅 Sprint 6: Synchronized Multiplayer Rehearsal (Week 3)
+
+**Status**: 🔄 In Progress - 0%
+**Depends on**: Multiplayer Lobbies ✅ Complete, Rehearsal UI ✅ Complete
+**Started**: 2025-10-24
+**Focus**: Real-time playback synchronization + audio integration
+
+**PRD**: See `/docs/synchronized-rehearsal-prd.md` for full architecture
+
+### 🎯 Sprint Overview
+
+**The Problem**: When 3+ users join a rehearsal, they need to stay in sync:
+- Auto-play audio for AI-spoken lines
+- Pause on human characters (wait for participant to speak IRL)
+- All clients see the same line at the same time
+- No manual "Next" button clicking - flows automatically
+
+**Two-Phase Approach**:
+1. **Phase 1 (This session)**: Synchronization with test audio file
+2. **Phase 2 (Sprint 6B)**: Full audio generation with Chatterbox TTS
+
+---
+
+### 📅 Sprint 6A: Playback Synchronization (This Session)
+
+**Status**: 🔄 In Progress - 0%
+**Goal**: Get 3+ browsers staying in sync with test audio, auto-advancing correctly
+
+#### ⚙️ Backend Track - Playback State API
+
+- [ ] **Database schema updates**
+  - [ ] Add playback state columns to `sessions` table:
+    - [ ] `current_line_index INTEGER DEFAULT 0`
+    - [ ] `playback_state TEXT DEFAULT 'paused'` ('playing' | 'paused' | 'waiting_for_user')
+    - [ ] `last_state_update DATETIME`
+  - [ ] File: `backend/database/schema.sql`
+
+- [ ] **Create PlaybackService**
+  - [ ] Method: `getPlaybackState(sessionId)` - Returns current line index + state
+  - [ ] Method: `advanceLine(sessionId, participantId)` - Move to next line (with permission check)
+  - [ ] Method: `rewindLine(sessionId, participantId)` - Go back (host only)
+  - [ ] Method: `jumpToLine(sessionId, participantId, lineIndex)` - Jump to specific line (host only)
+  - [ ] Method: `pausePlayback(sessionId)` - Pause audio (anyone can pause)
+  - [ ] File: `backend/src/services/playback.service.ts`
+
+- [ ] **Create GET /api/sessions/:id/playback endpoint**
+  - [ ] Returns: `{currentLineIndex, playbackState, currentLine, nextLine}`
+  - [ ] Current line includes: `{id, character, text, audioUrl, isAI, playerName?}`
+  - [ ] Used for polling (frontend calls every 500ms)
+  - [ ] File: `backend/src/routes/sessions.routes.ts`
+
+- [ ] **Create POST /api/sessions/:id/advance endpoint**
+  - [ ] Input: `{participantId}` (verify caller can advance)
+  - [ ] Validates: Current speaker or host can advance
+  - [ ] Updates: `current_line_index += 1, last_state_update = NOW()`
+  - [ ] Returns: Updated playback state
+  - [ ] Race condition protection: SQLite transaction with row lock
+  - [ ] File: `backend/src/routes/sessions.routes.ts`
+
+- [ ] **Create POST /api/sessions/:id/rewind endpoint**
+  - [ ] Input: `{participantId}` (host only)
+  - [ ] Updates: `current_line_index -= 1`
+  - [ ] Returns: Updated playback state
+
+- [ ] **Create POST /api/sessions/:id/jump endpoint**
+  - [ ] Input: `{participantId, targetLineIndex}` (host only)
+  - [ ] Validates: Target line exists in script
+  - [ ] Updates: `current_line_index = targetLineIndex`
+  - [ ] Returns: Updated playback state
+
+- [ ] **Add test audio file**
+  - [ ] Copy sample WAV file to: `backend/public/audio/test-dialogue.wav`
+  - [ ] Serve via: `GET /audio/test-dialogue.wav`
+  - [ ] ~3-5 seconds duration (typical dialogue line)
+  - [ ] File: Create `backend/public/audio/` directory
+
+- [ ] **🔍 CHECKPOINT 6A-BACKEND**: Test APIs with curl/Postman
+  - [ ] Test: GET /api/sessions/:id/playback returns current state
+  - [ ] Test: POST /api/sessions/:id/advance increments line index
+  - [ ] Test: Verify race condition (two simultaneous advances → only one succeeds)
+  - [ ] Test: Host can rewind, non-host cannot
+  - [ ] Test: Audio file accessible at /audio/test-dialogue.wav
+
+#### 🎨 Frontend Track - Polling & Playback UI
+
+- [ ] **Create usePlayback hook**
+  - [ ] Polls `GET /api/sessions/:id/playback` every 500ms
+  - [ ] Returns: `{currentLine, nextLine, playbackState, isMyTurn, canAdvance}`
+  - [ ] Helper: `isMyTurn = currentLine.playerName === localStorage.runthru_player_name`
+  - [ ] Helper: `canAdvance = isMyTurn || isHost`
+  - [ ] File: `src/hooks/usePlayback.ts`
+
+- [ ] **Add audio player to rehearsal page**
+  - [ ] Create `<audio>` ref (hidden element)
+  - [ ] Effect: When `currentLine` changes:
+    - [ ] If `currentLine.isAI === true`: Load audio, play automatically
+    - [ ] If `currentLine.isAI === false`: Pause, show "YOUR LINE" or "Waiting for..."
+  - [ ] On audio ended: Auto-call `advanceLine()` (first client to finish wins)
+  - [ ] File: `src/app/rehearsal/[sessionId]/page.tsx`
+
+- [ ] **Update footer controls**
+  - [ ] **Continue button** (visible only when `isMyTurn === true`):
+    - [ ] Label: "Continue ▶" (green, 60px height)
+    - [ ] Click: Calls `POST /api/sessions/:id/advance`
+    - [ ] Disabled during API call (prevent double-click)
+  - [ ] **Pause button** (visible during AI audio playback):
+    - [ ] Label: "⏸ Pause"
+    - [ ] Click: Pauses local audio (doesn't affect other clients)
+    - [ ] Optional future: Pause for everyone (host only)
+  - [ ] **Progress bar**:
+    - [ ] Shows: "Line 42/428 • Scene 3/12"
+    - [ ] Audio progress bar (when playing AI line)
+  - [ ] File: `src/app/rehearsal/[sessionId]/page.tsx`
+
+- [ ] **Add synchronization indicators**
+  - [ ] Current line visual states:
+    - [ ] **AI speaking**: Cyan glow + 🔊 icon + progress bar
+    - [ ] **Your turn**: Amber glow + "YOUR LINE" badge (existing)
+    - [ ] **Waiting for user**: Neutral + "Waiting for [Name] (CHARACTER)..."
+  - [ ] Next line preview:
+    - [ ] Show next 1-2 lines (dimmed, 60% opacity)
+    - [ ] Helps participants prepare
+
+- [ ] **Add polling status indicator** (debug mode)
+  - [ ] Small badge: "🟢 Synced" (updated <1s ago) or "🟡 Polling..." (>2s)
+  - [ ] Shows last sync time: "Updated 0.5s ago"
+  - [ ] Optional: Can be hidden in production
+
+- [ ] **🔍 CHECKPOINT 6A-FRONTEND**: Single browser testing
+  - [ ] Test: Page loads, polling starts (check Network tab)
+  - [ ] Test: Audio auto-plays for AI lines
+  - [ ] Test: Audio ends → Advances to next line automatically
+  - [ ] Test: User's turn → Shows "Continue" button, no audio
+  - [ ] Test: Click Continue → Advances to next line
+  - [ ] Test: Progress bar updates correctly
+
+#### 🔗 Integration Testing - Multi-Browser Sync
+
+- [ ] **🧪 Test 1: Two browsers, same session**
+  - [ ] Open Chrome: Create lobby, start rehearsal as Host (NARRATOR)
+  - [ ] Open Firefox: Join same lobby as Participant 1 (GIRL)
+  - [ ] Verify: Both see Line 1 (NARRATOR's turn)
+  - [ ] Host clicks "Continue" → Firefox sees update within 500ms
+  - [ ] Verify: Both advance to Line 2 (AI character)
+  - [ ] Verify: Audio auto-plays on both browsers
+  - [ ] Verify: Both advance to Line 3 (GIRL's turn) automatically
+  - [ ] Participant 1 clicks "Continue" → Host sees update
+
+- [ ] **🧪 Test 2: Three browsers, complex sequence**
+  - [ ] Browser 1: Host (NARRATOR)
+  - [ ] Browser 2: Participant 1 (GIRL)
+  - [ ] Browser 3: Participant 2 (JIMMY)
+  - [ ] Run through 20+ lines with mixed AI/human characters
+  - [ ] Verify: No one gets out of sync
+  - [ ] Verify: "Waiting for..." messages show correct player names
+
+- [ ] **🧪 Test 3: Race condition test**
+  - [ ] Two browsers watching same AI line
+  - [ ] Both try to advance when audio ends
+  - [ ] Verify: Only one advance succeeds (no duplicate)
+  - [ ] Verify: Both end up on same line after polling
+
+- [ ] **🧪 Test 4: Network latency simulation**
+  - [ ] Chrome DevTools → Network → Throttle to "Fast 3G"
+  - [ ] Verify: Polling still works (just slower)
+  - [ ] Verify: No crashes or stuck states
+
+- [ ] **🧪 Test 5: Disconnect/reconnect**
+  - [ ] Start rehearsal with 3 browsers
+  - [ ] Close one browser mid-rehearsal
+  - [ ] Verify: Other two continue normally
+  - [ ] Reopen closed browser, navigate back to same URL
+  - [ ] Verify: Catches up to current line (localStorage participant ID)
+
+- [ ] **✅ CHECKPOINT 6A COMPLETE**: Multi-browser sync working
+  - [ ] 3+ browsers stay in sync through 50+ lines
+  - [ ] Audio auto-plays and auto-advances correctly
+  - [ ] Human turns pause correctly
+  - [ ] <1 second lag between clients
+  - [ ] No race conditions or duplicate advances
+  - [ ] Ready for Phase 2 (real TTS audio)
+
+---
+
+### 📅 Sprint 6B: Audio Generation with Chatterbox (Future Session)
 
 **Status**: ⏸️ Not Started - 0%
-**Depends on**: Multiplayer Lobbies ✅ TBD
-**Focus**: TTS integration + batch audio generation + emotion mapping
+**Depends on**: Sprint 6A ✅ Complete
+**Focus**: Replace test audio with real TTS-generated voices
 
-- [ ] Frontend: Progress bar, audio generation UI
-- [ ] Backend: Batch generation (SSE), audio cache service
-- [ ] TTS: Emotion mapping, batch processing
-- [ ] Hybrid mode: AI voices for unassigned characters only
-- [ ] **CHECKPOINT 6**: Audio generation complete
+- [ ] **TTS Integration**
+  - [ ] Create AudioGenerationService
+  - [ ] Integrate Chatterbox adapter (already exists in tts-service)
+  - [ ] Generate audio for each AI line on session start
+  - [ ] Map voice presets to Chatterbox parameters
+  - [ ] Store in: `backend/public/audio/{sessionId}/line-{index}.wav`
+
+- [ ] **Batch Generation Endpoint**
+  - [ ] POST /api/sessions/:id/generate-audio
+  - [ ] Shows progress bar: "Generating audio... 42/428 lines"
+  - [ ] Parallel generation (10 lines at once)
+  - [ ] Estimated time: 428 lines × 0.5s = ~3.5 minutes
+
+- [ ] **Cache Management**
+  - [ ] Audio files persist until session deleted
+  - [ ] Future: Cache by (text + voice params) hash for reuse
+
+- [ ] **🔍 CHECKPOINT 6B**: Full TTS integration
+  - [ ] Generate audio for 428-line script
+  - [ ] Verify voice assignments match presets
+  - [ ] Verify audio quality and timing
+  - [ ] Test full rehearsal with real voices
 
 ---
 
@@ -1072,7 +1273,9 @@
 
 ### Active Blockers:
 
-**✅ NO ACTIVE BLOCKERS** - Sprint 5 100% complete! All features working:
+**✅ NO ACTIVE BLOCKERS** - Starting Sprint 6A (Synchronized Rehearsal)
+
+**Sprint 5 Summary** (100% Complete):
 - ✅ PIN authentication system implemented
 - ✅ Unified auth (PIN + lobby join) working
 - ✅ All backend APIs tested and working
@@ -1080,8 +1283,11 @@
 - ✅ Auth guard race condition fixed
 - ✅ Multiplayer lobby flow working end-to-end
 - ✅ Perspective debugging added (console logs + UI banner)
+- ✅ Cloudflare Tunnel compatibility (all relative URLs)
 
-**Next Focus**: Sprint 6 (Audio Generation) or continue polishing Sprint 5 perspective display
+**Current Focus**: Sprint 6A - Playback synchronization with test audio (see PRD: `/docs/synchronized-rehearsal-prd.md`)
+
+**Goal**: Get 3+ browsers staying in sync, auto-playing audio, pausing on user turns
 
 ### Sprint 3 Decisions (Resolved):
 
@@ -1138,7 +1344,7 @@
 
 ## 📊 Progress Dashboard
 
-### Overall MVP Phase 1 Progress: 74%
+### Overall MVP Phase 1 Progress: 72%
 
 | Sprint | Status | Progress | Target Date |
 |--------|--------|----------|-------------|
@@ -1147,17 +1353,18 @@
 | 3. Role Selection | ✅ Complete | 100% | 2025-10-23 |
 | 4. OpenAI Integration | ✅ Complete | 100% | 2025-10-23 |
 | 5. Multiplayer & Security | ✅ Complete | 100% | 2025-10-24 |
-| 6. Audio Generation | ⏸️ Not Started | 0% | 2025-11-13 |
-| 7. Rehearsal Playback | 🔄 In Progress | 40% | 2025-11-20 |
+| 6A. Playback Sync (Test Audio) | 🔄 In Progress | 0% | 2025-10-24 |
+| 6B. Audio Generation (TTS) | ⏸️ Not Started | 0% | 2025-11-13 |
+| 7. Rehearsal Playback UI | ✅ Complete | 100% | 2025-10-24 |
 
 ### Track-Specific Progress:
 
-| Track | Sprint 4 (OpenAI) | Sprint 5 (Multiplayer) | Sprint 6 (Audio) | Sprint 7 (Rehearsal UI) |
-|-------|-------------------|------------------------|------------------|-------------------------|
-| 🎨 Frontend | ✅ 100% | ✅ 100% (Complete) | ⏸️ Waiting | ✅ 100% (UI Complete) |
-| ⚙️ Backend | ✅ 100% | ✅ 100% (Complete) | ⏸️ Waiting | N/A |
-| 🤖 AI/ML | ✅ 100% (Portraits) | N/A | ⏸️ Waiting | N/A |
-| 🔗 Integration | ✅ 100% | ✅ 100% (Tested) | ⏸️ Waiting | ⏸️ Waiting (Audio) |
+| Track | Sprint 5 (Multiplayer) | Sprint 6A (Sync) | Sprint 6B (TTS) | Sprint 7 (UI) |
+|-------|------------------------|------------------|-----------------|---------------|
+| 🎨 Frontend | ✅ 100% | 🔄 0% | ⏸️ Waiting | ✅ 100% |
+| ⚙️ Backend | ✅ 100% | 🔄 0% | ⏸️ Waiting | N/A |
+| 🤖 AI/ML | N/A | N/A | ⏸️ Waiting | N/A |
+| 🔗 Integration | ✅ 100% | 🔄 0% (Testing) | ⏸️ Waiting | ✅ 100% |
 
 ---
 
