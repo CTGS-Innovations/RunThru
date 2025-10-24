@@ -1,7 +1,7 @@
 # RunThru - Task Tracking & Progress
 
-**Last Updated**: 2025-10-23 23:50
-**Current Phase**: MVP Phase 1 - Sprint 5 Ready (Audio Generation)
+**Last Updated**: 2025-10-24 13:45
+**Current Phase**: MVP Phase 1 - Sprint 5 Ready (Multiplayer & Security)
 **Overall Progress**: Sprint 1: 100% ✅ | Sprint 2: 100% ✅ | Sprint 3: 100% ✅ | Sprint 4: 100% ✅ | Sprint 5: 0% 🟡 Ready
 
 ---
@@ -671,18 +671,261 @@
 
 ---
 
-## 📅 Future Sprints (Overview)
+## 📅 Sprint 5: Multiplayer Lobbies & Security (Week 2)
 
-### Sprint 5: Audio Generation & Caching (Week 2-3)
+**Status**: 🟡 Ready - 0%
+**Depends on**: OpenAI Integration ✅ Complete
+**Target**: 2025-11-06
+**Focus**: PIN authentication + shareable lobby links + multiplayer character selection
+
+### 🎯 Design Decisions Made (2025-10-24)
+
+1. **Security Model**: 6-digit PIN code ✅
+   - Single shared passcode (set in .env: `ACCESS_PIN=123456`)
+   - Landing page PIN entry with rate limiting (3 attempts → 2-minute cooldown)
+   - localStorage persistence (validated users skip PIN on return)
+   - Protects expensive operations (script upload, OpenAI costs)
+
+2. **Shareable Links**: Complex UUIDs (unguessable) ✅
+   - Lobby: `/lobby/{uuid}` (what gets shared to participants)
+   - Rehearsal: `/rehearsal/{uuid}` (redirect-only, not directly shared)
+   - 4-hour expiration from creation
+   - No PIN required to join lobby/rehearsal (link is the auth)
+
+3. **Join Flow**: Name entry → Character selection → Lobby waiting ✅
+   - Participant enters first name only
+   - Picks character (first-come-first-served, locked in DB)
+   - Sees other participants + their selections
+   - Host starts → Everyone auto-redirects to rehearsal
+
+4. **Database-First Architecture**: All state in SQLite ✅
+   - Character locking via UNIQUE constraint (prevents race conditions)
+   - Real-time sync via polling (every 2 seconds)
+   - AI auto-assigned to unselected characters on start
+   - localStorage for reconnection (WiFi drops)
+
+5. **Host Privileges**: First creator is host ✅
+   - Only host sees "START REHEARSAL" button
+   - Everyone else sees lobby status (waiting)
+   - Auto-promote if host leaves (first joiner becomes new host)
+
+### 🎨 Frontend Track - PIN & Lobby UI
+
+- [ ] **Landing Page with PIN Entry**
+  - [ ] Create `/app/page.tsx` with PIN entry form
+  - [ ] 6-digit numeric input (large, mobile-friendly)
+  - [ ] Rate limiting UI (3 attempts → 2-minute cooldown timer)
+  - [ ] localStorage: Save validated PIN + timestamp
+  - [ ] Success → Redirect to `/scripts`
+  - [ ] shadcn components: Input, Button, Card
+  - [ ] File: `src/app/page.tsx`
+
+- [ ] **PIN Validation Middleware**
+  - [ ] Create `usePINValidation` hook
+  - [ ] Check localStorage on protected page mount
+  - [ ] Redirect to `/` if no valid PIN
+  - [ ] Protected pages: `/scripts/**`, `/rehearsal/**` (except join flow)
+  - [ ] File: `src/hooks/usePINValidation.ts`
+
+- [ ] **Shareable Link Generator UI**
+  - [ ] Add "Create Multiplayer Lobby" button to SessionSetup page
+  - [ ] Show shareable link with copy button
+  - [ ] Display expiration timer ("Expires in 3h 45m")
+  - [ ] "End Session" button (invalidates link immediately)
+  - [ ] File: `src/app/scripts/[id]/setup/page.tsx` (update)
+
+- [ ] **Lobby Join Page** (`/lobby/[token]`)
+  - [ ] Route: `/app/lobby/[token]/page.tsx`
+  - [ ] Phase 1: Name entry form (if no localStorage)
+  - [ ] Phase 2: Character selection grid (same as solo mode)
+  - [ ] Phase 3: Waiting room (see all participants + selections)
+  - [ ] Real-time polling (every 2s) for participant updates
+  - [ ] Character cards show lock state (unavailable if taken)
+  - [ ] "Waiting for host to start..." message for non-hosts
+  - [ ] "START REHEARSAL" button (host only, enabled when all ready)
+  - [ ] Auto-redirect when host starts (`isActive` detected)
+  - [ ] Mobile-first responsive design
+
+- [ ] **Lobby Status Component**
+  - [ ] Shows all joined participants
+  - [ ] Player name + character + ready checkmark
+  - [ ] AI-assigned characters shown as "AI" with robot icon
+  - [ ] Host badge (crown icon) for session creator
+  - [ ] Progress indicator: "3/11 characters assigned"
+  - [ ] File: `src/components/session/LobbyStatus.tsx`
+
+- [ ] **Update Rehearsal Page** (`/rehearsal/[sessionId]`)
+  - [ ] Load session config on mount (one-time)
+  - [ ] Identify current user from localStorage
+  - [ ] Highlight user's character lines (amber)
+  - [ ] Dim other human lines (gray)
+  - [ ] Mark AI lines (cyan with robot icon)
+  - [ ] No changes during rehearsal (config frozen)
+  - [ ] File: `src/app/rehearsal/[sessionId]/page.tsx` (update)
+
+- [ ] **API Client Hooks**
+  - [ ] useValidatePIN(pin) - Verify PIN code
+  - [ ] useCreateLobby(scriptId) - Generate shareable link
+  - [ ] useJoinLobby(token, playerName) - Join as participant
+  - [ ] useLobbyParticipants(token) - Poll participant list
+  - [ ] useSelectCharacter(token, characterName) - Lock character
+  - [ ] useStartRehearsal(token) - Host starts (AI auto-fill + redirect)
+  - [ ] useSessionConfig(sessionId) - Get frozen config for rehearsal
+  - [ ] File: `src/hooks/useLobbies.ts`
+
+### ⚙️ Backend Track - Session & Participant Management
+
+- [ ] **Database Schema Updates**
+  - [ ] Add to `sessions` table:
+    - [ ] `shareable_token` VARCHAR(12) UNIQUE NOT NULL
+    - [ ] `expires_at` DATETIME NOT NULL
+    - [ ] `is_active` BOOLEAN DEFAULT 0
+    - [ ] `started_at` DATETIME
+  - [ ] Create `participants` table:
+    - [ ] `id` INTEGER PRIMARY KEY AUTOINCREMENT
+    - [ ] `session_id` INTEGER NOT NULL (FK → sessions)
+    - [ ] `player_name` VARCHAR(100) NOT NULL
+    - [ ] `character_name` VARCHAR(100) (NULL until selected)
+    - [ ] `is_ai` BOOLEAN DEFAULT 0
+    - [ ] `is_host` BOOLEAN DEFAULT 0
+    - [ ] `is_ready` BOOLEAN DEFAULT 0
+    - [ ] `joined_at` DATETIME DEFAULT CURRENT_TIMESTAMP
+    - [ ] UNIQUE(session_id, character_name) ← Character locking
+    - [ ] FOREIGN KEY ON DELETE CASCADE
+  - [ ] File: `backend/database/schema.sql`
+
+- [ ] **PIN Validation Middleware**
+  - [ ] Create `validatePIN` middleware function
+  - [ ] Check `req.headers['x-access-pin']` against `process.env.ACCESS_PIN`
+  - [ ] Return 401 Unauthorized if invalid
+  - [ ] Apply to: POST /api/scripts, POST /api/sessions (creation only)
+  - [ ] Do NOT apply to: GET /api/sessions/:id (participants need access)
+  - [ ] File: `backend/src/middleware/auth.middleware.ts`
+
+- [ ] **Session Token Generation**
+  - [ ] Use `nanoid(12)` for shareable tokens (URL-safe, compact)
+  - [ ] Generate on session creation: `shareable_token = nanoid(12)`
+  - [ ] Set expiry: `expires_at = NOW() + INTERVAL 4 HOUR`
+  - [ ] Return lobby URL: `{lobbyUrl: '/lobby/{token}'}`
+  - [ ] File: `backend/src/services/session.service.ts` (update)
+
+- [ ] **POST /api/lobbies/create endpoint**
+  - [ ] Input: `{scriptId, creatorName}`
+  - [ ] Validates: PIN in headers, scriptId exists
+  - [ ] Creates session with shareable token + expiry
+  - [ ] Creates first participant (creator, is_host = true, no character yet)
+  - [ ] Returns: `{token, lobbyUrl, expiresAt}`
+  - [ ] File: `backend/src/routes/lobbies.routes.ts`
+
+- [ ] **POST /api/lobbies/:token/join endpoint**
+  - [ ] Input: `{playerName}`
+  - [ ] Validates: Token exists, not expired, session not active
+  - [ ] Creates participant record (is_host = false, no character yet)
+  - [ ] Returns: `{participantId, sessionId}`
+  - [ ] File: `backend/src/routes/lobbies.routes.ts`
+
+- [ ] **GET /api/lobbies/:token/participants endpoint**
+  - [ ] Returns: Array of all participants with character selections
+  - [ ] Format: `[{id, playerName, characterName, isReady, isHost, isAI}]`
+  - [ ] Used for polling (every 2 seconds)
+  - [ ] File: `backend/src/routes/lobbies.routes.ts`
+
+- [ ] **PUT /api/lobbies/:token/select endpoint**
+  - [ ] Input: `{participantId, characterName}`
+  - [ ] Updates: `participants.character_name` (UNIQUE constraint prevents duplicates)
+  - [ ] Returns: Updated participant or 409 Conflict if character taken
+  - [ ] File: `backend/src/routes/lobbies.routes.ts`
+
+- [ ] **POST /api/lobbies/:token/start endpoint**
+  - [ ] Validates: Caller is host (check `is_host = true`)
+  - [ ] Auto-assign AI to unselected characters:
+    - [ ] Get all script characters
+    - [ ] Find unassigned characters
+    - [ ] Insert participant records with `is_ai = true, is_ready = true`
+  - [ ] Update session: `is_active = true, started_at = NOW()`
+  - [ ] Returns: `{rehearsalUrl: '/rehearsal/{sessionId}'}`
+  - [ ] File: `backend/src/routes/lobbies.routes.ts`
+
+- [ ] **GET /api/sessions/:id/config endpoint**
+  - [ ] Returns frozen session config for rehearsal page
+  - [ ] Format:
+    ```json
+    {
+      "sessionId": "123",
+      "scriptId": "456",
+      "participants": [
+        {"playerName": "Sarah", "characterName": "NARRATOR", "isAI": false},
+        {"playerName": "AI", "characterName": "ZOMBIE", "isAI": true}
+      ],
+      "currentLineIndex": 0,
+      "startedAt": "2025-10-24T12:00:00Z"
+    }
+    ```
+  - [ ] File: `backend/src/routes/sessions.routes.ts` (update)
+
+- [ ] **Session Expiry Cleanup**
+  - [ ] Add middleware to check `expires_at` before serving any session endpoint
+  - [ ] Return 410 Gone if expired
+  - [ ] Optional: Background job to delete expired sessions (future enhancement)
+  - [ ] File: `backend/src/middleware/session.middleware.ts`
+
+### 🔗 Integration Milestone
+
+- [ ] **INTEGRATION CHECKPOINT 5A**: PIN Gate Working
+  - [ ] Test: Open app → See PIN entry screen
+  - [ ] Test: Enter wrong PIN → See error, rate limit after 3 attempts
+  - [ ] Test: Enter correct PIN → Redirect to scripts
+  - [ ] Test: Refresh page → Still authenticated (localStorage)
+  - [ ] Test: Protected pages redirect if no PIN
+  - [ ] **PASS/FAIL**: TBD
+
+- [ ] **INTEGRATION CHECKPOINT 5B**: Lobby Flow End-to-End
+  - [ ] Test: Create lobby → Get shareable link
+  - [ ] Test: Open link in incognito → Enter name → See character grid
+  - [ ] Test: Select character → Locked for other users
+  - [ ] Test: 2nd user joins → Picks different character
+  - [ ] Test: Both users see each other in lobby status
+  - [ ] Test: Host clicks "START" → Both redirect to rehearsal
+  - [ ] Test: AI auto-assigned to unselected characters
+  - [ ] Test: Rehearsal page shows correct perspective (user's lines highlighted)
+  - [ ] Test: Session expires after 4 hours → 410 Gone
+  - [ ] **PASS/FAIL**: TBD
+
+### 📱 Mobile Testing Checklist
+
+- [ ] PIN entry keyboard (numeric input works on mobile)
+- [ ] Lobby link shareable via SMS/WhatsApp
+- [ ] Character selection cards tappable (48px touch targets)
+- [ ] Lobby status scrollable on small screens
+- [ ] Rehearsal page readable on 375px width
+- [ ] Auto-redirect works on mobile browsers
+
+---
+
+## 📅 Sprint 6: Audio Generation & Caching (Week 3)
+
+**Status**: ⏸️ Not Started - 0%
+**Depends on**: Multiplayer Lobbies ✅ TBD
+**Focus**: TTS integration + batch audio generation + emotion mapping
+
 - [ ] Frontend: Progress bar, audio generation UI
 - [ ] Backend: Batch generation (SSE), audio cache service
 - [ ] TTS: Emotion mapping, batch processing
-- [ ] **CHECKPOINT 4**: Audio generation complete
+- [ ] Hybrid mode: AI voices for unassigned characters only
+- [ ] **CHECKPOINT 6**: Audio generation complete
 
-### Sprint 6: Rehearsal Playback (Week 3)
+---
+
+## 📅 Sprint 7: Rehearsal Playback (Week 4)
+
+**Status**: ⏸️ Not Started - 0%
+**Depends on**: Audio Generation ✅ TBD
+**Focus**: Live rehearsal mode with turn-based progression
+
 - [ ] Frontend: LineDisplay with word-sync, AudioPlayer, NavigationControls
 - [ ] Backend: Session state management, audio serving
-- [ ] **CHECKPOINT 5**: Rehearsal mode working end-to-end
+- [ ] Real-time sync: Turn progression (polling)
+- [ ] **CHECKPOINT 7**: Rehearsal mode working end-to-end
 
 ---
 
@@ -746,25 +989,26 @@
 
 ## 📊 Progress Dashboard
 
-### Overall MVP Phase 1 Progress: 80%
+### Overall MVP Phase 1 Progress: 57%
 
 | Sprint | Status | Progress | Target Date |
 |--------|--------|----------|-------------|
-| Infrastructure | ✅ Complete | 100% | 2025-10-23 |
-| Script Upload | ✅ Complete | 100% | 2025-10-23 |
-| Role Selection | ✅ Complete | 100% | 2025-10-23 |
-| OpenAI Integration | ✅ Complete | 100% | 2025-10-23 |
-| Audio Generation | 🟡 Ready | 0% | 2025-11-13 |
-| Rehearsal Playback | ⏸️ Not Started | 0% | 2025-11-20 |
+| 1. Infrastructure | ✅ Complete | 100% | 2025-10-23 |
+| 2. Script Upload | ✅ Complete | 100% | 2025-10-23 |
+| 3. Role Selection | ✅ Complete | 100% | 2025-10-23 |
+| 4. OpenAI Integration | ✅ Complete | 100% | 2025-10-23 |
+| 5. Multiplayer & Security | 🟡 Ready | 0% | 2025-11-06 |
+| 6. Audio Generation | ⏸️ Not Started | 0% | 2025-11-13 |
+| 7. Rehearsal Playback | ⏸️ Not Started | 0% | 2025-11-20 |
 
 ### Track-Specific Progress:
 
-| Track | Sprint 3 (Selection) | Sprint 4 (OpenAI) | Sprint 5 (Audio) |
-|-------|----------------------|-------------------|------------------|
-| 🎨 Frontend | ✅ 100% | ✅ 100% | 🟡 Ready (0%) |
-| ⚙️ Backend | ✅ 100% | ✅ 100% | 🟡 Ready (0%) |
-| 🤖 AI/ML | ✅ 100% (TTS Planning) | ✅ 100% (Portraits) | 🟡 Ready (0%) |
-| 🔗 Integration | ✅ 100% | ✅ 100% | ⏸️ Waiting |
+| Track | Sprint 4 (OpenAI) | Sprint 5 (Multiplayer) | Sprint 6 (Audio) |
+|-------|-------------------|------------------------|------------------|
+| 🎨 Frontend | ✅ 100% | 🟡 Ready (0%) | ⏸️ Waiting |
+| ⚙️ Backend | ✅ 100% | 🟡 Ready (0%) | ⏸️ Waiting |
+| 🤖 AI/ML | ✅ 100% (Portraits) | N/A | ⏸️ Waiting |
+| 🔗 Integration | ✅ 100% | ⏸️ Waiting | ⏸️ Waiting |
 
 ---
 
