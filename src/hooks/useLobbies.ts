@@ -57,6 +57,8 @@ export function useCreateLobby() {
       scriptId: string
       creatorName: string
     }) => {
+      console.log('[useCreateLobby] Creating lobby with creatorName:', creatorName)
+
       const pin = localStorage.getItem('runthru_pin')
       if (!pin) {
         throw new Error('No PIN found. Please log in again.')
@@ -70,6 +72,8 @@ export function useCreateLobby() {
         },
         body: JSON.stringify({ scriptId, creatorName }),
       })
+
+      console.log('[useCreateLobby] Response status:', response.status)
 
       if (!response.ok) {
         const error = await response.json()
@@ -92,6 +96,8 @@ export function useJoinLobby() {
 
   return useMutation({
     mutationFn: async ({ token, playerName }: { token: string; playerName: string }) => {
+      console.log('[useJoinLobby] Joining lobby with playerName:', playerName)
+
       const response = await fetch(`${API_BASE}/api/lobbies/${token}/join`, {
         method: 'POST',
         headers: {
@@ -99,6 +105,8 @@ export function useJoinLobby() {
         },
         body: JSON.stringify({ playerName }),
       })
+
+      console.log('[useJoinLobby] Response status:', response.status)
 
       if (!response.ok) {
         const error = await response.json()

@@ -9,6 +9,9 @@ interface LobbyStatusProps {
 }
 
 export function LobbyStatus({ participants, totalCharacters }: LobbyStatusProps) {
+  // Debug: Log participants to see what data we're receiving
+  console.log('[LobbyStatus] Participants data:', participants)
+
   const assignedCount = participants.filter((p) => p.characterName !== null).length
   const humanPlayers = participants.filter((p) => !p.isAI)
   const aiPlayers = participants.filter((p) => p.isAI)
