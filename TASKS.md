@@ -1,8 +1,8 @@
 # RunThru - Task Tracking & Progress
 
-**Last Updated**: 2025-10-24 22:30
+**Last Updated**: 2025-10-24 23:40
 **Current Phase**: MVP Phase 1 - Synchronized Multiplayer Rehearsal
-**Overall Progress**: Sprint 1: 100% ✅ | Sprint 2: 100% ✅ | Sprint 3: 100% ✅ | Sprint 4: 100% ✅ | Sprint 5: 100% ✅ | Sprint 6A: 0% 🔄 | Sprint 7: 40% ✅
+**Overall Progress**: Sprint 1: 100% ✅ | Sprint 2: 100% ✅ | Sprint 3: 100% ✅ | Sprint 4: 100% ✅ | Sprint 5: 100% ✅ | Sprint 6A: 60% 🔄⚠️ | Sprint 7: 40% ✅
 
 ---
 
@@ -962,12 +962,65 @@
 
 ---
 
-### 📅 Sprint 6A: Playback Synchronization (This Session)
+### 📅 Sprint 6A: Character Card Audio Generation (This Session)
 
-**Status**: 🔄 In Progress - 0%
-**Goal**: Get 3+ browsers staying in sync with test audio, auto-advancing correctly
+**Status**: 🔄 In Progress - 60% ⚠️ **BLOCKED**
+**Goal**: Generate short TTS audio clips for each character using Chatterbox
+**Started**: 2025-10-24 22:30
 
-#### ⚙️ Backend Track - Playback State API
+#### ✅ Completed Tasks (2025-10-24 22:30-23:40)
+
+- [x] **✅ COMPLETE**: Validated Chatterbox TTS with voice cloning
+  - [x] Tested existing venv setup (`/home/corey/projects/RunThru-backend/tts-service/venv`)
+  - [x] Generated test audio: "NARRATOR ONE... Here!" with teen-male voice
+  - [x] Generation time: 6.42 seconds for short phrase
+  - [x] Output: `/home/corey/projects/RunThru/data/test-character-card.wav`
+  - [x] **CONFIRMED**: Voice cloning works with reference audio files
+
+- [x] **✅ COMPLETE**: Created ChatterboxAdapter for TTS service (Python)
+  - [x] File: `tts-service/adapters/chatterbox_adapter.py`
+  - [x] Implements TTSAdapter interface with voice cloning support
+  - [x] Uses `audio_prompt_path` parameter for reference voice
+  - [x] Maps emotion intensity (0-100) to Chatterbox `exaggeration` parameter
+  - [x] Returns WAV audio bytes (24kHz sample rate)
+
+- [x] **✅ COMPLETE**: Updated TTS service to load Chatterbox
+  - [x] File: `tts-service/main.py`
+  - [x] Initializes both Index TTS and Chatterbox adapters
+  - [x] Exposes POST /synthesize endpoint with `engine=chatterbox`
+
+- [x] **✅ COMPLETE**: Created CharacterCardAudioService (Node.js backend)
+  - [x] File: `backend/src/services/characterCardAudio.service.ts`
+  - [x] Method: `generateForSession(sessionId)` - Batch generate for all characters
+  - [x] Method: `generateCharacterCardAudio()` - Single character generation
+  - [x] Catchphrase logic: Character-specific ("ZOMBIE → Graaaains!") + preset fallbacks
+  - [x] Storage: `/audio/{sessionId}/character-{name}.wav`
+  - [x] Uses voice assignments from database (preset → reference audio file)
+
+- [x] **✅ COMPLETE**: Added POST /api/sessions/:id/generate-card-audio endpoint
+  - [x] File: `backend/src/routes/sessions.routes.ts`
+  - [x] Input: Session ID (from URL)
+  - [x] Output: `{characters: [{characterName, audioUrl, generationTime}]}`
+  - [x] Generates audio for all characters in parallel
+  - [x] Returns array of generated audio file URLs
+
+#### ⚠️ Current Blocker (2025-10-24 23:40)
+
+**Backend won't compile** due to pre-existing TypeScript errors (NOT from new Sprint 6A code):
+- `lobbies.routes.ts`: Undefined `lobbyService` and `scriptService` variables (should use `getLobbyService()`)
+- `lobby.service.ts`: Import error `getDatabaseConnection` doesn't exist
+
+**Impact**: Cannot test character card audio endpoint until backend compiles
+
+**Next Steps**:
+1. Fix existing Sprint 5 compilation errors
+2. Start backend dev server
+3. Test POST /api/sessions/:id/generate-card-audio with zombie script (11 characters)
+4. Verify audio pronunciation (especially "NARRATOR ONE" not "NA narrator")
+
+#### ⏸️ Deferred: Playback Synchronization (Sprint 6B)
+
+Once character card audio works, continue with:
 
 - [ ] **Database schema updates**
   - [ ] Add playback state columns to `sessions` table:
