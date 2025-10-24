@@ -6,8 +6,18 @@ import { CharacterCard } from '@/components/session/CharacterCard'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Input } from '@/components/ui/input'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 import { useScript } from '@/hooks/useScripts'
-import { Sparkles, Zap, Users, ArrowRight, Check, ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react'
+import { useCreateLobby } from '@/hooks/useLobbies'
+import { Sparkles, Zap, Users, ArrowRight, Check, ChevronLeft, ChevronRight, ArrowLeft, Copy, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { Character } from '@/types'
 
@@ -18,10 +28,13 @@ export default function CharacterSelectionPage() {
 
   // State
   const [selectedCharacter, setSelectedCharacter] = useState<string | null>(null)
+  const [creatorName, setCreatorName] = useState('')
+  const [lobbyDialogOpen, setLobbyDialogOpen] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
 
   // Queries
   const { data: scriptData, isLoading: scriptLoading } = useScript(scriptId)
+  const createLobby = useCreateLobby()
 
   // Derived state
   const characters: Character[] = scriptData?.parsed?.characters || []
@@ -64,6 +77,23 @@ export default function CharacterSelectionPage() {
     // For MVP: Go directly to rehearsal with selected character
     // Session will be created on rehearsal page
     router.push(`/rehearsal/${scriptId}?character=${encodeURIComponent(selectedCharacter)}`)
+  }
+
+  const handleCreateLobby = async () => {
+    if (!creatorName.trim()) return
+
+    try {
+      const result = await createLobby.mutateAsync({ scriptId, creatorName: creatorName.trim() })
+      const lobbyUrl = `${window.location.origin}/lobby/${result.lobby.token}`
+
+      // Copy to clipboard
+      navigator.clipboard.writeText(lobbyUrl)
+
+      // Navigate to lobby
+      router.push(`/lobby/${result.lobby.token}`)
+    } catch (err) {
+      console.error('Failed to create lobby:', err)
+    }
   }
 
   // Scroll navigation for desktop
@@ -266,11 +296,49 @@ export default function CharacterSelectionPage() {
           )}
         </div>
 
-        {/* Footer note */}
+        {/* Footer - Multiplayer Button */}
         <div className="border-t border-cyan-500/30 bg-gradient-to-r from-cyan-500/5 via-primary/5 to-cyan-500/5 px-6 py-3">
-          <div className="text-xs text-muted-foreground text-center">
-            Solo Mode • Multiplayer Coming Soon
-          </div>
+          <Dialog open={lobbyDialogOpen} onOpenChange={setLobbyDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm" className="w-full border-cyan-500/50 hover:bg-cyan-500/10">
+                <Users className="w-4 h-4 mr-2" />
+                Create Multiplayer Lobby
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create Multiplayer Lobby</DialogTitle>
+                <DialogDescription>
+                  Enter your name to create a shareable rehearsal session
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 pt-4">
+                <Input
+                  placeholder="Your name"
+                  value={creatorName}
+                  onChange={(e) => setCreatorName(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleCreateLobby()}
+                />
+                <Button
+                  onClick={handleCreateLobby}
+                  disabled={!creatorName.trim() || createLobby.isPending}
+                  className="w-full"
+                >
+                  {createLobby.isPending ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Creating...
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-4 h-4 mr-2" />
+                      Create & Copy Link
+                    </>
+                  )}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
