@@ -16,7 +16,7 @@ import {
   useStartRehearsal,
   useLobbyInfo,
 } from '@/hooks/useLobbies'
-import { useScripts } from '@/hooks/useScripts'
+import { useScript } from '@/hooks/useScripts'
 
 type Phase = 'name' | 'character-select' | 'waiting'
 
@@ -33,9 +33,7 @@ export default function LobbyJoinPage() {
   // API hooks
   const lobbyInfo = useLobbyInfo(token)
   const participants = useLobbyParticipants(token, phase !== 'name')
-  const script = useScripts.useScript(lobbyInfo.data?.scriptId || '', {
-    enabled: !!lobbyInfo.data?.scriptId,
-  })
+  const script = useScript(lobbyInfo.data?.scriptId || '')
   const joinLobby = useJoinLobby()
   const selectCharacter = useSelectCharacter()
   const startRehearsal = useStartRehearsal()
