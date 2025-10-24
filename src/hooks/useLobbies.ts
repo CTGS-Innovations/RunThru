@@ -214,6 +214,7 @@ export function useStartRehearsal() {
 
 /**
  * Get lobby information
+ * Polls every 2 seconds to detect when rehearsal starts
  */
 export function useLobbyInfo(token: string, enabled: boolean = true) {
   return useQuery({
@@ -230,6 +231,8 @@ export function useLobbyInfo(token: string, enabled: boolean = true) {
       return data.lobby as LobbySession
     },
     enabled,
+    refetchInterval: 2000, // Poll every 2 seconds to detect when host starts rehearsal
+    refetchIntervalInBackground: true,
   })
 }
 
