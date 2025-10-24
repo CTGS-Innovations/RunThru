@@ -1,7 +1,7 @@
 # RunThru - Task Tracking & Progress
 
-**Last Updated**: 2025-10-24 21:30
-**Current Phase**: MVP Phase 1 - Security & Multiplayer Complete
+**Last Updated**: 2025-10-24 22:00
+**Current Phase**: MVP Phase 1 - Security & Multiplayer Complete + Cloudflare Tunnel Ready
 **Overall Progress**: Sprint 1: 100% ✅ | Sprint 2: 100% ✅ | Sprint 3: 100% ✅ | Sprint 4: 100% ✅ | Sprint 5: 100% ✅ | Sprint 7: 40% 🔄
 
 ---
@@ -685,6 +685,10 @@
 3. ✅ Implemented unified authentication system with PIN and lobby join
 4. ✅ Fixed race condition in auth guards causing premature redirects
 5. ✅ Added rehearsal perspective debugging with console logging and UI banner
+6. ✅ Added navigation arrows to lobby character selection (desktop/tablet)
+7. ✅ Improved taken character visual feedback (greyed out + red border + player name)
+8. ✅ Enabled character re-selection in lobby (not locked after first choice)
+9. ✅ Fixed all hardcoded localhost URLs for Cloudflare Tunnel compatibility
 
 ### 🎯 Design Decisions Made (2025-10-24)
 
@@ -903,8 +907,26 @@
   - [x] Bug Fix: Race condition in auth guards causing redirect loop ✅
   - [x] Bug Fix: useLobbyInfo not polling (participants stuck in lobby) ✅
   - [x] Test: Rehearsal page loads with perspective banner ✅
-  - [x] **NEXT**: Verify perspective matching works correctly for both users
   - [x] **RESULT**: ✅ **SPRINT 5 COMPLETE** - All critical bugs fixed, ready for production
+
+- [x] **✅ POLISH & MOBILE SUPPORT** (2025-10-24 Evening)
+  - [x] **UX Improvements**:
+    - [x] Added left/right navigation arrows to lobby character carousel (desktop only)
+    - [x] Improved taken character visual feedback:
+      - [x] Card greyed out (60% opacity)
+      - [x] Red border (4px with ring effect)
+      - [x] Button shows "SELECTED BY [PLAYER NAME]"
+      - [x] Cursor changes to "not-allowed"
+    - [x] Enabled character re-selection (users can change their choice)
+    - [x] Removed confusing red text below cards
+  - [x] **Cloudflare Tunnel Compatibility**:
+    - [x] Changed all API calls to use relative paths (`/api/...`)
+    - [x] Updated `useLobbies.ts` to use Next.js API proxy
+    - [x] Updated `ScriptUploader.tsx` to use Next.js API proxy
+    - [x] Added PUT method to Next.js API proxy (`/api/[...path]/route.ts`)
+    - [x] **Result**: App now works with localhost, IP addresses, and Cloudflare Tunnel
+    - [x] **Only port 3000 needs to be exposed** - backend stays local
+  - [x] Files modified: `CharacterCard.tsx`, `lobby/[token]/page.tsx`, `useLobbies.ts`, `ScriptUploader.tsx`, `api/[...path]/route.ts`
 
 ### 📱 Mobile Testing Checklist
 
