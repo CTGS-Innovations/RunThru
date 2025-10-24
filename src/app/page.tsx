@@ -97,59 +97,68 @@ export default function HomePage() {
         </Card>
 
         {/* Sprint 3 */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-start justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-green-500" />
+                  Sprint 3: Role Selection & Voice Assignment
+                </CardTitle>
+                <CardDescription>Character selection, voice presets, customization</CardDescription>
+              </div>
+              <span className="text-sm font-medium text-green-500">100% Complete</span>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-sm text-muted-foreground space-y-1">
+              <div>✅ CharacterCard component (video game style)</div>
+              <div>✅ Voice preset system (8 presets)</div>
+              <div>✅ Voice customization sliders (gender/emotion/age)</div>
+              <div>✅ SessionSetup page (gaming/quest aesthetic)</div>
+              <div>✅ Random voice assignment + shuffle</div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Sprint 4 */}
         <Card className="border-amber-500/50">
           <CardHeader>
             <div className="flex items-start justify-between">
               <div>
                 <CardTitle className="flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-amber-500" />
-                  Sprint 3: Role Selection & Voice Assignment
+                  Sprint 4: OpenAI Script Analysis & Character Portraits
                 </CardTitle>
-                <CardDescription>Character selection, voice presets, customization</CardDescription>
+                <CardDescription>AI-powered metadata extraction + DALL-E portrait generation</CardDescription>
               </div>
               <span className="text-sm font-medium text-amber-500">🔍 Testing Now</span>
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-sm text-muted-foreground space-y-1 mb-4">
-              <div>✅ CharacterCard component (video game style)</div>
-              <div>✅ Voice preset system (8 presets)</div>
-              <div>✅ Voice customization sliders (gender/emotion/age)</div>
-              <div>✅ SessionSetup page</div>
-              <div>✅ Random voice assignment + shuffle</div>
+              <div>✅ ScriptAnalysisService (GPT-4o-mini, ~$0.009/script)</div>
+              <div>✅ CharacterPortraitService (DALL-E, $0.04/portrait)</div>
+              <div>✅ Portrait metadata (JSON sidecars for reuse)</div>
+              <div>✅ Character cards with AI portraits & taglines</div>
+              <div>✅ Role badges (Lead/Featured/Ensemble)</div>
             </div>
             <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4 space-y-3">
               <p className="font-medium text-amber-500">Test Instructions:</p>
               <ol className="text-sm space-y-2 list-decimal list-inside">
                 <li>Go to Script Library and select a script</li>
-                <li>Click "Select Your Character" button</li>
-                <li>Click a character card to create a session</li>
-                <li>Customize voices with sliders</li>
-                <li>Try the "Shuffle Voices" button</li>
+                <li>Verify character portraits display in grid</li>
+                <li>Check taglines show below character names</li>
+                <li>Verify role badges (Lead/Featured/Ensemble)</li>
+                <li>Click "START REHEARSAL" → Verify portraits in character selection</li>
               </ol>
               <Link href="/scripts">
                 <Button className="w-full bg-amber-500 hover:bg-amber-600 text-black font-bold mt-2">
-                  Start Testing Sprint 3 →
+                  Start Testing Sprint 4 →
                 </Button>
               </Link>
             </div>
           </CardContent>
-        </Card>
-
-        {/* Sprint 4 */}
-        <Card className="opacity-60">
-          <CardHeader>
-            <div className="flex items-start justify-between">
-              <div>
-                <CardTitle className="flex items-center gap-2">
-                  <Circle className="w-5 h-5 text-muted-foreground" />
-                  Sprint 4: Audio Generation & Caching
-                </CardTitle>
-                <CardDescription>Batch TTS generation, audio cache, progress UI</CardDescription>
-              </div>
-              <span className="text-sm font-medium text-muted-foreground">Not Started</span>
-            </div>
-          </CardHeader>
         </Card>
 
         {/* Sprint 5 */}
@@ -159,7 +168,23 @@ export default function HomePage() {
               <div>
                 <CardTitle className="flex items-center gap-2">
                   <Circle className="w-5 h-5 text-muted-foreground" />
-                  Sprint 5: Rehearsal Playback
+                  Sprint 5: Audio Generation & Caching
+                </CardTitle>
+                <CardDescription>Batch TTS generation, audio cache, progress UI</CardDescription>
+              </div>
+              <span className="text-sm font-medium text-muted-foreground">Not Started</span>
+            </div>
+          </CardHeader>
+        </Card>
+
+        {/* Sprint 6 */}
+        <Card className="opacity-60">
+          <CardHeader>
+            <div className="flex items-start justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <Circle className="w-5 h-5 text-muted-foreground" />
+                  Sprint 6: Rehearsal Playback
                 </CardTitle>
                 <CardDescription>Line-by-line playback, audio player, navigation</CardDescription>
               </div>
@@ -172,16 +197,20 @@ export default function HomePage() {
       {/* API Status */}
       <Card className="mt-8">
         <CardHeader>
-          <CardTitle className="text-lg">Backend API Endpoints (Sprint 3)</CardTitle>
+          <CardTitle className="text-lg">Backend API Endpoints (Sprint 4)</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm font-mono">
+            <div>GET /api/scripts</div>
+            <div>POST /api/scripts</div>
+            <div>GET /api/scripts/:id</div>
+            <div>DELETE /api/scripts/:id</div>
             <div>GET /api/voices</div>
             <div>POST /api/sessions</div>
             <div>GET /api/sessions/:id</div>
             <div>POST /api/sessions/:id/shuffle</div>
             <div>PUT /api/sessions/:id/voice</div>
-            <div>GET /api/scripts</div>
+            <div className="text-amber-500">GET /portraits/:scriptId/*.webp</div>
           </div>
         </CardContent>
       </Card>

@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useScript } from '@/hooks/useScripts';
-import { ArrowLeft, Sparkles, Zap } from 'lucide-react';
+import { ArrowLeft, Sparkles, Zap, Star, Users } from 'lucide-react';
+import Image from 'next/image';
 
 export default function ScriptDetailPage() {
   const params = useParams();
@@ -101,29 +102,57 @@ export default function ScriptDetailPage() {
             </div>
           </div>
 
-          {/* Character Grid - Compact, Gaming Style */}
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 mb-6">
-            {parsed.characters.map((character) => (
-              <Card
-                key={character.name}
-                className="cursor-pointer transition-all duration-200 hover:scale-105 hover:border-amber-500/50 hover:shadow-lg hover:shadow-amber-500/20 group"
-                onClick={() => router.push(`/scripts/${scriptId}/setup`)}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-500/20 to-cyan-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
-                      🎭
+          {/* Character Grid - Compact, Gaming Style with Portraits */}
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
+            {parsed.characters.map((character) => {
+              const analysis = script.analysis?.characters?.find(
+                (c) => c.characterName === character.name
+              );
+              const roleIcon = analysis?.roleType === 'Lead' ? Star : Users;
+              const RoleIcon = roleIcon;
+
+              return (
+                <Card
+                  key={character.name}
+                  className="cursor-pointer transition-all duration-200 hover:scale-105 hover:border-amber-500/50 hover:shadow-lg hover:shadow-amber-500/20 group overflow-hidden"
+                  onClick={() => router.push(`/scripts/${scriptId}/setup`)}
+                >
+                  {/* Portrait Image */}
+                  {analysis?.portrait?.imageUrl ? (
+                    <div className="relative w-full aspect-square bg-gradient-to-br from-purple-500/20 to-pink-500/20">
+                      <Image
+                        src={analysis.portrait.imageUrl.replace('http://localhost:4000', '')}
+                        alt={character.name}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                      />
+                      {analysis.roleType && (
+                        <div className="absolute top-2 left-2 px-2 py-1 rounded-lg bg-black/70 backdrop-blur-sm text-xs font-bold flex items-center gap-1 text-amber-400">
+                          <RoleIcon className="w-3 h-3" />
+                          {analysis.roleType}
+                        </div>
+                      )}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-bold text-lg truncate">{character.name}</div>
+                  ) : (
+                    <div className="relative w-full aspect-square bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center">
+                      <span className="text-5xl group-hover:scale-110 transition-transform">🎭</span>
+                    </div>
+                  )}
+
+                  <CardContent className="p-3">
+                    <div className="font-bold text-base truncate">{character.name}</div>
+                    {analysis?.tagline ? (
+                      <div className="text-xs text-cyan-400 font-semibold truncate">{analysis.tagline}</div>
+                    ) : (
                       <div className="text-xs text-muted-foreground">
                         <span className="font-mono text-amber-500">{character.lineCount}</span> lines
                       </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
 
           {/* Big Action Button */}
