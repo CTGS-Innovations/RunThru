@@ -2,6 +2,7 @@ import { Check, Sparkles, Star, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { CharacterAnalysisWithPortrait } from '@/types'
 import Image from 'next/image'
+import { useRef } from 'react'
 
 interface CharacterCardProps {
   character: {
@@ -14,10 +15,25 @@ interface CharacterCardProps {
   isSelected: boolean
   isTakenByOther?: boolean  // Character selected by another player (multiplayer)
   takenByPlayerName?: string  // Name of player who took this character
+  catchphraseAudioUrl?: string  // Character catchphrase audio (Sprint 6A)
   onClick: () => void
 }
 
-export function CharacterCard({ character, analysis, isSelected, isTakenByOther, takenByPlayerName, onClick }: CharacterCardProps) {
+export function CharacterCard({ character, analysis, isSelected, isTakenByOther, takenByPlayerName, catchphraseAudioUrl, onClick }: CharacterCardProps) {
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+
+  const handleCardClick = () => {
+    // Play catchphrase audio
+    if (catchphraseAudioUrl && audioRef.current) {
+      audioRef.current.currentTime = 0 // Reset to start
+      audioRef.current.play().catch(err => {
+        console.warn('Audio playback failed:', err)
+      })
+    }
+
+    // Call original onClick handler
+    onClick()
+  }
   // Role type badge styling
   const getRoleBadge = (roleType: string) => {
     switch (roleType) {
@@ -39,26 +55,32 @@ export function CharacterCard({ character, analysis, isSelected, isTakenByOther,
   const imageUrl = analysis?.portrait?.imageUrl?.replace('http://localhost:4000', '') || null
 
   return (
-    <div
-      className={cn(
-        "group relative transition-all duration-300",
-        isTakenByOther
-          ? "cursor-not-allowed opacity-60"
-          : "cursor-pointer hover:scale-105",
-        isSelected && !isTakenByOther && "scale-105"
+    <>
+      {/* Hidden audio element for catchphrase */}
+      {catchphraseAudioUrl && (
+        <audio ref={audioRef} src={catchphraseAudioUrl} preload="auto" />
       )}
-      onClick={isTakenByOther ? undefined : onClick}
-      role="button"
-      aria-pressed={isSelected}
-      aria-disabled={isTakenByOther}
-      tabIndex={isTakenByOther ? -1 : 0}
-      onKeyDown={(e) => {
-        if (!isTakenByOther && (e.key === 'Enter' || e.key === ' ')) {
-          e.preventDefault()
-          onClick()
-        }
-      }}
-    >
+
+      <div
+        className={cn(
+          "group relative transition-all duration-300",
+          isTakenByOther
+            ? "cursor-not-allowed opacity-60"
+            : "cursor-pointer hover:scale-105",
+          isSelected && !isTakenByOther && "scale-105"
+        )}
+        onClick={isTakenByOther ? undefined : handleCardClick}
+        role="button"
+        aria-pressed={isSelected}
+        aria-disabled={isTakenByOther}
+        tabIndex={isTakenByOther ? -1 : 0}
+        onKeyDown={(e) => {
+          if (!isTakenByOther && (e.key === 'Enter' || e.key === ' ')) {
+            e.preventDefault()
+            handleCardClick()
+          }
+        }}
+      >
       {/* Pokemon Card Style */}
       <div className={cn(
         "relative overflow-hidden rounded-3xl shadow-2xl transition-all duration-300",
@@ -328,6 +350,7 @@ export function CharacterCard({ character, analysis, isSelected, isTakenByOther,
           </button>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   )
 }
