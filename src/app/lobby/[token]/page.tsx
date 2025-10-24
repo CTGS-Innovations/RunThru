@@ -223,6 +223,10 @@ export default function LobbyJoinPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {parsedScript.characters.map((character: any) => {
               const isTaken = takenCharacters.has(character.name)
+              // Find the character's analysis data (with portrait)
+              const characterAnalysis = script.data?.analysis?.characters?.find(
+                (c: any) => c.name === character.name
+              )
               return (
                 <div
                   key={character.name}
@@ -231,11 +235,9 @@ export default function LobbyJoinPage() {
                 >
                   <CharacterCard
                     character={character}
+                    analysis={characterAnalysis}
                     onClick={() => {}}
                     isSelected={false}
-                    isDisabled={isTaken || selectCharacter.isPending}
-                    showPortrait={true}
-                    scriptId={lobbyInfo.data?.scriptId || ''}
                   />
                   {isTaken && (
                     <div className="text-center mt-2 text-sm text-red-400">Taken</div>
