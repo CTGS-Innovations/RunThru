@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 export interface AuthState {
+  isLoading: boolean
   isPinAuthenticated: boolean
   isLobbyParticipant: boolean
   hasAnyAuth: boolean
@@ -21,6 +22,7 @@ export interface AuthState {
  */
 export function useAuth(): AuthState {
   const [authState, setAuthState] = useState<AuthState>({
+    isLoading: true, // CRITICAL: Start as loading to prevent premature redirects
     isPinAuthenticated: false,
     isLobbyParticipant: false,
     hasAnyAuth: false,
@@ -35,11 +37,14 @@ export function useAuth(): AuthState {
     const lobbyToken = localStorage.getItem('runthru_lobby_token')
     const playerName = localStorage.getItem('runthru_player_name')
 
+    console.log('[useAuth] Checking localStorage:', { pin: !!pin, lobbyToken: !!lobbyToken, playerName: !!playerName })
+
     const isPinAuthenticated = !!pin
     const isLobbyParticipant = !!(lobbyToken && playerName)
     const hasAnyAuth = isPinAuthenticated || isLobbyParticipant
 
     setAuthState({
+      isLoading: false, // Done loading
       isPinAuthenticated,
       isLobbyParticipant,
       hasAnyAuth,
@@ -58,19 +63,25 @@ export function useAuth(): AuthState {
  */
 export function useRequirePin() {
   const router = useRouter()
-  const { isPinAuthenticated } = useAuth()
-  const [isChecking, setIsChecking] = useState(true)
+  const { isLoading, isPinAuthenticated } = useAuth()
 
   useEffect(() => {
+    // Wait for auth check to complete
+    if (isLoading) {
+      console.log('[useRequirePin] Still loading auth state...')
+      return
+    }
+
+    // Now we know the real auth state
     if (!isPinAuthenticated) {
-      console.log('[Auth] PIN required - redirecting to home')
+      console.log('[useRequirePin] No PIN found - redirecting to home')
       router.push('/')
     } else {
-      setIsChecking(false)
+      console.log('[useRequirePin] PIN authenticated - allowing access')
     }
-  }, [isPinAuthenticated, router])
+  }, [isLoading, isPinAuthenticated, router])
 
-  return { isChecking, isPinAuthenticated }
+  return { isChecking: isLoading, isPinAuthenticated }
 }
 
 /**
@@ -79,19 +90,25 @@ export function useRequirePin() {
  */
 export function useRequireAuth() {
   const router = useRouter()
-  const { hasAnyAuth } = useAuth()
-  const [isChecking, setIsChecking] = useState(true)
+  const { isLoading, hasAnyAuth } = useAuth()
 
   useEffect(() => {
+    // Wait for auth check to complete
+    if (isLoading) {
+      console.log('[useRequireAuth] Still loading auth state...')
+      return
+    }
+
+    // Now we know the real auth state
     if (!hasAnyAuth) {
-      console.log('[Auth] Authentication required - redirecting to home')
+      console.log('[useRequireAuth] No authentication found - redirecting to home')
       router.push('/')
     } else {
-      setIsChecking(false)
+      console.log('[useRequireAuth] Authenticated - allowing access')
     }
-  }, [hasAnyAuth, router])
+  }, [isLoading, hasAnyAuth, router])
 
-  return { isChecking, hasAnyAuth }
+  return { isChecking: isLoading, hasAnyAuth }
 }
 
 /**
