@@ -132,7 +132,7 @@ export class CharacterCardAudioService {
 
     // Convert character name to proper case for TTS (avoids letter-by-letter pronunciation)
     const properCaseName = this.toProperCase(characterName);
-    const text = `${properCaseName}... ${catchphrase}`;
+    const text = `${properCaseName}. ${catchphrase}`;
 
     // Call TTS service with Chatterbox engine
     const audioBuffer = await this.ttsClient.synthesize({
