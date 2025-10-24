@@ -61,6 +61,7 @@ export class LobbyService {
     token: string;
     lobbyUrl: string;
     expiresAt: string;
+    participantId: number;
   } {
     const sessionId = randomUUID();
     const shareableToken = randomUUID();
@@ -80,13 +81,15 @@ export class LobbyService {
         session_id, player_name, is_host, joined_at
       ) VALUES (?, ?, 1, datetime('now'))
     `);
-    insertParticipant.run(sessionId, creatorName);
+    const result = insertParticipant.run(sessionId, creatorName);
+    const participantId = result.lastInsertRowid as number;
 
     return {
       sessionId,
       token: shareableToken,
       lobbyUrl: `/lobby/${shareableToken}`,
       expiresAt,
+      participantId,
     };
   }
 
