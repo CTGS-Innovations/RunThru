@@ -51,6 +51,21 @@ export default function CharacterSelectionPage() {
     )
   }
 
+  // Helper: Sanitize character name for audio filename (matches backend logic)
+  const sanitizeCharacterName = (name: string): string => {
+    return name
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '')
+  }
+
+  // Helper: Get character card audio URL
+  const getCharacterAudioUrl = (characterName: string): string => {
+    const sanitizedName = sanitizeCharacterName(characterName)
+    return `/audio/${scriptId}/character-cards/${sanitizedName}-catchphrase.wav`
+  }
+
   // Sort characters by role: Lead → Featured → Ensemble
   const sortedCharacters = [...characters].sort((a, b) => {
     const analysisA = getCharacterAnalysis(a.name)
@@ -228,6 +243,7 @@ export default function CharacterSelectionPage() {
                 analysis={getCharacterAnalysis(character.name)}
                 isSelected={selectedCharacter === character.name}
                 onClick={() => handleCharacterSelect(character.name)}
+                catchphraseAudioUrl={getCharacterAudioUrl(character.name)}
               />
             </div>
           ))}
