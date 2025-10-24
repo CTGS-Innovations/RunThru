@@ -108,18 +108,22 @@ export class LobbyService {
       FROM sessions
       WHERE shareable_token = ?
     `);
-    const session = stmt.get(token) as LobbySession | undefined;
+    const row = stmt.get(token) as any;
 
-    if (!session) {
+    if (!row) {
       return null;
     }
 
     // Check if expired
-    if (new Date(session.expiresAt) < new Date()) {
+    if (new Date(row.expiresAt) < new Date()) {
       return null;
     }
 
-    return session;
+    // Convert SQLite numeric boolean to actual boolean
+    return {
+      ...row,
+      isActive: Boolean(row.isActive),
+    } as LobbySession;
   }
 
   /**
@@ -177,7 +181,15 @@ export class LobbyService {
       ORDER BY is_host DESC, joined_at ASC
     `);
 
-    return stmt.all(session.id) as Participant[];
+    const rows = stmt.all(session.id) as any[];
+
+    // Convert SQLite numeric booleans (0/1) to actual booleans
+    return rows.map(row => ({
+      ...row,
+      isAI: Boolean(row.isAI),
+      isHost: Boolean(row.isHost),
+      isReady: Boolean(row.isReady),
+    })) as Participant[];
   }
 
   /**
@@ -217,7 +229,15 @@ export class LobbyService {
         FROM participants
         WHERE id = ?
       `);
-      return selectStmt.get(participantId) as Participant;
+      const row = selectStmt.get(participantId) as any;
+
+      // Convert SQLite numeric booleans to actual booleans
+      return {
+        ...row,
+        isAI: Boolean(row.isAI),
+        isHost: Boolean(row.isHost),
+        isReady: Boolean(row.isReady),
+      } as Participant;
     } catch (error: any) {
       if (error.message.includes('UNIQUE constraint')) {
         throw new Error('Character already taken');
@@ -329,11 +349,17 @@ export class LobbyService {
       WHERE session_id = ? AND character_name IS NOT NULL
       ORDER BY is_ai ASC, joined_at ASC
     `);
-    const participants = participantsStmt.all(sessionId) as Array<{
+    const rows = participantsStmt.all(sessionId) as Array<{
       playerName: string;
       characterName: string;
-      isAI: boolean;
+      isAI: number;  // SQLite returns 0 or 1
     }>;
+
+    // Convert SQLite numeric boolean to actual boolean
+    const participants = rows.map(row => ({
+      ...row,
+      isAI: Boolean(row.isAI),
+    }));
 
     return {
       sessionId: session.id,
