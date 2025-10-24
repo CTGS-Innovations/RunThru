@@ -131,7 +131,7 @@ export default function LobbyJoinPage() {
     )
   }
 
-  const parsedScript = script.data ? JSON.parse(script.data.parsedJson) : null
+  const parsedScript = script.data?.parsed ?? null
   const currentParticipant = participants.data?.find((p) => p.id === participantId)
   const isHost = currentParticipant?.isHost || false
   const takenCharacters = new Set(
