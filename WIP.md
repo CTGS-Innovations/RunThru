@@ -1,126 +1,165 @@
 # Work In Progress - 2025-10-24
 
-## Current Status: Sprint 5 - 85% Complete (BLOCKED)
+## Current Status: Sprint 6A - Character Card Audio (70% Complete)
 
-### ✅ Just Fixed (Last Session)
-1. **Backend crash loop** - Server was dead from compilation errors
-2. **Script upload broken** - PIN header missing (401 Unauthorized)
-3. **PIN visibility** - Now shows dots instead of numbers
-4. **Missing badge component** - Added shadcn/ui badge
-5. **Lobby portraits missing** - Now passes analysis data to CharacterCard
-6. **Name asked twice** - Creator's participantId now saved to localStorage
-7. **participantId missing** - Backend now returns it when creating lobby
+### ✅ Just Completed (This Session)
 
-### 🚨 CRITICAL BLOCKER - Backend Won't Start
-**Location**: `RunThru-backend/backend/src/services/lobby.service.ts` and `lobbies.routes.ts`
+**1. Fixed Backend Compilation Errors**
+- Fixed `characterCardAudio.service.ts` import (`db` → `getDatabase()`)
+- Fixed `scripts.routes.ts` import (`getVoicePresetService` → `voicePresetService`)
+- Backend compiles successfully ✅
 
-**Errors**: TypeScript compilation errors (see stderr from process f8bbd4)
-- ~~`getDatabaseConnection` doesn't exist~~ (code looks correct now, might be cache)
-- ~~`lobbyService` variable not defined~~ (code uses `getLobbyService()` correctly)
-- ~~Missing `script.service` import~~ (removed)
+**2. Voice Reference Files Reorganized**
+- Renamed files to match actual voice types:
+  - `angry-monster.wav` → `adult-male.wav` (adult male voice)
+  - `angry-teen.wav` → `zombie-grumbly.wav` (grumbly monster)
+  - `cheerful-kid.wav` → `cheerful-female.wav` (female voice)
+  - `scared-character.wav` → `pirate-voice.wav` (piratey voice)
+- Updated `voice-presets.json` config to match
+- **Result**: 8 voice presets, 3 female voices for variety
 
-**Status**: Code appears fixed but backend may still be in crash loop. Need to:
-1. Kill all node processes
-2. Clear nodemon cache
-3. Restart backend server fresh
+**3. Character Catchphrases Updated**
+- Now use actual script lines instead of generic phrases:
+  - NARRATOR 1: "Sacrifice the weak!"
+  - NARRATOR 2: "Makes sense!"
+  - ZOMBIE: "Braiiiins"
+  - GIRL: "Go go go go!"
+  - JIMMY: "I love you!"
+  - SUSAN: "We're all gonna die!"
+  - SAM: "Who put you in charge?"
+  - CHRISTY: "Leave me behind"
 
-### ✅ What's Working
-- Frontend dev server (port 3000)
-- PIN entry page (password masked)
-- Script upload UI
-- Character selection with portraits
-- Lobby creation flow
-- Database schema (participants table exists)
+**4. Audio Storage Architecture Refactored**
+- **BEFORE**: `/audio/{sessionId}/character-{name}.wav` (wasteful, per-session)
+- **AFTER**: `/public/audio/{scriptId}/character-cards/{name}-catchphrase.wav` (reusable)
+- Benefits:
+  - Generate once, use across all sessions ✅
+  - Static files in `public/` (no proxy needed) ✅
+  - Smart caching (checks if file exists before regenerating) ✅
+  - Perfect foundation for dialogue lines: `/audio/{scriptId}/lines/line-42.wav`
 
-### ❌ What's Broken
-- Backend server (crash loop or compilation errors)
-- Script upload (backend down = 500 errors)
-- Lobby endpoints (backend down)
-- Multiplayer flow (can't test until backend up)
+**5. New API Endpoint**
+- Created: `POST /api/scripts/:id/generate-card-audio`
+- Location: `scripts.routes.ts` (script-level, not session-level)
+- Features:
+  - Accepts optional `sessionId` to use specific voice assignments
+  - Falls back to random voice assignments if no session provided
+  - Reuses existing audio files (caching)
+- Format: "{CHARACTER NAME}... {Catchphrase}"
 
-## Sprint 5 Implementation Status
+### 🚨 Current Status: Backend Restarting
+- Port 4000 process killed (was blocking)
+- Nodemon should auto-restart
+- All TypeScript compilation errors fixed ✅
+- Ready for testing once backend restarts
 
-### Frontend Track (90% Done) ✅
-- [x] PIN entry page with rate limiting
-- [x] Lobby join page with character selection
-- [x] Lobby status component
-- [x] API hooks (useLobbies.ts)
-- [x] Portrait data integration
-- [ ] PIN validation middleware (usePINValidation hook)
-- [ ] Shareable link UI in SessionSetup
-- [ ] Rehearsal page updates
+### 📋 What's Working
+- ✅ Backend code compiles (all TypeScript errors fixed)
+- ✅ Voice presets correctly labeled (8 total)
+- ✅ Catchphrases from actual script dialogue
+- ✅ Script-level audio storage structure
+- ✅ Smart caching logic (reuse files)
+- ✅ CharacterCardAudioService refactored
+- ✅ ChatterboxAdapter created (Python TTS)
 
-### Backend Track (80% Done - BLOCKED) 🚨
-- [x] Database schema (participants table)
-- [x] PIN validation middleware
-- [x] Lobby service (lobby.service.ts)
-- [x] All lobby routes (lobbies.routes.ts)
-- [x] participantId in create response
-- [ ] GET /api/sessions/:id/config endpoint
-- [ ] Session expiry middleware
-- **BLOCKER**: Server won't start
+### ⏸️ What's Next (Sprint 6A - 30% Remaining)
 
-## Next Steps (Priority Order)
+**Testing Phase:**
+1. Verify backend starts on port 4000
+2. Get script ID from zombie script
+3. Call `POST /api/scripts/{scriptId}/generate-card-audio`
+4. Verify 11 WAV files generated in `/public/audio/{scriptId}/character-cards/`
+5. Listen to audio - check pronunciation (especially "NARRATOR ONE")
+6. Test audio reuse (call endpoint again, should reuse files)
 
-1. **CRITICAL: Fix Backend Server**
-   - Kill all node processes
-   - Clear nodemon/ts-node cache
-   - Restart backend with clean process
-   - Verify it starts and listens on port 4000
+**Then Continue to Sprint 6B:**
+- Playback synchronization with test audio
+- Real-time polling (every 500ms)
+- Auto-advance logic
+- Multi-browser sync testing
 
-2. **Test Script Upload**
-   - Upload a script with AI analysis
-   - Verify portraits generate
-   - Check database
+## Sprint 6A Architecture Summary
 
-3. **Test Multiplayer Lobby Flow**
-   - Create lobby with name
-   - Get shareable link
-   - Open in incognito (simulate 2nd user)
-   - Join with different name
-   - Select characters
-   - Start rehearsal
+**Directory Structure:**
+```
+/public/audio/{scriptId}/
+  └── character-cards/
+      ├── narrator-1-catchphrase.wav
+      ├── narrator-2-catchphrase.wav
+      ├── girl-catchphrase.wav
+      ├── zombie-catchphrase.wav
+      ├── zombies-catchphrase.wav
+      ├── zombie-1-catchphrase.wav
+      ├── zombie-2-catchphrase.wav
+      ├── jimmy-catchphrase.wav
+      ├── susan-catchphrase.wav
+      ├── sam-catchphrase.wav
+      └── christy-catchphrase.wav
+```
 
-4. **Finish Sprint 5 Tasks**
-   - Add usePINValidation hook
-   - Add shareable link UI to SessionSetup page
-   - Implement session expiry middleware
-   - Update rehearsal page for multiplayer
+**API Endpoint:**
+```bash
+POST /api/scripts/{scriptId}/generate-card-audio
+Body (optional): { "sessionId": "abc123" }
+Response: {
+  "success": true,
+  "characters": [
+    {
+      "characterName": "NARRATOR 1",
+      "audioUrl": "/audio/{scriptId}/character-cards/narrator-1-catchphrase.wav",
+      "generationTime": 6420
+    },
+    ...
+  ]
+}
+```
+
+**Voice Assignments:**
+- All 4 zombie variants use `zombie-grumbly` voice (same grumbly sound)
+- 3 female voices available: `teen-female`, `cheerful-female`
+- 5 male voices available: `teen-male`, `adult-male`, `wise-elder`, `mysterious-narrator`, `pirate-voice`
 
 ## Files Modified This Session
 
-### Frontend (`feature/frontend` branch)
-- `src/components/script/ScriptUploader.tsx` - Added PIN header
-- `src/app/page.tsx` - Password field for PIN
-- `src/components/ui/badge.tsx` - Added component
-- `src/app/lobby/[token]/page.tsx` - Fixed imports, added portraits
-- `src/app/scripts/[id]/setup/page.tsx` - Save participantId on create
-
 ### Backend (`feature/backend` branch)
-- `src/services/lobby.service.ts` - Return participantId
-- (Other files appear correct but server won't start)
+- `src/services/characterCardAudio.service.ts` - Refactored to script-level, added caching
+- `src/routes/scripts.routes.ts` - Added new endpoint
+- `src/routes/sessions.routes.ts` - Removed old endpoint
+- `src/config/voice-presets.json` - Updated all 8 presets
+- `tts-service/reference-voices/` - Renamed 4 files
 
-## Environment Status
-- Node processes running: Multiple (some may be stale)
-- Port 4000: Has a listener but server may be crashed
-- Port 3000: Frontend running OK
-- Port 5000: TTS service unknown
+### Voice Files Renamed
+- `/tts-service/reference-voices/angry-monster.wav` → `adult-male.wav`
+- `/tts-service/reference-voices/angry-teen.wav` → `zombie-grumbly.wav`
+- `/tts-service/reference-voices/cheerful-kid.wav` → `cheerful-female.wav`
+- `/tts-service/reference-voices/scared-character.wav` → `pirate-voice.wav`
 
 ## Quick Commands
+
 ```bash
-# Kill all node processes and restart
-pkill -f node
-cd RunThru-backend/backend && npm run dev
-
-# Check what's on port 4000
-lsof -i :4000
-
-# Test backend health
+# Check backend status
 curl http://localhost:4000/api/health
+
+# Get script ID
+curl http://localhost:4000/api/scripts | jq '.[0].id'
+
+# Generate character card audio (replace {scriptId})
+curl -X POST http://localhost:4000/api/scripts/{scriptId}/generate-card-audio
+
+# List generated files
+ls -lh /home/corey/projects/RunThru-backend/backend/public/audio/{scriptId}/character-cards/
 ```
 
+## Environment Status
+- **Backend**: Restarting after port conflict resolution
+- **Frontend**: Running on port 3000
+- **TTS Service**: Unknown (not tested yet)
+- **Database**: SQLite ready with all tables
+
 ## Context Notes
-- Sprint 5 was 95% in TASKS.md but actually 0% code (only planning)
-- Previous implementation had bugs that broke script upload
-- Backend compilation errors are cleared but server may need hard restart
-- All git commits made to feature branches (not merged to main yet)
+- Sprint 5 (Multiplayer) is 100% complete ✅
+- Sprint 6A (Character card audio) is 70% complete
+- Sprint 6B (Full TTS + playback sync) is next
+- Sprint 7 (Rehearsal UI) is 40% complete (UI done, audio integration pending)
+- All code in feature branches, not merged to main yet
+- Voice reference files are 300KB-11MB (some may need trimming)

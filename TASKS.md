@@ -1,8 +1,8 @@
 # RunThru - Task Tracking & Progress
 
-**Last Updated**: 2025-10-24 23:40
+**Last Updated**: 2025-10-24 16:05
 **Current Phase**: MVP Phase 1 - Synchronized Multiplayer Rehearsal
-**Overall Progress**: Sprint 1: 100% ✅ | Sprint 2: 100% ✅ | Sprint 3: 100% ✅ | Sprint 4: 100% ✅ | Sprint 5: 100% ✅ | Sprint 6A: 60% 🔄⚠️ | Sprint 7: 40% ✅
+**Overall Progress**: Sprint 1: 100% ✅ | Sprint 2: 100% ✅ | Sprint 3: 100% ✅ | Sprint 4: 100% ✅ | Sprint 5: 100% ✅ | Sprint 6A: 100% ✅ | Sprint 7: 40% ✅
 
 ---
 
@@ -964,11 +964,12 @@
 
 ### 📅 Sprint 6A: Character Card Audio Generation (This Session)
 
-**Status**: 🔄 In Progress - 60% ⚠️ **BLOCKED**
+**Status**: ✅ **COMPLETE** - 100%
 **Goal**: Generate short TTS audio clips for each character using Chatterbox
 **Started**: 2025-10-24 22:30
+**Completed**: 2025-10-24 16:05
 
-#### ✅ Completed Tasks (2025-10-24 22:30-23:40)
+#### ✅ Completed Tasks (2025-10-24 22:30-15:40)
 
 - [x] **✅ COMPLETE**: Validated Chatterbox TTS with voice cloning
   - [x] Tested existing venv setup (`/home/corey/projects/RunThru-backend/tts-service/venv`)
@@ -997,26 +998,60 @@
   - [x] Storage: `/audio/{sessionId}/character-{name}.wav`
   - [x] Uses voice assignments from database (preset → reference audio file)
 
-- [x] **✅ COMPLETE**: Added POST /api/sessions/:id/generate-card-audio endpoint
-  - [x] File: `backend/src/routes/sessions.routes.ts`
-  - [x] Input: Session ID (from URL)
+- [x] **✅ COMPLETE**: Added POST /api/scripts/:id/generate-card-audio endpoint
+  - [x] File: `backend/src/routes/scripts.routes.ts`
+  - [x] Input: `{sessionId}` (optional, uses session's voice assignments)
   - [x] Output: `{characters: [{characterName, audioUrl, generationTime}]}`
   - [x] Generates audio for all characters in parallel
   - [x] Returns array of generated audio file URLs
 
-#### ⚠️ Current Blocker (2025-10-24 23:40)
+- [x] **✅ COMPLETE**: Fixed TTS GPU detection bug
+  - [x] File: `tts-service/main.py:44`
+  - [x] Changed from checking `CUDA_VISIBLE_DEVICES` to `torch.cuda.is_available()`
+  - [x] Result: RTX 3090 GPU now properly detected (3.26 GB allocated)
 
-**Backend won't compile** due to pre-existing TypeScript errors (NOT from new Sprint 6A code):
-- `lobbies.routes.ts`: Undefined `lobbyService` and `scriptService` variables (should use `getLobbyService()`)
-- `lobby.service.ts`: Import error `getDatabaseConnection` doesn't exist
+- [x] **✅ COMPLETE**: Fixed character name pronunciation
+  - [x] File: `backend/src/services/characterCardAudio.service.ts`
+  - [x] Added `toProperCase()` helper: "NARRATOR ONE" → "Narrator One"
+  - [x] Prevents TTS from spelling out letters (N-A-R-R-A-T-O-R)
 
-**Impact**: Cannot test character card audio endpoint until backend compiles
+- [x] **✅ COMPLETE**: Created robust startup scripts
+  - [x] Files: `backend/start.sh`, `tts-service/start.sh`, `frontend/start.sh`
+  - [x] Master: `start-all.sh` - Control all services
+  - [x] Auto-kills lingering processes on ports (solves EADDRINUSE)
+  - [x] Commands: `start`, `stop`, `restart`, `status`, `clean`, `build`
 
-**Next Steps**:
-1. Fix existing Sprint 5 compilation errors
-2. Start backend dev server
-3. Test POST /api/sessions/:id/generate-card-audio with zombie script (11 characters)
-4. Verify audio pronunciation (especially "NARRATOR ONE" not "NA narrator")
+- [x] **✅ COMPLETE**: Created and persisted character→voice mapping
+  - [x] Session ID: `0edca75a-c108-45a8-9f56-25ce1617b62b`
+  - [x] Mapping stored in `voice_assignments` table (SQLite)
+  - [x] 11 characters mapped to 8 reference voices:
+    - [x] NARRATOR 1 → mysterious-narrator.wav
+    - [x] NARRATOR 2 → teen-male.wav
+    - [x] JIMMY → pirate-voice.wav
+    - [x] SUSAN, CHRISTY → cheerful-female.wav
+    - [x] SAM → adult-male.wav
+    - [x] GIRL → teen-female.wav
+    - [x] ZOMBIE, ZOMBIES, ZOMBIE 1, ZOMBIE 2 → zombie-grumbly.wav
+
+- [x] **✅ COMPLETE**: Generated character card audio with GPU
+  - [x] 11 characters, ~1.1 seconds each (GPU-accelerated)
+  - [x] Files: `/backend/public/audio/{scriptId}/character-cards/*.wav`
+  - [x] Total generation time: ~12 seconds
+  - [x] Cache working (0-1ms for subsequent requests)
+
+- [x] **✅ COMPLETE**: Implemented character card audio playback (Cloudflare compatible)
+  - [x] File: `frontend/src/components/session/CharacterCard.tsx`
+  - [x] Added `catchphraseAudioUrl` prop with audio playback on card click
+  - [x] Fixed missing closing `</div>` tag causing build error
+  - [x] File: `frontend/src/app/scripts/[id]/setup/page.tsx`
+  - [x] Added helper functions: `sanitizeCharacterName()`, `getCharacterAudioUrl()`
+  - [x] Passed audio URLs to all CharacterCard components
+  - [x] File: `frontend/src/app/audio/[scriptId]/character-cards/[filename]/route.ts`
+  - [x] Created Next.js proxy route for audio files (Cloudflare Tunnel compatible)
+  - [x] Uses `BACKEND_URL` env var (no hardcoded localhost)
+  - [x] File: `backend/src/server.ts:28`
+  - [x] Added static file serving: `app.use('/audio', express.static('public/audio'))`
+  - [x] **TESTED**: Audio playback working through Cloudflare Tunnel ✅
 
 #### ⏸️ Deferred: Playback Synchronization (Sprint 6B)
 
