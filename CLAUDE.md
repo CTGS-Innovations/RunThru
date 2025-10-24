@@ -149,6 +149,24 @@ cd /home/corey/projects/RunThru
 docker-compose up
 ```
 
+## UI/UX Design Skill
+
+RunThru has a Claude Code Skill that automatically activates when working on UI:
+
+**Skill**: `.claude/skills/ui-ux-designer/SKILL.md`
+
+**How it works**: This is a **model-invoked skill** - Claude automatically uses it when building, reviewing, or refactoring UI components. You don't need to explicitly call it.
+
+**What it ensures**:
+- Pokemon-card energy (exciting, not boring)
+- Mobile-first responsive design (375px → desktop)
+- Brand colors (amber for user, cyan for AI, green for CTAs)
+- Accessibility (keyboard nav, ARIA, 48px touch targets, 4.5:1 contrast)
+- Component states (hover, selected, disabled, focus)
+- Consistent patterns across all pages
+
+**Core principle**: Every interaction should feel like starting an epic adventure, not filling out homework.
+
 ## Notes for Claude
 - This is a father-daughter project - keep it professional but kid-friendly
 - The user has 50 years of industry experience - present options, don't assume
