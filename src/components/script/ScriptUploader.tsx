@@ -165,9 +165,13 @@ export function ScriptUploader({ isOpen, onClose, onSuccess }: ScriptUploaderPro
       connectToProgressStream(uploadId);
 
       // Start upload (pass uploadId for backend to track)
+      const pin = localStorage.getItem('runthru_pin');
       await fetch('http://localhost:4000/api/scripts', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-access-pin': pin || '',
+        },
         body: JSON.stringify({ markdown, uploadId }),
       });
 
