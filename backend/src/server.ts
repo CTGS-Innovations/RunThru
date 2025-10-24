@@ -23,8 +23,9 @@ app.use((req, res, next) => {
   next();
 });
 
-// Serve static files (character portraits)
+// Serve static files (character portraits and audio)
 app.use('/portraits', express.static('public/portraits'));
+app.use('/audio', express.static('public/audio'));
 
 // Routes
 app.use('/api', routes);

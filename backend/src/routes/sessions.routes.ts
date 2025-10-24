@@ -301,7 +301,7 @@ router.put('/:id/voice', async (req: Request, res: Response) => {
 
 router.get('/:id/config', (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
+    const { id} = req.params;
 
     const lobbyService = getLobbyService();
     const config = lobbyService.getSessionConfig(id);
@@ -325,5 +325,10 @@ router.get('/:id/config', (req: Request, res: Response) => {
     });
   }
 });
+
+// ============================================================================
+// DEPRECATED: Character card audio moved to script-level
+// Use: POST /api/scripts/:id/generate-card-audio instead
+// ============================================================================
 
 export default router;
