@@ -673,10 +673,12 @@
 
 ## 📅 Sprint 5: Multiplayer Lobbies & Security (Week 2)
 
-**Status**: 🔍 **CHECKPOINT 5 - READY FOR TESTING** - 95%
+**Status**: 🚨 **BLOCKED - COMPILATION ERRORS** - 85%
 **Depends on**: OpenAI Integration ✅ Complete
-**Completed**: 2025-10-24
+**Started**: 2025-10-24
 **Focus**: PIN authentication + shareable lobby links + multiplayer character selection
+
+**Current Issue**: Backend has TypeScript compilation errors preventing server startup. See "Active Blockers" section below.
 
 ### 🎯 Design Decisions Made (2025-10-24)
 
@@ -711,14 +713,14 @@
 
 ### 🎨 Frontend Track - PIN & Lobby UI
 
-- [ ] **Landing Page with PIN Entry**
-  - [ ] Create `/app/page.tsx` with PIN entry form
-  - [ ] 6-digit numeric input (large, mobile-friendly)
-  - [ ] Rate limiting UI (3 attempts → 2-minute cooldown timer)
-  - [ ] localStorage: Save validated PIN + timestamp
-  - [ ] Success → Redirect to `/scripts`
-  - [ ] shadcn components: Input, Button, Card
-  - [ ] File: `src/app/page.tsx`
+- [x] **✅ COMPLETE**: Landing Page with PIN Entry
+  - [x] Created `/app/page.tsx` with PIN entry form
+  - [x] 7-digit numeric input (large, mobile-friendly)
+  - [x] Rate limiting UI (3 attempts → 2-minute cooldown timer)
+  - [x] localStorage: Save validated PIN + timestamp (24-hour expiry)
+  - [x] Success → Redirect to `/dashboard`
+  - [x] shadcn components: Input, Button, Card, Alert
+  - [x] File: `src/app/page.tsx`
 
 - [ ] **PIN Validation Middleware**
   - [ ] Create `usePINValidation` hook
@@ -734,25 +736,25 @@
   - [ ] "End Session" button (invalidates link immediately)
   - [ ] File: `src/app/scripts/[id]/setup/page.tsx` (update)
 
-- [ ] **Lobby Join Page** (`/lobby/[token]`)
-  - [ ] Route: `/app/lobby/[token]/page.tsx`
-  - [ ] Phase 1: Name entry form (if no localStorage)
-  - [ ] Phase 2: Character selection grid (same as solo mode)
-  - [ ] Phase 3: Waiting room (see all participants + selections)
-  - [ ] Real-time polling (every 2s) for participant updates
-  - [ ] Character cards show lock state (unavailable if taken)
-  - [ ] "Waiting for host to start..." message for non-hosts
-  - [ ] "START REHEARSAL" button (host only, enabled when all ready)
-  - [ ] Auto-redirect when host starts (`isActive` detected)
-  - [ ] Mobile-first responsive design
+- [x] **✅ COMPLETE**: Lobby Join Page (`/lobby/[token]`)
+  - [x] Route: `/app/lobby/[token]/page.tsx`
+  - [x] Phase 1: Name entry form (if no localStorage)
+  - [x] Phase 2: Character selection grid (same as solo mode)
+  - [x] Phase 3: Waiting room (see all participants + selections)
+  - [x] Real-time polling (every 2s) for participant updates
+  - [x] Character cards show lock state (unavailable if taken)
+  - [x] "Waiting for host to start..." message for non-hosts
+  - [x] "START REHEARSAL" button (host only, enabled when all ready)
+  - [x] Auto-redirect when host starts (`isActive` detected)
+  - [x] Mobile-first responsive design
 
-- [ ] **Lobby Status Component**
-  - [ ] Shows all joined participants
-  - [ ] Player name + character + ready checkmark
-  - [ ] AI-assigned characters shown as "AI" with robot icon
-  - [ ] Host badge (crown icon) for session creator
-  - [ ] Progress indicator: "3/11 characters assigned"
-  - [ ] File: `src/components/session/LobbyStatus.tsx`
+- [x] **✅ COMPLETE**: Lobby Status Component
+  - [x] Shows all joined participants
+  - [x] Player name + character + ready checkmark
+  - [x] AI-assigned characters shown as "AI" with robot icon
+  - [x] Host badge (crown icon) for session creator
+  - [x] Progress indicator: "3/11 characters assigned"
+  - [x] File: `src/components/session/LobbyStatus.tsx`
 
 - [ ] **Update Rehearsal Page** (`/rehearsal/[sessionId]`)
   - [ ] Load session config on mount (one-time)
@@ -763,88 +765,84 @@
   - [ ] No changes during rehearsal (config frozen)
   - [ ] File: `src/app/rehearsal/[sessionId]/page.tsx` (update)
 
-- [ ] **API Client Hooks**
-  - [ ] useValidatePIN(pin) - Verify PIN code
-  - [ ] useCreateLobby(scriptId) - Generate shareable link
-  - [ ] useJoinLobby(token, playerName) - Join as participant
-  - [ ] useLobbyParticipants(token) - Poll participant list
-  - [ ] useSelectCharacter(token, characterName) - Lock character
-  - [ ] useStartRehearsal(token) - Host starts (AI auto-fill + redirect)
-  - [ ] useSessionConfig(sessionId) - Get frozen config for rehearsal
-  - [ ] File: `src/hooks/useLobbies.ts`
+- [x] **✅ COMPLETE**: API Client Hooks
+  - [x] useValidatePIN(pin) - Verify PIN code
+  - [x] useCreateLobby(scriptId) - Generate shareable link
+  - [x] useJoinLobby(token, playerName) - Join as participant
+  - [x] useLobbyParticipants(token) - Poll participant list
+  - [x] useSelectCharacter(token, characterName) - Lock character
+  - [x] useStartRehearsal(token) - Host starts (AI auto-fill + redirect)
+  - [x] useSessionConfig(sessionId) - Get frozen config for rehearsal
+  - [x] File: `src/hooks/useLobbies.ts`
 
 ### ⚙️ Backend Track - Session & Participant Management
 
-- [ ] **Database Schema Updates**
-  - [ ] Add to `sessions` table:
-    - [ ] `shareable_token` VARCHAR(12) UNIQUE NOT NULL
-    - [ ] `expires_at` DATETIME NOT NULL
-    - [ ] `is_active` BOOLEAN DEFAULT 0
-    - [ ] `started_at` DATETIME
-  - [ ] Create `participants` table:
-    - [ ] `id` INTEGER PRIMARY KEY AUTOINCREMENT
-    - [ ] `session_id` INTEGER NOT NULL (FK → sessions)
-    - [ ] `player_name` VARCHAR(100) NOT NULL
-    - [ ] `character_name` VARCHAR(100) (NULL until selected)
-    - [ ] `is_ai` BOOLEAN DEFAULT 0
-    - [ ] `is_host` BOOLEAN DEFAULT 0
-    - [ ] `is_ready` BOOLEAN DEFAULT 0
-    - [ ] `joined_at` DATETIME DEFAULT CURRENT_TIMESTAMP
-    - [ ] UNIQUE(session_id, character_name) ← Character locking
-    - [ ] FOREIGN KEY ON DELETE CASCADE
-  - [ ] File: `backend/database/schema.sql`
+- [x] **✅ COMPLETE**: Database Schema Updates
+  - [x] Added to `sessions` table:
+    - [x] `shareable_token` TEXT UNIQUE
+    - [x] `expires_at` DATETIME
+    - [x] `is_active` BOOLEAN DEFAULT 0
+    - [x] `started_at` DATETIME
+  - [x] Created `participants` table:
+    - [x] `id` INTEGER PRIMARY KEY AUTOINCREMENT
+    - [x] `session_id` TEXT NOT NULL (FK → sessions)
+    - [x] `player_name` VARCHAR(100) NOT NULL
+    - [x] `character_name` VARCHAR(100) (NULL until selected)
+    - [x] `is_ai` BOOLEAN DEFAULT 0
+    - [x] `is_host` BOOLEAN DEFAULT 0
+    - [x] `is_ready` BOOLEAN DEFAULT 0
+    - [x] `joined_at` DATETIME DEFAULT CURRENT_TIMESTAMP
+    - [x] UNIQUE(session_id, character_name) ← Character locking
+    - [x] FOREIGN KEY ON DELETE CASCADE
+  - [x] File: `backend/database/schema.sql`
 
-- [ ] **PIN Validation Middleware**
-  - [ ] Create `validatePIN` middleware function
-  - [ ] Check `req.headers['x-access-pin']` against `process.env.ACCESS_PIN`
-  - [ ] Return 401 Unauthorized if invalid
-  - [ ] Apply to: POST /api/scripts, POST /api/sessions (creation only)
-  - [ ] Do NOT apply to: GET /api/sessions/:id (participants need access)
-  - [ ] File: `backend/src/middleware/auth.middleware.ts`
+- [x] **✅ COMPLETE**: PIN Validation Middleware
+  - [x] Created `validatePIN` middleware function
+  - [x] Checks `req.headers['x-access-pin']` against `process.env.ACCESS_PIN`
+  - [x] Returns 401 Unauthorized if invalid
+  - [x] Applied to: POST /api/lobbies/create
+  - [x] Does NOT apply to: Join/participant endpoints (link is auth)
+  - [x] File: `backend/src/middleware/auth.middleware.ts`
 
-- [ ] **Session Token Generation**
-  - [ ] Use `nanoid(12)` for shareable tokens (URL-safe, compact)
-  - [ ] Generate on session creation: `shareable_token = nanoid(12)`
-  - [ ] Set expiry: `expires_at = NOW() + INTERVAL 4 HOUR`
-  - [ ] Return lobby URL: `{lobbyUrl: '/lobby/{token}'}`
-  - [ ] File: `backend/src/services/session.service.ts` (update)
+- [x] **✅ COMPLETE**: Lobby Service (HAS BUGS - SEE BLOCKERS)
+  - [x] Uses `nanoid(12)` for shareable tokens
+  - [x] Generates token on session creation
+  - [x] Sets 4-hour expiry
+  - [x] File: `backend/src/services/lobby.service.ts` ❌ **COMPILATION ERRORS**
 
-- [ ] **POST /api/lobbies/create endpoint**
-  - [ ] Input: `{scriptId, creatorName}`
-  - [ ] Validates: PIN in headers, scriptId exists
-  - [ ] Creates session with shareable token + expiry
-  - [ ] Creates first participant (creator, is_host = true, no character yet)
-  - [ ] Returns: `{token, lobbyUrl, expiresAt}`
-  - [ ] File: `backend/src/routes/lobbies.routes.ts`
+- [x] **✅ COMPLETE**: POST /api/lobbies/create endpoint (HAS BUGS)
+  - [x] Input: `{scriptId, creatorName}`
+  - [x] Validates: PIN in headers, scriptId exists
+  - [x] Creates session with shareable token + expiry
+  - [x] Creates first participant (creator, is_host = true)
+  - [x] Returns: `{token, lobbyUrl, expiresAt}`
+  - [x] File: `backend/src/routes/lobbies.routes.ts` ❌ **COMPILATION ERRORS**
 
-- [ ] **POST /api/lobbies/:token/join endpoint**
-  - [ ] Input: `{playerName}`
-  - [ ] Validates: Token exists, not expired, session not active
-  - [ ] Creates participant record (is_host = false, no character yet)
-  - [ ] Returns: `{participantId, sessionId}`
-  - [ ] File: `backend/src/routes/lobbies.routes.ts`
+- [x] **✅ COMPLETE**: POST /api/lobbies/:token/join endpoint (HAS BUGS)
+  - [x] Input: `{playerName}`
+  - [x] Validates: Token exists, not expired, session not active
+  - [x] Creates participant record (is_host = false)
+  - [x] Returns: `{participantId, sessionId}`
+  - [x] File: `backend/src/routes/lobbies.routes.ts` ❌ **COMPILATION ERRORS**
 
-- [ ] **GET /api/lobbies/:token/participants endpoint**
-  - [ ] Returns: Array of all participants with character selections
-  - [ ] Format: `[{id, playerName, characterName, isReady, isHost, isAI}]`
-  - [ ] Used for polling (every 2 seconds)
-  - [ ] File: `backend/src/routes/lobbies.routes.ts`
+- [x] **✅ COMPLETE**: GET /api/lobbies/:token/participants endpoint (HAS BUGS)
+  - [x] Returns: Array of all participants with character selections
+  - [x] Format: `[{id, playerName, characterName, isReady, isHost, isAI}]`
+  - [x] Used for polling (every 2 seconds)
+  - [x] File: `backend/src/routes/lobbies.routes.ts` ❌ **COMPILATION ERRORS**
 
-- [ ] **PUT /api/lobbies/:token/select endpoint**
-  - [ ] Input: `{participantId, characterName}`
-  - [ ] Updates: `participants.character_name` (UNIQUE constraint prevents duplicates)
-  - [ ] Returns: Updated participant or 409 Conflict if character taken
-  - [ ] File: `backend/src/routes/lobbies.routes.ts`
+- [x] **✅ COMPLETE**: PUT /api/lobbies/:token/select endpoint (HAS BUGS)
+  - [x] Input: `{participantId, characterName}`
+  - [x] Updates: `participants.character_name` (UNIQUE constraint prevents duplicates)
+  - [x] Returns: Updated participant or 409 Conflict if character taken
+  - [x] File: `backend/src/routes/lobbies.routes.ts` ❌ **COMPILATION ERRORS**
 
-- [ ] **POST /api/lobbies/:token/start endpoint**
-  - [ ] Validates: Caller is host (check `is_host = true`)
-  - [ ] Auto-assign AI to unselected characters:
-    - [ ] Get all script characters
-    - [ ] Find unassigned characters
-    - [ ] Insert participant records with `is_ai = true, is_ready = true`
-  - [ ] Update session: `is_active = true, started_at = NOW()`
-  - [ ] Returns: `{rehearsalUrl: '/rehearsal/{sessionId}'}`
-  - [ ] File: `backend/src/routes/lobbies.routes.ts`
+- [x] **✅ COMPLETE**: POST /api/lobbies/:token/start endpoint (HAS BUGS)
+  - [x] Validates: Caller is host (check `is_host = true`)
+  - [x] Auto-assigns AI to unselected characters
+  - [x] Updates session: `is_active = true, started_at = NOW()`
+  - [x] Returns: `{rehearsalUrl: '/rehearsal/{sessionId}'}`
+  - [x] File: `backend/src/routes/lobbies.routes.ts` ❌ **COMPILATION ERRORS**
 
 - [ ] **GET /api/sessions/:id/config endpoint**
   - [ ] Returns frozen session config for rehearsal page
@@ -932,7 +930,22 @@
 ## 🚨 Blockers & Decisions Needed
 
 ### Active Blockers:
-*None currently - infrastructure is unblocked*
+
+1. **🚨 CRITICAL: Backend Server Won't Start** (Sprint 5)
+   - **Issue**: TypeScript compilation errors preventing backend from running
+   - **Location**: `RunThru-backend/backend/src/services/lobby.service.ts` and `lobbies.routes.ts`
+   - **Errors**:
+     ```
+     lobby.service.ts(3,10): error TS2305: Module '"./database.service"' has no exported member 'getDatabaseConnection'.
+     lobbies.routes.ts: Cannot find name 'lobbyService' (missing imports/instantiation)
+     lobbies.routes.ts(4,34): error TS2307: Cannot find module '../services/script.service'
+     ```
+   - **Impact**: Cannot test Sprint 5 multiplayer features
+   - **Next Steps**:
+     - Fix import statement in `lobby.service.ts` (use `getDatabase()` not `getDatabaseConnection()`)
+     - Fix variable references in `lobbies.routes.ts` (use `getLobbyService()` instead of `lobbyService`)
+     - Verify `script.service.ts` exists or remove import
+   - **Owner**: Needs fixing before testing can begin
 
 ### Sprint 3 Decisions (Resolved):
 
@@ -997,7 +1010,7 @@
 | 2. Script Upload | ✅ Complete | 100% | 2025-10-23 |
 | 3. Role Selection | ✅ Complete | 100% | 2025-10-23 |
 | 4. OpenAI Integration | ✅ Complete | 100% | 2025-10-23 |
-| 5. Multiplayer & Security | 🟡 Ready | 0% | 2025-11-06 |
+| 5. Multiplayer & Security | 🚨 Blocked | 85% | 2025-11-06 |
 | 6. Audio Generation | ⏸️ Not Started | 0% | 2025-11-13 |
 | 7. Rehearsal Playback | ⏸️ Not Started | 0% | 2025-11-20 |
 
@@ -1005,8 +1018,8 @@
 
 | Track | Sprint 4 (OpenAI) | Sprint 5 (Multiplayer) | Sprint 6 (Audio) |
 |-------|-------------------|------------------------|------------------|
-| 🎨 Frontend | ✅ 100% | 🟡 Ready (0%) | ⏸️ Waiting |
-| ⚙️ Backend | ✅ 100% | 🟡 Ready (0%) | ⏸️ Waiting |
+| 🎨 Frontend | ✅ 100% | ✅ 90% (Done) | ⏸️ Waiting |
+| ⚙️ Backend | ✅ 100% | 🚨 80% (Blocked) | ⏸️ Waiting |
 | 🤖 AI/ML | ✅ 100% (Portraits) | N/A | ⏸️ Waiting |
 | 🔗 Integration | ✅ 100% | ⏸️ Waiting | ⏸️ Waiting |
 
