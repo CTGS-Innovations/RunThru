@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Sparkles, Lock, AlertCircle } from 'lucide-react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Sparkles, Lock, AlertCircle, Users } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 
 const MAX_ATTEMPTS = 3
@@ -13,6 +14,8 @@ const COOLDOWN_BASE_MS = 2 * 60 * 1000 // 2 minutes
 
 export default function PINEntryPage() {
   const router = useRouter()
+
+  // PIN authentication state
   const [pin, setPin] = useState('')
   const [displayValue, setDisplayValue] = useState('') // Masked display (dots)
   const [error, setError] = useState('')
@@ -20,6 +23,11 @@ export default function PINEntryPage() {
   const [cooldownUntil, setCooldownUntil] = useState<number | null>(null)
   const [remainingTime, setRemainingTime] = useState(0)
   const [loading, setLoading] = useState(false)
+
+  // Lobby join state
+  const [lobbyToken, setLobbyToken] = useState('')
+  const [lobbyError, setLobbyError] = useState('')
+  const [lobbyLoading, setLobbyLoading] = useState(false)
 
   // Check if already authenticated
   useEffect(() => {
@@ -148,6 +156,34 @@ export default function PINEntryPage() {
     }
   }
 
+  const handleLobbyJoin = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!lobbyToken.trim()) {
+      setLobbyError('Please enter a lobby code')
+      return
+    }
+
+    setLobbyLoading(true)
+    setLobbyError('')
+
+    try {
+      // Validate lobby token exists
+      const response = await fetch(`/api/lobbies/${lobbyToken.trim()}`)
+
+      if (response.ok) {
+        // Lobby exists, redirect to lobby join page
+        router.push(`/lobby/${lobbyToken.trim()}`)
+      } else {
+        setLobbyError('Invalid or expired lobby code')
+      }
+    } catch (err) {
+      setLobbyError('Failed to connect to server')
+    } finally {
+      setLobbyLoading(false)
+    }
+  }
+
   const isOnCooldown = cooldownUntil !== null && Date.now() < cooldownUntil
 
   return (
@@ -168,18 +204,29 @@ export default function PINEntryPage() {
           </p>
         </div>
 
-        {/* PIN Entry Card */}
+        {/* Authentication Card with Tabs */}
         <Card className="border-slate-700 bg-slate-800/50 backdrop-blur">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center flex items-center justify-center gap-2">
-              <Lock className="w-5 h-5" />
-              Enter Access PIN
-            </CardTitle>
-            <CardDescription className="text-center text-slate-400">
-              Protected access for authorized users
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+          <Tabs defaultValue="pin" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="pin" className="gap-2">
+                <Lock className="w-4 h-4" />
+                PIN Access
+              </TabsTrigger>
+              <TabsTrigger value="lobby" className="gap-2">
+                <Users className="w-4 h-4" />
+                Join Lobby
+              </TabsTrigger>
+            </TabsList>
+
+            {/* PIN Entry Tab */}
+            <TabsContent value="pin">
+              <CardHeader className="space-y-1">
+                <CardTitle className="text-2xl text-center">Enter Access PIN</CardTitle>
+                <CardDescription className="text-center text-slate-400">
+                  Full access for authorized users
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Input
@@ -240,7 +287,59 @@ export default function PINEntryPage() {
                 <p>Rate limit: 2min → 4min → 8min → 16min (doubling)</p>
               </div>
             </form>
-          </CardContent>
+              </CardContent>
+            </TabsContent>
+
+            {/* Lobby Join Tab */}
+            <TabsContent value="lobby">
+              <CardHeader className="space-y-1">
+                <CardTitle className="text-2xl text-center">Join Rehearsal</CardTitle>
+                <CardDescription className="text-center text-slate-400">
+                  Enter the lobby code shared by your group
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleLobbyJoin} className="space-y-4">
+                  <div className="space-y-2">
+                    <Input
+                      type="text"
+                      value={lobbyToken}
+                      onChange={(e) => {
+                        setLobbyToken(e.target.value)
+                        setLobbyError('')
+                      }}
+                      placeholder="Enter lobby code"
+                      className="text-center text-lg h-12 font-mono bg-slate-900 border-slate-600 focus:border-cyan-400"
+                      disabled={lobbyLoading}
+                      autoFocus
+                    />
+                    <p className="text-xs text-center text-slate-400">
+                      UUID format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+                    </p>
+                  </div>
+
+                  {lobbyError && (
+                    <Alert variant="destructive" className="bg-red-500/10 border-red-500/50">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>{lobbyError}</AlertDescription>
+                    </Alert>
+                  )}
+
+                  <Button
+                    type="submit"
+                    className="w-full h-12 text-lg bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600"
+                    disabled={lobbyLoading || !lobbyToken.trim()}
+                  >
+                    {lobbyLoading ? 'Validating...' : 'Join Lobby'}
+                  </Button>
+
+                  <div className="text-center text-xs text-slate-500">
+                    <p>Get the lobby code from your rehearsal host</p>
+                  </div>
+                </form>
+              </CardContent>
+            </TabsContent>
+          </Tabs>
         </Card>
 
         {/* Footer */}
