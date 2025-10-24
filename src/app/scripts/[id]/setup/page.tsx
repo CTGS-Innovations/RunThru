@@ -86,6 +86,11 @@ export default function CharacterSelectionPage() {
       const result = await createLobby.mutateAsync({ scriptId, creatorName: creatorName.trim() })
       const lobbyUrl = `${window.location.origin}/lobby/${result.lobby.token}`
 
+      // Save creator info to localStorage so they don't get asked for name again
+      localStorage.setItem('runthru_player_name', creatorName.trim())
+      localStorage.setItem('runthru_lobby_token', result.lobby.token)
+      localStorage.setItem('runthru_participant_id', result.lobby.participantId.toString())
+
       // Copy to clipboard
       navigator.clipboard.writeText(lobbyUrl)
 
