@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload Script - RunThru</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Shadcn-style CSS variables for dark theme */
+    :root {
+      --background: 0 0% 3.9%;
+      --foreground: 0 0% 98%;
+      --card: 0 0% 3.9%;
+      --card-foreground: 0 0% 98%;
+      --popover: 0 0% 3.9%;
+      --popover-foreground: 0 0% 98%;
+      --primary: 0 0% 98%;
+      --primary-foreground: 0 0% 9%;
+      --secondary: 0 0% 14.9%;
+      --secondary-foreground: 0 0% 98%;
+      --muted: 0 0% 14.9%;
+      --muted-foreground: 0 0% 63.9%;
+      --accent: 0 0% 14.9%;
+      --accent-foreground: 0 0% 98%;
+      --destructive: 0 62.8% 30.6%;
+      --destructive-foreground: 0 0% 98%;
+      --border: 0 0% 14.9%;
+      --input: 0 0% 14.9%;
+      --ring: 0 0% 83.1%;
+    }
+
+    body {
+      background: hsl(var(--background));
+      color: hsl(var(--foreground));
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .animate-spin {
+      animation: spin 1s linear infinite;
+    }
+
+    .progress-bar {
+      transition: width 0.5s ease-in-out;
+    }
+
+    /* shadcn Dialog styles */
+    .dialog-content {
+      background: hsl(var(--background));
+      border: 1px solid hsl(var(--border));
+      color: hsl(var(--foreground));
+    }
+
+    .text-muted-foreground {
+      color: hsl(var(--muted-foreground));
+    }
+
+    /* shadcn Button styles */
+    .btn-outline {
+      border: 1px solid hsl(var(--input));
+      background: transparent;
+      color: hsl(var(--foreground));
+    }
+
+    .btn-outline:hover {
+      background: hsl(var(--accent));
+      color: hsl(var(--accent-foreground));
+    }
+
+    .btn-default {
+      background: hsl(var(--primary));
+      color: hsl(var(--primary-foreground));
+    }
+
+    .btn-default:hover {
+      opacity: 0.9;
+    }
+
+    .btn-default:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+  <!-- Dialog Modal - max-w-2xl matches ScriptUploader -->
+  <div class="dialog-content w-full max-w-2xl rounded-lg shadow-lg p-6">
+
+    <!-- DialogHeader -->
+    <div class="mb-6">
+      <h2 class="text-lg font-semibold leading-none tracking-tight">Upload Script</h2>
+      <p class="text-sm text-muted-foreground mt-1.5">
+        Upload a markdown script file or paste the markdown directly
+      </p>
+    </div>
+
+    <!-- Content Area - space-y-4 -->
+    <div class="space-y-4">
+
+      <!-- INITIAL STATE: Upload Controls -->
+      <div id="upload-controls" style="min-height: 400px;">
+        <!-- Method Selector -->
+        <div class="flex gap-2 mb-4">
+          <button
+            id="file-btn"
+            onclick="setMethod('file')"
+            class="btn-default flex-1 px-4 py-2 text-sm rounded-md transition-opacity font-medium flex items-center justify-center gap-2"
+          >
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+            </svg>
+            Upload File
+          </button>
+          <button
+            id="paste-btn"
+            onclick="setMethod('paste')"
+            class="btn-outline flex-1 px-4 py-2 text-sm rounded-md transition-colors flex items-center justify-center gap-2"
+          >
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            Paste Markdown
+          </button>
+        </div>
+
+        <!-- File Upload View -->
+        <div id="file-view">
+          <div
+            class="relative rounded-lg border-2 border-dashed p-12 text-center transition-colors border-muted-foreground/25"
+          >
+            <input
+              type="file"
+              id="file-upload"
+              accept=".md,.txt"
+              class="absolute inset-0 cursor-pointer opacity-0"
+            />
+            <div class="space-y-2">
+              <svg class="mx-auto h-12 w-12 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+              </svg>
+              <div>
+                <p class="text-sm font-medium">
+                  Drop your script file here, or click to browse
+                </p>
+                <p class="text-xs text-muted-foreground">
+                  Supports .md and .txt files up to 5MB
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Paste View -->
+        <div id="paste-view" class="hidden">
+          <div class="space-y-2">
+            <textarea
+              placeholder="Paste your markdown script here..."
+              class="w-full min-h-[300px] font-mono text-sm px-3 py-2 rounded-md border border-input bg-transparent"
+            ></textarea>
+            <p class="text-xs text-muted-foreground">
+              No content yet
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROGRESS STATE: Progress Display (hidden initially) -->
+      <div id="progress-display" class="hidden" style="min-height: 400px;">
+        <!-- Progress Bar -->
+        <div class="mb-4">
+          <div class="flex justify-between text-sm mb-2">
+            <span class="text-muted-foreground">Progress</span>
+            <span id="percent" class="font-medium">0%</span>
+          </div>
+          <div class="h-2 bg-secondary rounded-full overflow-hidden">
+            <div id="progress-bar" class="h-full bg-gradient-to-r from-orange-500 to-cyan-400 progress-bar" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- Stages -->
+        <div class="space-y-3">
+
+          <!-- Stage 1: Parse -->
+          <div id="stage-1" class="flex items-center gap-3">
+            <div class="status-icon">
+              <div class="w-5 h-5 rounded-full border-2 border-input"></div>
+            </div>
+            <span class="font-medium w-32">Parse Script</span>
+            <span class="text-sm text-muted-foreground stage-msg flex-1">Pending</span>
+          </div>
+
+          <!-- Stage 2: Analysis -->
+          <div id="stage-2" class="space-y-2">
+            <div class="flex items-center gap-3">
+              <div class="status-icon">
+                <div class="w-5 h-5 rounded-full border-2 border-input"></div>
+              </div>
+              <span class="font-medium w-32">AI Analysis</span>
+              <span class="text-sm text-muted-foreground stage-msg flex-1">Pending</span>
+            </div>
+            <div class="ml-8 hidden sub-progress">
+              <div class="h-1.5 bg-secondary rounded-full overflow-hidden">
+                <div class="h-full bg-orange-500 progress-bar" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stage 3: Portraits -->
+          <div id="stage-3" class="space-y-2">
+            <div class="flex items-center gap-3">
+              <div class="status-icon">
+                <div class="w-5 h-5 rounded-full border-2 border-input"></div>
+              </div>
+              <span class="font-medium w-32">Portraits</span>
+              <span class="text-sm text-muted-foreground stage-msg flex-1">Pending</span>
+            </div>
+            <div class="ml-8 hidden sub-progress">
+              <div class="h-1.5 bg-secondary rounded-full overflow-hidden">
+                <div class="h-full bg-orange-500 progress-bar" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stage 4: Save -->
+          <div id="stage-4" class="flex items-center gap-3">
+            <div class="status-icon">
+              <div class="w-5 h-5 rounded-full border-2 border-input"></div>
+            </div>
+            <span class="font-medium w-32">Save Database</span>
+            <span class="text-sm text-muted-foreground stage-msg flex-1">Pending</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Actions - matches ScriptUploader footer -->
+      <div class="flex items-center justify-between gap-4">
+        <!-- Status message (left side) -->
+        <div id="footer-msg" class="flex items-center gap-2 flex-1">
+          <div id="footer-icon" class="hidden"></div>
+          <span id="footer-text" class="text-sm"></span>
+        </div>
+
+        <!-- Buttons (right side) -->
+        <div class="flex gap-2">
+          <button onclick="handleCancel()" class="btn-outline px-4 py-2 text-sm rounded-md transition-colors">
+            Cancel
+          </button>
+          <button id="action-btn" onclick="handleUpload()" class="btn-default px-4 py-2 text-sm rounded-md transition-opacity font-medium">
+            Upload Script
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    let currentMethod = 'file';
+    let isUploading = false;
+
+    function setMethod(method) {
+      currentMethod = method;
+
+      // Update button styles
+      const fileBtn = document.getElementById('file-btn');
+      const pasteBtn = document.getElementById('paste-btn');
+
+      if (method === 'file') {
+        fileBtn.className = 'btn-default flex-1 px-4 py-2 text-sm rounded-md transition-opacity font-medium flex items-center justify-center gap-2';
+        pasteBtn.className = 'btn-outline flex-1 px-4 py-2 text-sm rounded-md transition-colors flex items-center justify-center gap-2';
+        document.getElementById('file-view').classList.remove('hidden');
+        document.getElementById('paste-view').classList.add('hidden');
+      } else {
+        fileBtn.className = 'btn-outline flex-1 px-4 py-2 text-sm rounded-md transition-colors flex items-center justify-center gap-2';
+        pasteBtn.className = 'btn-default flex-1 px-4 py-2 text-sm rounded-md transition-opacity font-medium flex items-center justify-center gap-2';
+        document.getElementById('file-view').classList.add('hidden');
+        document.getElementById('paste-view').classList.remove('hidden');
+      }
+    }
+
+    function handleCancel() {
+      if (isUploading) {
+        // Reset to initial state
+        resetUI();
+      } else {
+        // Close modal (in real app)
+        alert('Modal would close');
+      }
+    }
+
+    async function handleUpload() {
+      if (isUploading) {
+        // Close modal after completion
+        alert('Modal would close, redirecting to script setup');
+        return;
+      }
+
+      // Switch from upload controls to progress display
+      document.getElementById('upload-controls').classList.add('hidden');
+      document.getElementById('progress-display').classList.remove('hidden');
+      isUploading = true;
+
+      // Run the upload simulation
+      await simulateUpload();
+    }
+
+    function updateFooter(type, msg) {
+      const icon = document.getElementById('footer-icon');
+      const text = document.getElementById('footer-text');
+
+      if (type === 'success') {
+        icon.className = 'w-5 h-5 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0';
+        icon.innerHTML = '<svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>';
+        icon.classList.remove('hidden');
+        text.className = 'text-sm text-green-500';
+        text.textContent = msg;
+      } else if (type === 'error') {
+        icon.className = 'w-5 h-5 rounded-full bg-red-500 flex items-center justify-center flex-shrink-0';
+        icon.innerHTML = '<svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>';
+        icon.classList.remove('hidden');
+        text.className = 'text-sm text-red-500';
+        text.textContent = msg;
+      } else {
+        icon.classList.add('hidden');
+        text.textContent = '';
+      }
+    }
+
+    function updateStage(id, status, msg = '') {
+      const stage = document.getElementById(`stage-${id}`);
+      const icon = stage.querySelector('.status-icon div');
+      const msgEl = stage.querySelector('.stage-msg');
+      const sub = stage.querySelector('.sub-progress');
+
+      if (msg) msgEl.textContent = msg;
+
+      if (status === 'pending') {
+        icon.className = 'w-5 h-5 rounded-full border-2 border-input';
+        icon.innerHTML = '';
+      } else if (status === 'active') {
+        icon.className = 'w-5 h-5 rounded-full border-2 border-orange-500 border-t-transparent animate-spin';
+        icon.innerHTML = '';
+        if (sub) sub.classList.remove('hidden');
+      } else if (status === 'complete') {
+        icon.className = 'w-5 h-5 rounded-full bg-green-500 flex items-center justify-center';
+        icon.innerHTML = '<svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>';
+      } else if (status === 'error') {
+        icon.className = 'w-5 h-5 rounded-full bg-red-500 flex items-center justify-center';
+        icon.innerHTML = '<svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>';
+      }
+    }
+
+    function updateSubProgress(id, percent) {
+      const stage = document.getElementById(`stage-${id}`);
+      const bar = stage?.querySelector('.sub-progress .progress-bar');
+      if (bar) bar.style.width = `${percent}%`;
+    }
+
+    function updateProgress(percent) {
+      document.getElementById('progress-bar').style.width = `${percent}%`;
+      document.getElementById('percent').textContent = `${Math.round(percent)}%`;
+    }
+
+    function sleep(ms) {
+      return new Promise(r => setTimeout(r, ms));
+    }
+
+    async function simulateUpload() {
+      updateStage(1, 'active', 'Reading...');
+      updateProgress(10);
+      await sleep(800);
+
+      updateStage(1, 'complete', '11 chars, 12 scenes');
+      updateProgress(20);
+      await sleep(300);
+
+      updateStage(2, 'active', 'Analyzing...');
+      updateStage(3, 'active', '0/11');
+      updateProgress(25);
+
+      const a = simulateAnalysis();
+      const p = simulatePortraits();
+      await Promise.all([a, p]);
+
+      updateProgress(90);
+      updateStage(4, 'active', 'Saving...');
+      await sleep(500);
+      updateStage(4, 'complete', 'Complete');
+      updateProgress(100);
+      await sleep(300);
+
+      updateFooter('success', 'Upload complete!');
+      document.getElementById('action-btn').textContent = 'Close';
+    }
+
+    async function simulateAnalysis() {
+      for (let i = 0; i <= 100; i += 10) {
+        await sleep(300);
+        updateSubProgress(2, i);
+      }
+      updateStage(2, 'complete', 'Complete');
+    }
+
+    async function simulatePortraits() {
+      for (let i = 1; i <= 11; i++) {
+        await sleep(400);
+        updateSubProgress(3, (i / 11) * 100);
+        updateStage(3, 'active', `${i}/11`);
+      }
+      updateStage(3, 'complete', 'Complete');
+    }
+
+    function resetUI() {
+      // Show upload controls again
+      document.getElementById('upload-controls').classList.remove('hidden');
+      document.getElementById('progress-display').classList.add('hidden');
+      isUploading = false;
+
+      // Reset progress
+      updateFooter('hide', '');
+      updateStage(1, 'pending', 'Pending');
+      updateStage(2, 'pending', 'Pending');
+      updateStage(3, 'pending', 'Pending');
+      updateStage(4, 'pending', 'Pending');
+      updateSubProgress(2, 0);
+      updateSubProgress(3, 0);
+      updateProgress(0);
+      document.querySelectorAll('.sub-progress').forEach(el => el.classList.add('hidden'));
+      document.getElementById('action-btn').textContent = 'Upload Script';
+    }
+
+    // Auto-start after 1 second to demonstrate the flow
+    window.addEventListener('load', () => {
+      setTimeout(() => handleUpload(), 1000);
+    });
+  </script>
+
+</body>
+</html>

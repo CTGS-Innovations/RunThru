@@ -1,0 +1,25 @@
+{
+  "portraitId": "f9acf770-446f-4ec4-9165-1404a4c0bd8e",
+  "originalCharacter": "NARRATOR 1",
+  "originalScriptId": "b69d1256-d885-4bfa-b066-4263401c1c65",
+  "filePath": "/portraits/b69d1256-d885-4bfa-b066-4263401c1c65/narrator_1.webp",
+  "gender": "male",
+  "ageGroup": "middle-aged",
+  "visualDescription": "A witty and insightful character who guides the audience through the story. They have a knack for humor and a strong stage presence.",
+  "roleType": "Lead",
+  "personalityTraits": [
+    "clever",
+    "funny",
+    "thoughtful"
+  ],
+  "tagline": "Witty Guide",
+  "expression": "Confident and theatrical",
+  "artStyle": "stylized-realism-broadway",
+  "generatedWith": "gpt-image-1",
+  "prompt": "Character portrait of NARRATOR 1 for a theatrical production. A witty and insightful character who guides the audience through the story. They have a knack for humor and a strong stage presence.\n\nStyle: Modern illustrated poster art with stylized realism, like Pixar concept art meets Broadway poster. Painterly with soft gradients and light texture. Warm uplifting colors - sunset oranges, royal blues, deep purples, and golds. Dynamic cinematic composition with spotlight lighting.\n\nExpression: Confident and theatrical, expressive face with slightly exaggerated pose like animation stills or storybook illustrations. Emotionally rich and aspirational.\n\nQuality: Artistic but grounded, not photorealistic or cartoon. Similar to Spider-Verse posters, La La Land artwork, or Encanto promotional illustrations.\n\nIMPORTANT: NO TEXT, NO WORDS, NO LETTERS, NO LABELS in the image. Pure visual portrait only.",
+  "createdAt": "2025-10-23T23:36:44.359Z",
+  "usedInScripts": [
+    "b69d1256-d885-4bfa-b066-4263401c1c65"
+  ],
+  "reusedCount": 1
+}
