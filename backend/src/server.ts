@@ -23,6 +23,9 @@ app.use((req, res, next) => {
   next();
 });
 
+// Serve static files (character portraits)
+app.use('/portraits', express.static('public/portraits'));
+
 // Routes
 app.use('/api', routes);
 
