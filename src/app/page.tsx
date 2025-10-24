@@ -1,219 +1,352 @@
 'use client'
 
-import Link from 'next/link'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { CheckCircle2, Circle, Upload, Users, Sparkles } from 'lucide-react'
+import { Input } from '@/components/ui/input'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Sparkles, Lock, AlertCircle, Users } from 'lucide-react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 
-export default function HomePage() {
+const MAX_ATTEMPTS = 3
+const COOLDOWN_BASE_MS = 2 * 60 * 1000 // 2 minutes
+
+export default function PINEntryPage() {
+  const router = useRouter()
+
+  // PIN authentication state
+  const [pin, setPin] = useState('')
+  const [displayValue, setDisplayValue] = useState('') // Masked display (dots)
+  const [error, setError] = useState('')
+  const [attempts, setAttempts] = useState(0)
+  const [cooldownUntil, setCooldownUntil] = useState<number | null>(null)
+  const [remainingTime, setRemainingTime] = useState(0)
+  const [loading, setLoading] = useState(false)
+
+  // Lobby join state
+  const [lobbyToken, setLobbyToken] = useState('')
+  const [lobbyError, setLobbyError] = useState('')
+  const [lobbyLoading, setLobbyLoading] = useState(false)
+
+  // Check if already authenticated
+  useEffect(() => {
+    const storedPin = localStorage.getItem('runthru_pin')
+    const storedTimestamp = localStorage.getItem('runthru_pin_timestamp')
+
+    if (storedPin && storedTimestamp) {
+      // PIN is valid for 24 hours
+      const timestamp = parseInt(storedTimestamp, 10)
+      const now = Date.now()
+      const twentyFourHours = 24 * 60 * 60 * 1000
+
+      if (now - timestamp < twentyFourHours) {
+        // Still valid, redirect to dashboard
+        router.push('/dashboard')
+        return
+      } else {
+        // Expired, clear storage
+        localStorage.removeItem('runthru_pin')
+        localStorage.removeItem('runthru_pin_timestamp')
+      }
+    }
+
+    // Load cooldown state from localStorage
+    const storedCooldown = localStorage.getItem('runthru_pin_cooldown')
+    const storedAttempts = localStorage.getItem('runthru_pin_attempts')
+
+    if (storedCooldown) {
+      const cooldownTime = parseInt(storedCooldown, 10)
+      if (Date.now() < cooldownTime) {
+        setCooldownUntil(cooldownTime)
+      } else {
+        localStorage.removeItem('runthru_pin_cooldown')
+        localStorage.removeItem('runthru_pin_attempts')
+      }
+    }
+
+    if (storedAttempts) {
+      setAttempts(parseInt(storedAttempts, 10))
+    }
+  }, [router])
+
+  // Cooldown timer
+  useEffect(() => {
+    if (!cooldownUntil) return
+
+    const interval = setInterval(() => {
+      const remaining = Math.max(0, cooldownUntil - Date.now())
+      setRemainingTime(remaining)
+
+      if (remaining === 0) {
+        setCooldownUntil(null)
+        setAttempts(0)
+        localStorage.removeItem('runthru_pin_cooldown')
+        localStorage.removeItem('runthru_pin_attempts')
+      }
+    }, 100)
+
+    return () => clearInterval(interval)
+  }, [cooldownUntil])
+
+  const formatTime = (ms: number) => {
+    const totalSeconds = Math.ceil(ms / 1000)
+    const minutes = Math.floor(totalSeconds / 60)
+    const seconds = totalSeconds % 60
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (cooldownUntil && Date.now() < cooldownUntil) {
+      setError('Too many attempts. Please wait.')
+      return
+    }
+
+    if (pin.length !== 7) {
+      setError('PIN must be 7 digits')
+      return
+    }
+
+    setLoading(true)
+    setError('')
+
+    try {
+      // Validate PIN with backend (through Next.js API proxy)
+      const response = await fetch('/api/auth/verify', {
+        method: 'POST',
+        headers: {
+          'x-access-pin': pin,
+        },
+      })
+
+      if (response.ok || response.status === 200) {
+        // PIN is valid
+        localStorage.setItem('runthru_pin', pin)
+        localStorage.setItem('runthru_pin_timestamp', Date.now().toString())
+        localStorage.removeItem('runthru_pin_attempts')
+        localStorage.removeItem('runthru_pin_cooldown')
+
+        router.push('/dashboard')
+      } else {
+        // Invalid PIN
+        const newAttempts = attempts + 1
+        setAttempts(newAttempts)
+        localStorage.setItem('runthru_pin_attempts', newAttempts.toString())
+
+        if (newAttempts >= MAX_ATTEMPTS) {
+          // Cooldown time doubles each time: 2min → 4min → 8min → 16min
+          const cooldownMs = COOLDOWN_BASE_MS * Math.pow(2, Math.floor(newAttempts / MAX_ATTEMPTS) - 1)
+          const cooldownEnd = Date.now() + cooldownMs
+          setCooldownUntil(cooldownEnd)
+          localStorage.setItem('runthru_pin_cooldown', cooldownEnd.toString())
+          setError(`Too many attempts. Try again in ${formatTime(cooldownMs)}`)
+        } else {
+          setError(`Invalid PIN. ${MAX_ATTEMPTS - newAttempts} attempts remaining.`)
+        }
+
+        setPin('')
+        setDisplayValue('')
+      }
+    } catch (err) {
+      setError('Failed to connect to server. Is the backend running?')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleLobbyJoin = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!lobbyToken.trim()) {
+      setLobbyError('Please enter a lobby code')
+      return
+    }
+
+    setLobbyLoading(true)
+    setLobbyError('')
+
+    try {
+      // Validate lobby token exists
+      const response = await fetch(`/api/lobbies/${lobbyToken.trim()}`)
+
+      if (response.ok) {
+        // Lobby exists, redirect to lobby join page
+        router.push(`/lobby/${lobbyToken.trim()}`)
+      } else {
+        setLobbyError('Invalid or expired lobby code')
+      }
+    } catch (err) {
+      setLobbyError('Failed to connect to server')
+    } finally {
+      setLobbyLoading(false)
+    }
+  }
+
+  const isOnCooldown = cooldownUntil !== null && Date.now() < cooldownUntil
+
   return (
-    <div className="container mx-auto px-4 py-12 max-w-5xl">
-      {/* Header */}
-      <div className="text-center space-y-4 mb-12">
-        <h1 className="text-5xl font-bold bg-gradient-to-r from-amber-400 to-cyan-400 bg-clip-text text-transparent">
-          RunThru
-        </h1>
-        <p className="text-xl text-muted-foreground">
-          Development Testing Dashboard
-        </p>
-        <div className="flex gap-2 justify-center text-sm text-muted-foreground">
-          <span>Backend: http://localhost:4000</span>
-          <span>•</span>
-          <span>Frontend: http://localhost:3000</span>
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12">
-        <Link href="/scripts">
-          <Button size="lg" className="w-full h-20 text-lg" variant="default">
-            <Users className="w-6 h-6 mr-2" />
-            Script Library
-          </Button>
-        </Link>
-        <Link href="/scripts">
-          <Button size="lg" className="w-full h-20 text-lg" variant="outline">
-            <Upload className="w-6 h-6 mr-2" />
-            Upload Script
-          </Button>
-        </Link>
-      </div>
-
-      {/* Sprint Status */}
-      <div className="space-y-4">
-        <h2 className="text-2xl font-bold mb-6">Sprint Progress</h2>
-
-        {/* Sprint 1 */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-start justify-between">
-              <div>
-                <CardTitle className="flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-500" />
-                  Sprint 1: Infrastructure Setup
-                </CardTitle>
-                <CardDescription>Git worktrees, scaffolding, TTS validation</CardDescription>
-              </div>
-              <span className="text-sm font-medium text-green-500">100% Complete</span>
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <div className="w-full max-w-md space-y-8">
+        {/* Logo/Header */}
+        <div className="text-center space-y-4">
+          <div className="flex justify-center">
+            <div className="w-20 h-20 bg-gradient-to-br from-amber-400 to-cyan-400 rounded-2xl flex items-center justify-center">
+              <Sparkles className="w-10 h-10 text-slate-900" />
             </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-sm text-muted-foreground space-y-1">
-              <div>✅ Backend API scaffold (Node.js + TypeScript)</div>
-              <div>✅ Frontend scaffold (Next.js 15 + shadcn/ui)</div>
-              <div>✅ TTS service scaffold (Python + FastAPI)</div>
-              <div>✅ GPU validation (RTX 3090 operational)</div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Sprint 2 */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-start justify-between">
-              <div>
-                <CardTitle className="flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-500" />
-                  Sprint 2: Script Upload
-                </CardTitle>
-                <CardDescription>Upload markdown scripts, parse to JSON, store in SQLite</CardDescription>
-              </div>
-              <span className="text-sm font-medium text-green-500">100% Complete</span>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-sm text-muted-foreground space-y-1">
-              <div>✅ ScriptUploader component (drag-and-drop)</div>
-              <div>✅ Script parser (428 lines, 11 characters detected)</div>
-              <div>✅ Script library page</div>
-              <div>✅ Script detail page</div>
-            </div>
-            <div className="mt-4">
-              <Link href="/scripts">
-                <Button variant="outline" size="sm">View Script Library →</Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Sprint 3 */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-start justify-between">
-              <div>
-                <CardTitle className="flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-500" />
-                  Sprint 3: Role Selection & Voice Assignment
-                </CardTitle>
-                <CardDescription>Character selection, voice presets, customization</CardDescription>
-              </div>
-              <span className="text-sm font-medium text-green-500">100% Complete</span>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-sm text-muted-foreground space-y-1">
-              <div>✅ CharacterCard component (video game style)</div>
-              <div>✅ Voice preset system (8 presets)</div>
-              <div>✅ Voice customization sliders (gender/emotion/age)</div>
-              <div>✅ SessionSetup page (gaming/quest aesthetic)</div>
-              <div>✅ Random voice assignment + shuffle</div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Sprint 4 */}
-        <Card className="border-amber-500/50">
-          <CardHeader>
-            <div className="flex items-start justify-between">
-              <div>
-                <CardTitle className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-amber-500" />
-                  Sprint 4: OpenAI Script Analysis & Character Portraits
-                </CardTitle>
-                <CardDescription>AI-powered metadata extraction + DALL-E portrait generation</CardDescription>
-              </div>
-              <span className="text-sm font-medium text-amber-500">🔍 Testing Now</span>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-sm text-muted-foreground space-y-1 mb-4">
-              <div>✅ ScriptAnalysisService (GPT-4o-mini, ~$0.009/script)</div>
-              <div>✅ CharacterPortraitService (DALL-E, $0.04/portrait)</div>
-              <div>✅ Portrait metadata (JSON sidecars for reuse)</div>
-              <div>✅ Character cards with AI portraits & taglines</div>
-              <div>✅ Role badges (Lead/Featured/Ensemble)</div>
-            </div>
-            <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4 space-y-3">
-              <p className="font-medium text-amber-500">Test Instructions:</p>
-              <ol className="text-sm space-y-2 list-decimal list-inside">
-                <li>Go to Script Library and select a script</li>
-                <li>Verify character portraits display in grid</li>
-                <li>Check taglines show below character names</li>
-                <li>Verify role badges (Lead/Featured/Ensemble)</li>
-                <li>Click "START REHEARSAL" → Verify portraits in character selection</li>
-              </ol>
-              <Link href="/scripts">
-                <Button className="w-full bg-amber-500 hover:bg-amber-600 text-black font-bold mt-2">
-                  Start Testing Sprint 4 →
-                </Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Sprint 5 */}
-        <Card className="opacity-60">
-          <CardHeader>
-            <div className="flex items-start justify-between">
-              <div>
-                <CardTitle className="flex items-center gap-2">
-                  <Circle className="w-5 h-5 text-muted-foreground" />
-                  Sprint 5: Audio Generation & Caching
-                </CardTitle>
-                <CardDescription>Batch TTS generation, audio cache, progress UI</CardDescription>
-              </div>
-              <span className="text-sm font-medium text-muted-foreground">Not Started</span>
-            </div>
-          </CardHeader>
-        </Card>
-
-        {/* Sprint 6 */}
-        <Card className="opacity-60">
-          <CardHeader>
-            <div className="flex items-start justify-between">
-              <div>
-                <CardTitle className="flex items-center gap-2">
-                  <Circle className="w-5 h-5 text-muted-foreground" />
-                  Sprint 6: Rehearsal Playback
-                </CardTitle>
-                <CardDescription>Line-by-line playback, audio player, navigation</CardDescription>
-              </div>
-              <span className="text-sm font-medium text-muted-foreground">Not Started</span>
-            </div>
-          </CardHeader>
-        </Card>
-      </div>
-
-      {/* API Status */}
-      <Card className="mt-8">
-        <CardHeader>
-          <CardTitle className="text-lg">Backend API Endpoints (Sprint 4)</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm font-mono">
-            <div>GET /api/scripts</div>
-            <div>POST /api/scripts</div>
-            <div>GET /api/scripts/:id</div>
-            <div>DELETE /api/scripts/:id</div>
-            <div>GET /api/voices</div>
-            <div>POST /api/sessions</div>
-            <div>GET /api/sessions/:id</div>
-            <div>POST /api/sessions/:id/shuffle</div>
-            <div>PUT /api/sessions/:id/voice</div>
-            <div className="text-amber-500">GET /portraits/:scriptId/*.webp</div>
           </div>
-        </CardContent>
-      </Card>
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-amber-400 to-cyan-400 bg-clip-text text-transparent">
+            RunThru
+          </h1>
+          <p className="text-lg text-slate-300">
+            Theatrical Rehearsal Platform
+          </p>
+        </div>
+
+        {/* Authentication Card with Tabs */}
+        <Card className="border-slate-700 bg-slate-800/50 backdrop-blur">
+          <Tabs defaultValue="pin" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="pin" className="gap-2">
+                <Lock className="w-4 h-4" />
+                PIN Access
+              </TabsTrigger>
+              <TabsTrigger value="lobby" className="gap-2">
+                <Users className="w-4 h-4" />
+                Join Lobby
+              </TabsTrigger>
+            </TabsList>
+
+            {/* PIN Entry Tab */}
+            <TabsContent value="pin">
+              <CardHeader className="space-y-1">
+                <CardTitle className="text-2xl text-center">Enter Access PIN</CardTitle>
+                <CardDescription className="text-center text-slate-400">
+                  Full access for authorized users
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Input
+                  type="text"
+                  inputMode="numeric"
+                  value={displayValue}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Backspace') {
+                      setPin(pin.slice(0, -1))
+                      setDisplayValue(displayValue.slice(0, -1))
+                      setError('')
+                    } else if (e.key >= '0' && e.key <= '9' && pin.length < 7) {
+                      setPin(pin + e.key)
+                      setDisplayValue(displayValue + '•')
+                      setError('')
+                    }
+                    e.preventDefault()
+                  }}
+                  onChange={() => {
+                    // Prevent default onChange behavior
+                  }}
+                  placeholder="0000000"
+                  className="text-center text-3xl h-16 tracking-widest font-mono bg-slate-900 border-slate-600 focus:border-cyan-400"
+                  disabled={isOnCooldown || loading}
+                  autoFocus
+                />
+                <p className="text-xs text-center text-slate-400">
+                  7-digit PIN code
+                </p>
+              </div>
+
+              {error && (
+                <Alert variant="destructive" className="bg-red-500/10 border-red-500/50">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+
+              {isOnCooldown && (
+                <Alert className="bg-amber-500/10 border-amber-500/50">
+                  <AlertCircle className="h-4 w-4 text-amber-500" />
+                  <AlertDescription className="text-amber-500">
+                    Cooldown active. Try again in {formatTime(remainingTime)}
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              <Button
+                type="submit"
+                className="w-full h-12 text-lg bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600"
+                disabled={isOnCooldown || loading || pin.length !== 7}
+              >
+                {loading ? 'Verifying...' : 'Enter'}
+              </Button>
+
+              <div className="text-center text-xs text-slate-500 space-y-1">
+                <p>Attempts: {attempts}/{MAX_ATTEMPTS}</p>
+                <p>Rate limit: 2min → 4min → 8min → 16min (doubling)</p>
+              </div>
+            </form>
+              </CardContent>
+            </TabsContent>
+
+            {/* Lobby Join Tab */}
+            <TabsContent value="lobby">
+              <CardHeader className="space-y-1">
+                <CardTitle className="text-2xl text-center">Join Rehearsal</CardTitle>
+                <CardDescription className="text-center text-slate-400">
+                  Enter the lobby code shared by your group
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleLobbyJoin} className="space-y-4">
+                  <div className="space-y-2">
+                    <Input
+                      type="text"
+                      value={lobbyToken}
+                      onChange={(e) => {
+                        setLobbyToken(e.target.value)
+                        setLobbyError('')
+                      }}
+                      placeholder="Enter lobby code"
+                      className="text-center text-lg h-12 font-mono bg-slate-900 border-slate-600 focus:border-cyan-400"
+                      disabled={lobbyLoading}
+                      autoFocus
+                    />
+                    <p className="text-xs text-center text-slate-400">
+                      UUID format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+                    </p>
+                  </div>
+
+                  {lobbyError && (
+                    <Alert variant="destructive" className="bg-red-500/10 border-red-500/50">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>{lobbyError}</AlertDescription>
+                    </Alert>
+                  )}
+
+                  <Button
+                    type="submit"
+                    className="w-full h-12 text-lg bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600"
+                    disabled={lobbyLoading || !lobbyToken.trim()}
+                  >
+                    {lobbyLoading ? 'Validating...' : 'Join Lobby'}
+                  </Button>
+
+                  <div className="text-center text-xs text-slate-500">
+                    <p>Get the lobby code from your rehearsal host</p>
+                  </div>
+                </form>
+              </CardContent>
+            </TabsContent>
+          </Tabs>
+        </Card>
+
+        {/* Footer */}
+        <p className="text-center text-sm text-slate-500">
+          RunThru • Developed by Corey & Daughter
+        </p>
+      </div>
     </div>
   )
 }

@@ -9,14 +9,30 @@ import { useScripts, useDeleteScript } from '@/hooks/useScripts'
 import { ScriptCard } from '@/components/script/ScriptCard'
 import { ScriptUploader } from '@/components/script/ScriptUploader'
 import { Plus, FileText, Sparkles } from 'lucide-react'
+import { useRequirePin } from '@/hooks/useAuth'
 
 export default function ScriptsPage() {
+  // Auth guard - requires PIN authentication
+  const { isChecking } = useRequirePin()
+
   const [showUploader, setShowUploader] = useState(false)
   const [refreshing, setRefreshing] = useState<string | null>(null)
   const router = useRouter()
   const { toast } = useToast()
   const { data: scripts, isLoading, error, refetch } = useScripts()
   const deleteMutation = useDeleteScript()
+
+  // Show loading while checking auth
+  if (isChecking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Sparkles className="w-12 h-12 animate-spin text-cyan-400 mx-auto mb-4" />
+          <p className="text-muted-foreground">Verifying access...</p>
+        </div>
+      </div>
+    )
+  }
 
   const handleOpen = (id: string) => {
     router.push(`/scripts/${id}/setup`)
