@@ -7,6 +7,10 @@ CREATE TABLE IF NOT EXISTS scripts (
   title TEXT NOT NULL,
   markdown_source TEXT NOT NULL,
   parsed_json TEXT NOT NULL,
+  analysis TEXT,  -- JSON: OpenAI analysis (metadata, characters, scenes)
+  analysis_tokens_used INTEGER DEFAULT 0,
+  analysis_cost_usd REAL DEFAULT 0,
+  analyzed_at DATETIME,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
