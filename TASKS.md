@@ -1,8 +1,8 @@
 # RunThru - Task Tracking & Progress
 
-**Last Updated**: 2025-10-24 16:05
+**Last Updated**: 2025-10-24 16:30
 **Current Phase**: MVP Phase 1 - Synchronized Multiplayer Rehearsal
-**Overall Progress**: Sprint 1: 100% ✅ | Sprint 2: 100% ✅ | Sprint 3: 100% ✅ | Sprint 4: 100% ✅ | Sprint 5: 100% ✅ | Sprint 6A: 100% ✅ | Sprint 7: 40% ✅
+**Overall Progress**: Sprint 1: 100% ✅ | Sprint 2: 100% ✅ | Sprint 3: 100% ✅ | Sprint 4: 100% ✅ | Sprint 5: 100% ✅ | Sprint 6A: 100% ✅ (POLISH COMPLETE) | Sprint 7: 40% ✅
 
 ---
 
@@ -1052,6 +1052,17 @@
   - [x] File: `backend/src/server.ts:28`
   - [x] Added static file serving: `app.use('/audio', express.static('public/audio'))`
   - [x] **TESTED**: Audio playback working through Cloudflare Tunnel ✅
+
+- [x] **✅ COMPLETE**: Polish & Bug Fixes (2025-10-24 16:00-16:30)
+  - [x] Fixed Susan's portrait database reference (null → susan.webp)
+  - [x] Removed ellipsis for faster timing ("..." → "." eliminates 6-second pauses)
+  - [x] Updated cache headers from immutable to must-revalidate (1 hour TTL)
+  - [x] Added cache-busting version parameter (?v=3) for Cloudflare CDN
+  - [x] Regenerated all 11 audio files with correct voice assignments:
+    - [x] NARRATOR 1 → mysterious-narrator (deep, dramatic) ✓
+    - [x] NARRATOR 2 → teen-male
+    - [x] All other characters using session 0edca75a voice mappings
+  - [x] **TESTED**: Mobile and desktop serving correct fast audio ✅
 
 #### ⏸️ Deferred: Playback Synchronization (Sprint 6B)
 
