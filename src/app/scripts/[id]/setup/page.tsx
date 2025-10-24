@@ -203,57 +203,64 @@ export default function CharacterSelectionPage() {
         </div>
 
         {/* Content */}
-        <div className="px-6 py-6 space-y-4">
-          <div className="text-xs font-black uppercase tracking-wider text-muted mb-3">
-            👥 Players Ready
-          </div>
-
+        <div className="px-4 md:px-6 py-4 md:py-5">
           {selectedCharacter ? (
             <div className="space-y-3">
-              {/* Your Character */}
-              <div className="group relative overflow-hidden rounded-2xl border-2 border-amber-500/50 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent shadow-lg transition-all hover:scale-102">
-                <div className="flex items-center gap-4 p-4">
-                  <div className="relative">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-500/30 to-amber-600/30 flex items-center justify-center text-3xl border-2 border-amber-500/50 shadow-lg">
+              {/* Section Header */}
+              <div className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                <Users className="w-3.5 h-3.5" />
+                Players Ready
+              </div>
+
+              {/* Your Character - Compact */}
+              <div className="group relative overflow-hidden rounded-xl border-2 border-amber-500/50 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent">
+                <div className="flex items-center gap-3 p-3">
+                  <div className="relative flex-shrink-0">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-500/30 to-amber-600/30 flex items-center justify-center text-2xl border-2 border-amber-500/50">
                       🎭
                     </div>
-                    <div className="absolute -top-1 -right-1 bg-green-500 rounded-full p-1 shadow-lg">
-                      <Check className="w-3 h-3 text-black" />
+                    <div className="absolute -top-0.5 -right-0.5 bg-green-500 rounded-full p-0.5">
+                      <Check className="w-2.5 h-2.5 text-black" />
                     </div>
                   </div>
-                  <div className="flex-1">
-                    <div className="text-sm font-bold text-muted-foreground mb-1">YOU</div>
-                    <div className="text-xl md:text-2xl font-black text-amber-400">{selectedCharacter}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs font-bold text-muted-foreground">YOU</div>
+                    <div className="text-lg md:text-xl font-black text-amber-400 truncate">{selectedCharacter}</div>
                     {getCharacterAnalysis(selectedCharacter)?.tagline && (
-                      <div className="text-sm text-cyan-400 font-semibold">
+                      <div className="text-xs text-cyan-400 font-medium truncate">
                         {getCharacterAnalysis(selectedCharacter)?.tagline}
                       </div>
                     )}
                   </div>
-                  <div className="flex flex-col items-end gap-2">
-                    <div className="px-4 py-2 rounded-full bg-green-500/20 border border-green-500/50">
-                      <span className="text-sm font-black text-green-400">✓ READY</span>
+                  <div className="flex-shrink-0">
+                    <div className="px-3 py-1.5 rounded-full bg-green-500/20 border border-green-500/50">
+                      <span className="text-xs font-black text-green-400">✓ READY</span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* AI Characters Placeholder */}
-              <div className="text-center py-4 px-6 rounded-2xl border border-dashed border-cyan-500/30 bg-cyan-500/5">
-                <div className="text-sm text-cyan-400 font-semibold mb-1">🤖 AI Scene Partners</div>
-                <div className="text-xs text-muted-foreground">
-                  {characters.length - 1} AI character{characters.length - 1 !== 1 ? 's' : ''} will perform with you
+              {/* AI Characters - Compact */}
+              <div className="flex items-center gap-3 p-3 rounded-xl border border-dashed border-cyan-500/30 bg-cyan-500/5">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500/20 to-cyan-600/20 flex items-center justify-center text-2xl border-2 border-cyan-500/30">
+                  🤖
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-bold text-muted-foreground">AI SCENE PARTNERS</div>
+                  <div className="text-sm font-bold text-cyan-400">
+                    {characters.length - 1} character{characters.length - 1 !== 1 ? 's' : ''} ready
+                  </div>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="text-center py-12 px-6">
-              <div className="text-6xl mb-4">🎬</div>
-              <p className="text-lg font-bold text-muted-foreground mb-2">
+            <div className="text-center py-8 px-6">
+              <div className="text-5xl mb-3">🎬</div>
+              <p className="text-base font-bold text-muted-foreground mb-1">
                 Select Your Character
               </p>
               <p className="text-sm text-muted-foreground">
-                Swipe through the characters above and tap to select your role
+                Choose a role from the carousel above
               </p>
             </div>
           )}
