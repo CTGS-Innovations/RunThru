@@ -113,6 +113,22 @@ export default function LobbyJoinPage() {
     }
   }
 
+  // Helper: Sanitize character name for audio filename (matches backend logic)
+  const sanitizeCharacterName = (name: string): string => {
+    return name
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '')
+  }
+
+  // Helper: Get character card audio URL
+  const getCharacterAudioUrl = (characterName: string): string => {
+    const sanitizedName = sanitizeCharacterName(characterName)
+    // Add version param to bust Cloudflare cache (increment when regenerating audio)
+    return `/audio/${lobbyInfo.data?.scriptId}/character-cards/${sanitizedName}-catchphrase.wav?v=3`
+  }
+
   // Scroll navigation for desktop
   const scroll = (direction: 'left' | 'right') => {
     if (!scrollRef.current) return
@@ -305,6 +321,7 @@ export default function LobbyJoinPage() {
                       isSelected={currentParticipant?.characterName === character.name}
                       isTakenByOther={isTakenByOther}
                       takenByPlayerName={takenBy?.playerName}
+                      catchphraseAudioUrl={getCharacterAudioUrl(character.name)}
                     />
                   </div>
                 )
