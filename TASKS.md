@@ -1,8 +1,8 @@
 # RunThru - Task Tracking & Progress
 
-**Last Updated**: 2025-10-24 19:00
+**Last Updated**: 2025-10-25 03:35
 **Current Phase**: MVP Phase 1 - Synchronized Multiplayer Rehearsal
-**Overall Progress**: Sprint 1: 100% ✅ | Sprint 2: 100% ✅ | Sprint 3: 100% ✅ | Sprint 4: 100% ✅ | Sprint 5: 100% ✅ | Sprint 6A: 100% ✅ (POLISH COMPLETE) | Sprint 7: 40% ✅
+**Overall Progress**: Sprint 1: 100% ✅ | Sprint 2: 100% ✅ | Sprint 3: 100% ✅ | Sprint 4: 100% ✅ | Sprint 5: 100% ✅ | Sprint 6A: 100% ✅ (SYNC COMPLETE) | Sprint 7: 100% ✅
 
 ---
 
@@ -1071,13 +1071,13 @@
 
 ---
 
-### 📅 Sprint 6A-Part2: Playback Synchronization (PAUSED - In Progress)
+### 📅 Sprint 6A-Part2: Playback Synchronization (COMPLETE ✅)
 
-**Status**: ⏸️ **PAUSED** - 15% (Backend foundation only)
+**Status**: ✅ **COMPLETE** - 100%
 **Started**: 2025-10-24 18:45
-**Paused**: 2025-10-24 19:00
+**Completed**: 2025-10-25 03:35
 **Goal**: Enable multiple participants to stay in sync during rehearsal
-**Current State**: Database + service layer exist, but no API endpoints or frontend integration yet
+**Result**: Full multiplayer sync working with audio auto-play and visual feedback
 
 #### ✅ Completed Infrastructure
 
@@ -1095,22 +1095,21 @@
   - [x] File: `backend/src/services/playback.service.ts` ✅ EXISTS
   - [x] **NOTE**: Missing rewind/jump methods (host-only features, deferred)
 
-#### ⏸️ NOT STARTED - Backend API Endpoints
+#### ✅ Backend API Endpoints (COMPLETE)
 
-- [ ] **Create GET /api/sessions/:id/playback endpoint**
-  - [ ] Import PlaybackService and call `getPlaybackState(sessionId)`
-  - [ ] Returns: `{currentLineIndex, playbackState, currentLine, nextLine, totalLines, progress}`
-  - [ ] Current line includes: `{character, text, audioUrl, isAI, playerName}`
-  - [ ] Used for frontend polling (every 500ms)
-  - [ ] File: `backend/src/routes/sessions.routes.ts`
-  - [ ] **BLOCKER**: Need to wire up PlaybackService to Express route
+- [x] **✅ COMPLETE**: GET /api/sessions/:id/playback endpoint
+  - [x] Imports PlaybackService and calls `getPlaybackState(sessionId)`
+  - [x] Returns: `{currentLineIndex, playbackState, currentLine, nextLine, totalLines, progress}`
+  - [x] Current line includes: `{character, text, audioUrl, isAI, playerName}`
+  - [x] Used for frontend polling (every 500ms)
+  - [x] File: `backend/src/routes/sessions.routes.ts:330-382`
 
-- [ ] **Create POST /api/sessions/:id/advance endpoint**
-  - [ ] Import PlaybackService and call `advanceLine(sessionId)`
-  - [ ] Returns: Updated playback state (same format as GET /playback)
-  - [ ] Race condition already handled in service layer (SQLite UPDATE)
-  - [ ] File: `backend/src/routes/sessions.routes.ts`
-  - [ ] **BLOCKER**: Need to wire up PlaybackService to Express route
+- [x] **✅ COMPLETE**: POST /api/sessions/:id/advance endpoint
+  - [x] Imports PlaybackService and calls `advanceLine(sessionId, participantId)`
+  - [x] Returns: Updated playback state (same format as GET /playback)
+  - [x] Race condition handled in service layer (SQLite UPDATE)
+  - [x] Permission check: Only current speaker or host can advance
+  - [x] File: `backend/src/routes/sessions.routes.ts:441-509`
 
 #### ⏸️ NOT STARTED - Host Control Features (DEFERRED - Nice to Have)
 
@@ -1126,39 +1125,37 @@
   - [ ] Returns: Updated playback state
   - [ ] **PRIORITY**: LOW - Can launch MVP without this
 
-#### ⏸️ NOT STARTED - Frontend Polling & Audio Playback
+#### ✅ Frontend Polling & Audio Playback (COMPLETE)
 
-**CRITICAL PATH** - These are the minimum features needed for MVP:
+- [x] **✅ COMPLETE**: Created usePlayback hook
+  - [x] Polls `GET /api/sessions/:id/playback` every 500ms using React Query
+  - [x] Returns: `{currentLine, nextLine, playbackState, totalLines, progress}`
+  - [x] Includes advance(), play(), reset() mutations
+  - [x] Optimistic updates for smooth UX
+  - [x] File: `src/hooks/usePlayback.ts`
 
-- [ ] **Create usePlayback hook** (CRITICAL)
-  - [ ] Polls `GET /api/sessions/:id/playback` every 500ms using React Query
-  - [ ] Returns: `{currentLine, nextLine, playbackState, totalLines, progress}`
-  - [ ] Derived state: `isMyTurn = currentLine.playerName === localStorage.runthru_player_name`
-  - [ ] File: `src/hooks/usePlayback.ts`
-  - [ ] **BLOCKER**: Depends on GET /api/sessions/:id/playback endpoint
+- [x] **✅ COMPLETE**: Replaced local state with server state
+  - [x] Removed: `const [currentLineIndex, setCurrentLineIndex] = useState(0)`
+  - [x] Added: `const { playbackInfo } = usePlayback({ sessionId })`
+  - [x] Uses: `playbackInfo.currentLineIndex` from server
+  - [x] File: `src/app/rehearsal/[sessionId]/page.tsx`
+  - [x] **RESULT**: All browsers see same line (synced from server)
 
-- [ ] **Replace local state with server state in rehearsal page** (CRITICAL)
-  - [ ] Remove: `const [currentLineIndex, setCurrentLineIndex] = useState(0)`
-  - [ ] Add: `const { data: playbackState } = usePlayback(sessionId)`
-  - [ ] Use: `playbackState.currentLineIndex` instead of local state
-  - [ ] File: `src/app/rehearsal/[sessionId]/page.tsx`
-  - [ ] **RESULT**: All browsers will see same line (synced from server)
+- [x] **✅ COMPLETE**: Added audio auto-play for AI lines
+  - [x] Created: `<audio ref={audioRef} className="hidden" />`
+  - [x] Effect: When `currentLine.isAI === true` → auto-play audio
+  - [x] On audio ended: Calls `advance()` mutation (auto-advance)
+  - [x] Skips audio for human characters (no AbortError)
+  - [x] File: `src/app/rehearsal/[sessionId]/page.tsx:149-183`
+  - [x] **RESULT**: AI lines auto-play catchphrase and advance
 
-- [ ] **Add hidden audio player element** (CRITICAL)
-  - [ ] Create: `<audio ref={audioRef} className="hidden" />`
-  - [ ] Effect: When `currentLine` changes and `currentLine.isAI === true`:
-    - [ ] Load: `audioRef.current.src = currentLine.audioUrl`
-    - [ ] Play: `audioRef.current.play()`
-  - [ ] On audio ended: Call `POST /api/sessions/:id/advance` (auto-advance)
-  - [ ] File: `src/app/rehearsal/[sessionId]/page.tsx`
-  - [ ] **RESULT**: AI lines auto-play catchphrase audio and advance
-
-- [ ] **Update "Continue" button behavior** (CRITICAL)
-  - [ ] Change onClick: From local `setCurrentLineIndex(i+1)` → API call `POST /api/sessions/:id/advance`
-  - [ ] Show only when: `!currentLine.isAI` (human character's turn)
-  - [ ] Disabled during: API request in-flight
-  - [ ] File: `src/app/rehearsal/[sessionId]/page.tsx`
-  - [ ] **RESULT**: Human players manually advance, stays synced
+- [x] **✅ COMPLETE**: Updated Continue button with visual feedback
+  - [x] Changed onClick: Calls `advance()` mutation (server API)
+  - [x] GOLD/AMBER pulsing gradient when it's user's turn
+  - [x] Blue/cyan gradient when AI is speaking
+  - [x] Changed icon to ChevronRight for clarity
+  - [x] File: `src/app/rehearsal/[sessionId]/page.tsx:477-489`
+  - [x] **RESULT**: Clear visual feedback for whose turn it is
 
 #### ⏸️ DEFERRED - Polish & Nice-to-Have Features
 
