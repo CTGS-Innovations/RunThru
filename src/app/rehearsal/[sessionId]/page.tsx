@@ -8,6 +8,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useScript } from '@/hooks/useScripts'
 import { useQuery } from '@tanstack/react-query'
+import { usePlayback } from '@/hooks/usePlayback'
 import { ChevronLeft, ChevronRight, Pause, Play, RotateCcw, Home } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -30,17 +31,23 @@ export default function RehearsalPlayerPage() {
   const legacyCharacter = searchParams.get('character') // For backwards compat with MVP solo mode
 
   // State
-  const [currentLineIndex, setCurrentLineIndex] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false) // Placeholder for future audio
   const [selectedCharacter, setSelectedCharacter] = useState<string | null>(legacyCharacter)
+
+  // Refs
+  const currentLineRef = useRef<HTMLDivElement>(null)
+  const audioRef = useRef<HTMLAudioElement>(null)
+
+  // Server-synced playback state (polls every 500ms)
+  const { playbackInfo, isLoading: playbackLoading, advance, play, reset } = usePlayback({
+    sessionId,
+    enabled: true,
+    pollingInterval: 500
+  })
 
   // Debug: Log when selectedCharacter changes
   useEffect(() => {
     console.log('[Rehearsal] Selected character updated to:', selectedCharacter)
   }, [selectedCharacter])
-
-  // Ref for auto-scrolling to current line
-  const currentLineRef = useRef<HTMLDivElement>(null)
 
   // Load session config (for multiplayer)
   const { data: sessionConfig, isLoading: sessionLoading } = useQuery({
@@ -129,15 +136,56 @@ export default function RehearsalPlayerPage() {
     }
   }, [sessionConfig, legacyCharacter, sessionId])
 
-  // Auto-scroll to current line
+  // Auto-scroll to current line (using server state)
   useEffect(() => {
-    if (currentLineRef.current) {
+    if (currentLineRef.current && playbackInfo) {
       currentLineRef.current.scrollIntoView({
         behavior: 'smooth',
         block: 'center',
       })
     }
-  }, [currentLineIndex])
+  }, [playbackInfo])
+
+  // Audio auto-play for AI lines ONLY (skip human characters)
+  useEffect(() => {
+    if (!playbackInfo?.currentLine || !audioRef.current) return
+
+    const currentLine = playbackInfo.currentLine
+
+    // Only auto-play audio for AI characters (not human players)
+    if (currentLine.isAI && currentLine.audioUrl) {
+      console.log('[Rehearsal] Auto-playing AI line:', currentLine.character, currentLine.audioUrl)
+
+      audioRef.current.src = currentLine.audioUrl
+      audioRef.current.play().catch(err => {
+        console.error('[Rehearsal] Audio playback error:', err)
+      })
+    } else if (!currentLine.isAI) {
+      // Human character's turn - stop any playing audio
+      audioRef.current.pause()
+      audioRef.current.src = ''
+      console.log('[Rehearsal] Human character turn:', currentLine.character, '- waiting for player input')
+    }
+  }, [playbackInfo]) // Trigger when playback info changes
+
+  // Auto-advance when audio ends (AI lines only)
+  useEffect(() => {
+    const audioElement = audioRef.current
+    if (!audioElement || !playbackInfo?.currentLine) return
+
+    const handleAudioEnded = () => {
+      if (playbackInfo.currentLine?.isAI) {
+        console.log('[Rehearsal] AI audio finished - auto-advancing')
+        advance() // Auto-advance to next line
+      }
+    }
+
+    audioElement.addEventListener('ended', handleAudioEnded)
+
+    return () => {
+      audioElement.removeEventListener('ended', handleAudioEnded)
+    }
+  }, [playbackInfo?.currentLine, advance])
 
   // Group dialogue lines by scene with scene headings
   const sceneGroups = useMemo(() => {
@@ -206,35 +254,43 @@ export default function RehearsalPlayerPage() {
     return sceneGroups.flatMap(group => group.lines)
   }, [sceneGroups])
 
-  // Derived state
+  // Derived state (from server or fallback to local)
+  const currentLineIndex = playbackInfo?.currentLineIndex ?? 0
   const currentLine = dialogueLines[currentLineIndex]
-  const totalLines = dialogueLines.length
+  const totalLines = playbackInfo?.totalLines ?? dialogueLines.length
   const progress = totalLines > 0 ? Math.round(((currentLineIndex + 1) / totalLines) * 100) : 0
+  const isPlaying = playbackInfo?.playbackState === 'playing'
 
   // Navigation handlers
   const handlePrevious = () => {
-    if (currentLineIndex > 0) {
-      setCurrentLineIndex(currentLineIndex - 1)
-      setIsPlaying(false)
-    }
+    // TODO: Add rewind API endpoint for host
+    // For now, disabled (requires backend support)
+    console.log('[Rehearsal] Previous not yet supported in sync mode')
   }
 
   const handleNext = () => {
-    if (currentLineIndex < totalLines - 1) {
-      setCurrentLineIndex(currentLineIndex + 1)
-      setIsPlaying(false)
+    // Call server API to advance (synced across all participants)
+    if (!playbackInfo?.isComplete) {
+      console.log('[Rehearsal] Advancing to next line via API')
+      advance()
     }
   }
 
   const handleReplay = () => {
-    // For now, just a visual indicator
-    // Later: replay audio for current line
-    setIsPlaying(false)
+    // Replay audio for current line
+    if (audioRef.current && playbackInfo?.currentLine?.audioUrl) {
+      audioRef.current.currentTime = 0
+      audioRef.current.play()
+    }
   }
 
   const handleTogglePlay = () => {
-    // Placeholder for future audio playback
-    setIsPlaying(!isPlaying)
+    // Toggle play/pause state
+    if (isPlaying) {
+      audioRef.current?.pause()
+    } else {
+      play()
+    }
   }
 
   const handleExit = () => {
@@ -269,6 +325,9 @@ export default function RehearsalPlayerPage() {
 
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">
+      {/* Hidden audio player for TTS playback */}
+      <audio ref={audioRef} className="hidden" />
+
       {/* User Perspective Banner - Show which character they're playing */}
       {selectedCharacter && (
         <div className="bg-gradient-to-r from-amber-500/20 via-amber-400/20 to-amber-500/20 border-b border-amber-500/30 px-4 py-2 text-center">
@@ -417,15 +476,16 @@ export default function RehearsalPlayerPage() {
 
             <Button
               size="icon"
-              onClick={handleTogglePlay}
-              className="h-12 w-12 rounded-lg bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700"
-              aria-label={isPlaying ? "Pause" : "Play"}
-            >
-              {isPlaying ? (
-                <Pause className="h-6 w-6" />
-              ) : (
-                <Play className="h-6 w-6 ml-0.5" />
+              onClick={handleNext}
+              className={cn(
+                "h-12 w-12 rounded-lg transition-all",
+                currentLine?.isUserLine
+                  ? "bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 shadow-lg shadow-amber-500/50 animate-pulse"
+                  : "bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700"
               )}
+              aria-label={currentLine?.isUserLine ? "Continue (Your Turn)" : "Continue"}
+            >
+              <ChevronRight className="h-6 w-6" />
             </Button>
 
             <Button
