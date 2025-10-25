@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Sparkles, Users, Loader2, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Sparkles, Users, Loader2, AlertCircle, ChevronLeft, ChevronRight, Copy, Check } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { CharacterCard } from '@/components/session/CharacterCard'
 import { LobbyStatus } from '@/components/session/LobbyStatus'
@@ -30,6 +30,7 @@ export default function LobbyJoinPage() {
   const [playerName, setPlayerName] = useState('')
   const [participantId, setParticipantId] = useState<number | null>(null)
   const [error, setError] = useState('')
+  const [linkCopied, setLinkCopied] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
 
   // API hooks
@@ -111,6 +112,14 @@ export default function LobbyJoinPage() {
     } catch (err: any) {
       setError(err.message || 'Failed to start rehearsal')
     }
+  }
+
+  // Copy shareable link to clipboard
+  const handleCopyLink = () => {
+    const lobbyUrl = `${window.location.origin}/lobby/${token}`
+    navigator.clipboard.writeText(lobbyUrl)
+    setLinkCopied(true)
+    setTimeout(() => setLinkCopied(false), 2000)
   }
 
   // Helper: Sanitize character name for audio filename (matches backend logic)
@@ -369,7 +378,40 @@ export default function LobbyJoinPage() {
               </div>
 
               {/* Footer - Start button (host only) OR waiting message */}
-              <div className="border-t border-cyan-500/30 bg-gradient-to-r from-cyan-500/5 via-primary/5 to-cyan-500/5 px-6 py-4">
+              <div className="border-t border-cyan-500/30 bg-gradient-to-r from-cyan-500/5 via-primary/5 to-cyan-500/5 px-6 py-4 space-y-4">
+                {/* Shareable Link - Show for all participants */}
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                    Invite Friends
+                  </label>
+                  <div className="flex gap-2">
+                    <Input
+                      value={`${typeof window !== 'undefined' ? window.location.origin : ''}/lobby/${token}`}
+                      readOnly
+                      className="font-mono text-xs bg-background/50"
+                      onClick={(e) => e.currentTarget.select()}
+                    />
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={handleCopyLink}
+                      className="flex-shrink-0"
+                    >
+                      {linkCopied ? (
+                        <Check className="w-4 h-4 text-green-400" />
+                      ) : (
+                        <Copy className="w-4 h-4" />
+                      )}
+                    </Button>
+                  </div>
+                  {linkCopied && (
+                    <p className="text-xs text-green-400 font-medium">
+                      ✓ Link copied to clipboard!
+                    </p>
+                  )}
+                </div>
+
+                {/* Launch Button / Waiting State */}
                 {isHost && currentParticipant?.characterName ? (
                   <>
                     <Button
