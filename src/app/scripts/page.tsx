@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useToast } from '@/hooks/use-toast'
 import { useScripts, useDeleteScript } from '@/hooks/useScripts'
+import { useCreateLobby } from '@/hooks/useLobbies'
 import { ScriptCard } from '@/components/script/ScriptCard'
 import { ScriptUploader } from '@/components/script/ScriptUploader'
 import { Plus, FileText, Sparkles } from 'lucide-react'
@@ -21,6 +22,7 @@ export default function ScriptsPage() {
   const { toast } = useToast()
   const { data: scripts, isLoading, error, refetch } = useScripts()
   const deleteMutation = useDeleteScript()
+  const createLobby = useCreateLobby()
 
   // Show loading while checking auth
   if (isChecking) {
@@ -34,8 +36,28 @@ export default function ScriptsPage() {
     )
   }
 
-  const handleOpen = (id: string) => {
-    router.push(`/scripts/${id}/setup`)
+  const handleOpen = async (id: string) => {
+    try {
+      // Create lobby with "Host" as player name
+      const result = await createLobby.mutateAsync({
+        scriptId: id,
+        creatorName: 'Host'
+      })
+
+      // Save to localStorage so lobby recognizes this user
+      localStorage.setItem('runthru_player_name', 'Host')
+      localStorage.setItem('runthru_lobby_token', result.lobby.token)
+      localStorage.setItem('runthru_participant_id', result.lobby.participantId.toString())
+
+      // Navigate directly to lobby (the universal character selection)
+      router.push(`/lobby/${result.lobby.token}`)
+    } catch (error) {
+      toast({
+        title: 'Failed to create lobby',
+        description: error instanceof Error ? error.message : 'Please try again',
+        variant: 'destructive',
+      })
+    }
   }
 
   const handleRefresh = async (id: string) => {
