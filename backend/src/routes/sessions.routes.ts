@@ -327,6 +327,240 @@ router.get('/:id/config', (req: Request, res: Response) => {
 });
 
 // ============================================================================
+// GET /api/sessions/:id/playback
+// Get current playback state (for polling)
+// ============================================================================
+
+router.get('/:id/playback', (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    // Get session
+    const db = getDatabase();
+    const session = db.prepare(`
+      SELECT script_id
+      FROM sessions
+      WHERE id = ?
+    `).get(id) as { script_id: string } | undefined;
+
+    if (!session) {
+      return res.status(404).json({
+        error: 'Session not found',
+        message: `No session found with id: ${id}`
+      });
+    }
+
+    // Get script
+    const script = db.prepare(`
+      SELECT parsed_json
+      FROM scripts
+      WHERE id = ?
+    `).get(session.script_id) as { parsed_json: string } | undefined;
+
+    if (!script) {
+      return res.status(404).json({
+        error: 'Script not found'
+      });
+    }
+
+    const parsedScript: ParsedScript = JSON.parse(script.parsed_json);
+
+    // Import playback service
+    const { playbackService } = require('../services/playback.service');
+    const playbackInfo = playbackService.getPlaybackState(id, parsedScript);
+
+    res.json({
+      playback: playbackInfo
+    });
+  } catch (error) {
+    console.error('Error fetching playback state:', error);
+    res.status(500).json({
+      error: 'Failed to fetch playback state',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// ============================================================================
+// POST /api/sessions/:id/play
+// Start/resume playback
+// ============================================================================
+
+router.post('/:id/play', (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    // Get session and script
+    const db = getDatabase();
+    const session = db.prepare(`
+      SELECT script_id
+      FROM sessions
+      WHERE id = ?
+    `).get(id) as { script_id: string } | undefined;
+
+    if (!session) {
+      return res.status(404).json({
+        error: 'Session not found'
+      });
+    }
+
+    const script = db.prepare(`
+      SELECT parsed_json
+      FROM scripts
+      WHERE id = ?
+    `).get(session.script_id) as { parsed_json: string } | undefined;
+
+    if (!script) {
+      return res.status(404).json({
+        error: 'Script not found'
+      });
+    }
+
+    const parsedScript: ParsedScript = JSON.parse(script.parsed_json);
+
+    const { playbackService } = require('../services/playback.service');
+    const playbackInfo = playbackService.setPlaybackState(id, 'playing', parsedScript);
+
+    res.json({
+      playback: playbackInfo
+    });
+  } catch (error) {
+    console.error('Error starting playback:', error);
+    res.status(500).json({
+      error: 'Failed to start playback',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// ============================================================================
+// POST /api/sessions/:id/advance
+// Advance to next line
+// ============================================================================
+
+router.post('/:id/advance', (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { participantId } = req.body;
+
+    if (!participantId) {
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'participantId is required'
+      });
+    }
+
+    // Get session and script
+    const db = getDatabase();
+    const session = db.prepare(`
+      SELECT script_id
+      FROM sessions
+      WHERE id = ?
+    `).get(id) as { script_id: string } | undefined;
+
+    if (!session) {
+      return res.status(404).json({
+        error: 'Session not found'
+      });
+    }
+
+    const script = db.prepare(`
+      SELECT parsed_json
+      FROM scripts
+      WHERE id = ?
+    `).get(session.script_id) as { parsed_json: string } | undefined;
+
+    if (!script) {
+      return res.status(404).json({
+        error: 'Script not found'
+      });
+    }
+
+    const parsedScript: ParsedScript = JSON.parse(script.parsed_json);
+
+    const { playbackService } = require('../services/playback.service');
+    const playbackInfo = playbackService.advanceLine(id, participantId, parsedScript);
+
+    res.json({
+      playback: playbackInfo
+    });
+  } catch (error) {
+    console.error('Error advancing line:', error);
+
+    if (error instanceof Error && error.message.includes('already complete')) {
+      return res.status(400).json({
+        error: 'Playback complete',
+        message: error.message
+      });
+    }
+
+    if (error instanceof Error && error.message.includes('current speaker')) {
+      return res.status(403).json({
+        error: 'Forbidden',
+        message: error.message
+      });
+    }
+
+    res.status(500).json({
+      error: 'Failed to advance line',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// ============================================================================
+// POST /api/sessions/:id/reset
+// Reset playback to beginning
+// ============================================================================
+
+router.post('/:id/reset', (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    // Get session and script
+    const db = getDatabase();
+    const session = db.prepare(`
+      SELECT script_id
+      FROM sessions
+      WHERE id = ?
+    `).get(id) as { script_id: string } | undefined;
+
+    if (!session) {
+      return res.status(404).json({
+        error: 'Session not found'
+      });
+    }
+
+    const script = db.prepare(`
+      SELECT parsed_json
+      FROM scripts
+      WHERE id = ?
+    `).get(session.script_id) as { parsed_json: string } | undefined;
+
+    if (!script) {
+      return res.status(404).json({
+        error: 'Script not found'
+      });
+    }
+
+    const parsedScript: ParsedScript = JSON.parse(script.parsed_json);
+
+    const { playbackService } = require('../services/playback.service');
+    const playbackInfo = playbackService.resetPlayback(id, parsedScript);
+
+    res.json({
+      playback: playbackInfo
+    });
+  } catch (error) {
+    console.error('Error resetting playback:', error);
+    res.status(500).json({
+      error: 'Failed to reset playback',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// ============================================================================
 // DEPRECATED: Character card audio moved to script-level
 // Use: POST /api/scripts/:id/generate-card-audio instead
 // ============================================================================
