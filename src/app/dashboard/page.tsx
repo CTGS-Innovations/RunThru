@@ -31,17 +31,11 @@ export default function HomePage() {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12">
+      <div className="flex justify-center mb-12">
         <Link href="/scripts">
-          <Button size="lg" className="w-full h-20 text-lg" variant="default">
+          <Button size="lg" className="h-20 px-12 text-lg" variant="default">
             <Users className="w-6 h-6 mr-2" />
             Script Library
-          </Button>
-        </Link>
-        <Link href="/scripts">
-          <Button size="lg" className="w-full h-20 text-lg" variant="outline">
-            <Upload className="w-6 h-6 mr-2" />
-            Upload Script
           </Button>
         </Link>
       </div>
@@ -205,6 +199,32 @@ export default function HomePage() {
           </CardContent>
         </Card>
 
+        {/* Sprint 6B */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-start justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-green-500" />
+                  Sprint 6B: Full Dialogue Audio Generation
+                </CardTitle>
+                <CardDescription>Batch TTS for all lines, voice assignment mapping, audio cache</CardDescription>
+              </div>
+              <span className="text-sm font-medium text-green-500">100% Complete</span>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-sm text-muted-foreground space-y-1">
+              <div>✅ DialogueAudioService for batch generation</div>
+              <div>✅ Script-level audio storage (reusable across sessions)</div>
+              <div>✅ Voice assignment mapping from session config</div>
+              <div>✅ Next.js proxy route for Cloudflare compatibility</div>
+              <div>✅ Full 428-line script audio generation with Chatterbox TTS</div>
+              <div>✅ Audio auto-play integrated in rehearsal playback</div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Sprint 7 */}
         <Card>
           <CardHeader>
@@ -253,32 +273,6 @@ export default function HomePage() {
               <div>✅ Pause/Play state with visual indicators (visible to all)</div>
               <div>✅ Session end lifecycle (host exit kicks all participants)</div>
               <div>✅ Lobby UI improvements (consistent state badges)</div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Sprint 6B */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-start justify-between">
-              <div>
-                <CardTitle className="flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-500" />
-                  Sprint 6B: Full Dialogue Audio Generation
-                </CardTitle>
-                <CardDescription>Batch TTS for all lines, voice assignment mapping, audio cache</CardDescription>
-              </div>
-              <span className="text-sm font-medium text-green-500">100% Complete</span>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-sm text-muted-foreground space-y-1">
-              <div>✅ DialogueAudioService for batch generation</div>
-              <div>✅ Script-level audio storage (reusable across sessions)</div>
-              <div>✅ Voice assignment mapping from session config</div>
-              <div>✅ Next.js proxy route for Cloudflare compatibility</div>
-              <div>✅ Full 428-line script audio generation with Chatterbox TTS</div>
-              <div>✅ Audio auto-play integrated in rehearsal playback</div>
             </div>
           </CardContent>
         </Card>
