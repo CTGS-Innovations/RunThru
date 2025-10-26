@@ -156,6 +156,7 @@ src/
 
 ## Critical Rules
 - **NEVER modify files directly** - only research and plan
+- **ALL file reads MUST use absolute paths**: `/home/corey/projects/RunThru-frontend/src/...`
 - **Focus on component hierarchy and data flow** - not implementation details
 - **Consider teen users** - simplicity over features
 - **Use shadcn/ui first** - only build custom when necessary

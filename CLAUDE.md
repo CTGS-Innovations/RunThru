@@ -15,6 +15,57 @@ This project uses **git worktrees** for parallel development:
 
 All three share the same `.git` repository but work on separate branches.
 
+### CRITICAL: Git Worktree Command Protocol
+
+**MANDATORY RULES FOR CLAUDE:**
+
+1. **NEVER run git commands without absolute path `cd` in the same command**
+   ```bash
+   # WRONG (relies on current directory):
+   git add .
+   git commit -m "message"
+
+   # CORRECT (explicit worktree):
+   cd /home/corey/projects/RunThru-frontend && git add . && git commit -m "message"
+   ```
+
+2. **File operations MUST specify which worktree:**
+   - Frontend changes → Read/Edit/Write in `/home/corey/projects/RunThru-frontend/`
+   - Backend changes → Read/Edit/Write in `/home/corey/projects/RunThru-backend/`
+   - Integration only → Work in `/home/corey/projects/RunThru/`
+
+3. **Before ANY commit, verify branch:**
+   ```bash
+   cd /home/corey/projects/RunThru-frontend && git branch --show-current
+   # MUST show: feature/frontend
+
+   cd /home/corey/projects/RunThru-backend && git branch --show-current
+   # MUST show: feature/backend
+   ```
+
+4. **NEVER commit to main branch** (except merges)
+   - If `git branch --show-current` shows "main" → STOP
+   - Move changes to feature branch or abort
+
+5. **Command pattern for all git operations:**
+   ```bash
+   # Template:
+   cd /absolute/path/to/worktree && git <command>
+
+   # Examples:
+   cd /home/corey/projects/RunThru-frontend && git status
+   cd /home/corey/projects/RunThru-backend && git add backend/src/routes/
+   cd /home/corey/projects/RunThru-frontend && git commit -m "feat: Add component"
+   ```
+
+6. **Merging (ONLY from main worktree):**
+   ```bash
+   cd /home/corey/projects/RunThru && git merge feature/frontend
+   cd /home/corey/projects/RunThru && git merge feature/backend
+   ```
+
+**Why this matters**: Omitting `cd` or relying on shell state causes commits to go to the wrong branch, leading to code loss and merge conflicts.
+
 ## Tech Stack
 - **Frontend**: Next.js 15, React 18, shadcn/ui, Tailwind CSS, TypeScript, Zustand
 - **Backend API**: Node.js 20, Express, SQLite (better-sqlite3), TypeScript

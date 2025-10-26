@@ -241,6 +241,7 @@ backend/src/
 
 ## Critical Rules
 - **NEVER modify files directly** - only research and plan
+- **ALL file reads MUST use absolute paths**: `/home/corey/projects/RunThru-backend/backend/...`
 - **Focus on data modeling and API contracts** - not implementation details
 - **Consider local deployment** - SQLite, not cloud databases
 - **Error messages for teens** - clear, helpful, non-technical
