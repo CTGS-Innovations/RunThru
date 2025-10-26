@@ -1,4 +1,4 @@
-import { Crown, User, Bot, CheckCircle2, Circle } from 'lucide-react'
+import { Crown, User, Bot } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import type { Participant } from '@/hooks/useLobbies'
@@ -60,9 +60,10 @@ export function LobbyStatus({ participants, totalCharacters }: LobbyStatusProps)
                     )}
                     <div>
                       <div className="font-medium text-slate-200">
-                        {participant.playerName}
-                        {participant.isHost && (
-                          <span className="ml-2 text-xs text-amber-400">(Host)</span>
+                        {participant.isHost ? (
+                          <span className="text-amber-400 font-bold">HOST</span>
+                        ) : (
+                          participant.playerName
                         )}
                       </div>
                       {participant.characterName ? (
@@ -73,9 +74,13 @@ export function LobbyStatus({ participants, totalCharacters }: LobbyStatusProps)
                     </div>
                   </div>
                   {participant.isReady ? (
-                    <CheckCircle2 className="w-5 h-5 text-green-400" />
+                    <div className="w-24 px-3 py-2 bg-green-500/20 border-2 border-green-500/50 rounded-lg text-center">
+                      <span className="text-xs font-black text-green-400 uppercase tracking-wide">Ready</span>
+                    </div>
                   ) : (
-                    <Circle className="w-5 h-5 text-slate-500" />
+                    <div className="w-24 px-3 py-2 bg-red-500/20 border-2 border-red-500/50 rounded-lg text-center">
+                      <span className="text-xs font-black text-red-400 uppercase tracking-wide">Selecting</span>
+                    </div>
                   )}
                 </div>
               ))}
@@ -103,7 +108,9 @@ export function LobbyStatus({ participants, totalCharacters }: LobbyStatusProps)
                       <div className="text-sm text-slate-500">{participant.characterName}</div>
                     </div>
                   </div>
-                  <CheckCircle2 className="w-5 h-5 text-slate-500" />
+                  <div className="w-24 px-3 py-2 bg-green-500/20 border-2 border-green-500/50 rounded-lg text-center">
+                    <span className="text-xs font-black text-green-400 uppercase tracking-wide">Ready</span>
+                  </div>
                 </div>
               ))}
             </div>
