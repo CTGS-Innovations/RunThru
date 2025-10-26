@@ -63,15 +63,15 @@ class PlaybackService {
     };
 
     // Enrich lines with participant info
-    const enrichLine = (line: Dialogue | null): EnrichedDialogueLine | null => {
+    const enrichLine = (line: Dialogue | null, lineIndex: number): EnrichedDialogueLine | null => {
       if (!line) return null;
 
       const participant = participants.find(p => p.character_name === line.character);
       const isAI = participant ? Boolean(participant.is_ai) : true;
 
-      // Generate character card audio URL (using catchphrase files as temporary audio)
+      // Generate dialogue audio URL (full line audio)
       const sanitizedName = sanitizeCharacterName(line.character);
-      const audioUrl = `/audio/${session.script_id}/character-cards/${sanitizedName}-catchphrase.wav?v=3`;
+      const audioUrl = `/audio/${sessionId}/dialogue/${sanitizedName}-line-${lineIndex + 1}.wav`;
 
       return {
         ...line,
@@ -81,8 +81,8 @@ class PlaybackService {
       };
     };
 
-    const currentLine = currentIndex < totalLines ? enrichLine(dialogueLines[currentIndex]) : null;
-    const nextLine = currentIndex + 1 < totalLines ? enrichLine(dialogueLines[currentIndex + 1]) : null;
+    const currentLine = currentIndex < totalLines ? enrichLine(dialogueLines[currentIndex], currentIndex) : null;
+    const nextLine = currentIndex + 1 < totalLines ? enrichLine(dialogueLines[currentIndex + 1], currentIndex + 1) : null;
     const isComplete = currentIndex >= totalLines;
 
     return {
