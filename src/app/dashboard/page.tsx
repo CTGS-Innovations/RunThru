@@ -23,11 +23,11 @@ export default function HomePage() {
             <span>Frontend: http://localhost:3000</span>
           </div>
           <div className="flex gap-2 justify-center items-center">
-            <span className="text-green-500 font-semibold">MVP Phase 1: 78% Complete</span>
+            <span className="text-green-500 font-semibold">MVP Phase 1: 88% Complete</span>
             <span>•</span>
-            <span>Sprints 1-7: ✅</span>
+            <span>Sprints 1-8: ✅</span>
             <span>•</span>
-            <span>Sprint 6B: In Progress</span>
+            <span>Sprint 6B: Next Up</span>
           </div>
         </div>
       </div>
@@ -233,6 +233,32 @@ export default function HomePage() {
           </CardContent>
         </Card>
 
+        {/* Sprint 8 */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-start justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-green-500" />
+                  Sprint 8: Host Controls & Session Management
+                </CardTitle>
+                <CardDescription>Full playback controls, pause/play state, session lifecycle</CardDescription>
+              </div>
+              <span className="text-sm font-medium text-green-500">100% Complete</span>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-sm text-muted-foreground space-y-1">
+              <div>✅ Secure host detection (PIN-based, unfakeable)</div>
+              <div>✅ Host controls: Previous, Next, Replay, Play/Pause, Home</div>
+              <div>✅ Non-host controls: Single Play button (their turn only)</div>
+              <div>✅ Pause/Play state with visual indicators (visible to all)</div>
+              <div>✅ Session end lifecycle (host exit kicks all participants)</div>
+              <div>✅ Lobby UI improvements (consistent state badges)</div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Sprint 6B */}
         <Card className="opacity-60">
           <CardHeader>
@@ -253,7 +279,7 @@ export default function HomePage() {
       {/* API Status */}
       <Card className="mt-8">
         <CardHeader>
-          <CardTitle className="text-lg">Backend API Endpoints (Sprint 1-7)</CardTitle>
+          <CardTitle className="text-lg">Backend API Endpoints (Sprint 1-8)</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm font-mono">
@@ -272,7 +298,12 @@ export default function HomePage() {
             <div className="text-green-400">GET /api/sessions/:id</div>
             <div className="text-green-400">GET /api/sessions/:id/config</div>
             <div className="text-green-400">GET /api/sessions/:id/playback</div>
+            <div className="text-green-400">POST /api/sessions/:id/play</div>
+            <div className="text-green-400">POST /api/sessions/:id/pause</div>
             <div className="text-green-400">POST /api/sessions/:id/advance</div>
+            <div className="text-green-400">POST /api/sessions/:id/previous</div>
+            <div className="text-green-400">POST /api/sessions/:id/reset</div>
+            <div className="text-green-400">POST /api/sessions/:id/end</div>
             <div className="text-green-400">POST /api/sessions/:id/shuffle</div>
             <div className="text-green-400">PUT /api/sessions/:id/voice</div>
 
