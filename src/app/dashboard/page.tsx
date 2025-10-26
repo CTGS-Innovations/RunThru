@@ -23,11 +23,9 @@ export default function HomePage() {
             <span>Frontend: http://localhost:3000</span>
           </div>
           <div className="flex gap-2 justify-center items-center">
-            <span className="text-green-500 font-semibold">MVP Phase 1: 88% Complete</span>
+            <span className="text-green-500 font-semibold">MVP Phase 1: 100% Complete ✅</span>
             <span>•</span>
-            <span>Sprints 1-8: ✅</span>
-            <span>•</span>
-            <span>Sprint 6B: Next Up</span>
+            <span>All Sprints Complete!</span>
           </div>
         </div>
       </div>
@@ -260,19 +258,29 @@ export default function HomePage() {
         </Card>
 
         {/* Sprint 6B */}
-        <Card className="opacity-60">
+        <Card>
           <CardHeader>
             <div className="flex items-start justify-between">
               <div>
                 <CardTitle className="flex items-center gap-2">
-                  <Circle className="w-5 h-5 text-muted-foreground" />
+                  <CheckCircle2 className="w-5 h-5 text-green-500" />
                   Sprint 6B: Full Dialogue Audio Generation
                 </CardTitle>
                 <CardDescription>Batch TTS for all lines, voice assignment mapping, audio cache</CardDescription>
               </div>
-              <span className="text-sm font-medium text-muted-foreground">Not Started</span>
+              <span className="text-sm font-medium text-green-500">100% Complete</span>
             </div>
           </CardHeader>
+          <CardContent>
+            <div className="text-sm text-muted-foreground space-y-1">
+              <div>✅ DialogueAudioService for batch generation</div>
+              <div>✅ Script-level audio storage (reusable across sessions)</div>
+              <div>✅ Voice assignment mapping from session config</div>
+              <div>✅ Next.js proxy route for Cloudflare compatibility</div>
+              <div>✅ Full 428-line script audio generation with Chatterbox TTS</div>
+              <div>✅ Audio auto-play integrated in rehearsal playback</div>
+            </div>
+          </CardContent>
         </Card>
       </div>
 
