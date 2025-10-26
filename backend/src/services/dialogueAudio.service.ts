@@ -62,13 +62,13 @@ export class DialogueAudioService {
 
     // 2. Get voice assignments from database
     const voiceAssignments = db.prepare(`
-      SELECT character_name, voice_preset_id, gender, emotion, age
+      SELECT character_id, voice_preset_id, gender, emotion, age
       FROM voice_assignments
       WHERE session_id = ?
     `).all(sessionId) as any[];
 
     const voiceMap = new Map(
-      voiceAssignments.map(va => [va.character_name, va])
+      voiceAssignments.map(va => [va.character_id, va])
     );
 
     // 3. Extract all dialogue lines from parsed script
