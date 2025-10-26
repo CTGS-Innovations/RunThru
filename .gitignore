@@ -103,3 +103,5 @@ tmp/
 temp/
 mockups/v0_example/
 data/portraits/
+backend/public/audio/
+throwaway-tests/

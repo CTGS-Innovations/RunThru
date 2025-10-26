@@ -4,7 +4,7 @@
   "description": "RunThru API Server - Node.js + Express + SQLite",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "nodemon --exec ts-node src/server.ts",
+    "dev": "nodemon",
     "build": "tsc",
     "start": "node dist/server.js",
     "lint": "eslint src --ext .ts",

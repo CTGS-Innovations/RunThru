@@ -14,6 +14,9 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
+# Reset terminal state on script exit
+trap 'tput sgr0 2>/dev/null || printf "\033[0m"; stty sane 2>/dev/null' EXIT INT TERM
+
 log_info() {
     echo -e "${GREEN}[Backend]${NC} $1"
 }
@@ -63,12 +66,16 @@ kill_pidfile() {
 # Cleanup function
 cleanup() {
     log_info "Cleaning up..."
+    # Reset terminal colors before cleanup
+    printf "${NC}"
     kill_pidfile
     kill_port $PORT
     # Kill any nodemon/ts-node processes in this directory
     pkill -f "nodemon.*server.ts" 2>/dev/null || true
     pkill -f "ts-node.*server.ts" 2>/dev/null || true
     log_info "Cleanup complete"
+    # Ensure terminal is reset
+    printf "${NC}"
 }
 
 # Start the service
