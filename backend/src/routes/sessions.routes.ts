@@ -561,6 +561,67 @@ router.post('/:id/reset', (req: Request, res: Response) => {
 });
 
 // ============================================================================
+// POST /api/sessions/:id/generate-dialogue-audio
+// Generate full dialogue audio for all lines in a session
+// Uses session's voice assignments
+// ============================================================================
+
+router.post('/:id/generate-dialogue-audio', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    // Verify session exists
+    const db = getDatabase();
+    const session = db.prepare(`
+      SELECT id, script_id
+      FROM sessions
+      WHERE id = ?
+    `).get(id) as { id: string; script_id: string } | undefined;
+
+    if (!session) {
+      return res.status(404).json({
+        error: 'Session not found'
+      });
+    }
+
+    // Import DialogueAudioService
+    const { DialogueAudioService } = require('../services/dialogueAudio.service');
+    const dialogueAudioService = new DialogueAudioService();
+
+    console.log(`🎬 Starting dialogue audio generation for session ${id}`);
+
+    // Generate audio with progress tracking
+    let lastProgress = 0;
+    const results = await dialogueAudioService.generateForSession(
+      id,
+      (current: number, total: number) => {
+        const progress = Math.floor((current / total) * 100);
+        if (progress >= lastProgress + 10) {
+          console.log(`📊 Progress: ${current}/${total} (${progress}%)`);
+          lastProgress = progress;
+        }
+      }
+    );
+
+    console.log(`✅ Dialogue audio generation complete: ${results.length} files`);
+
+    res.json({
+      success: true,
+      sessionId: id,
+      generated: results.length,
+      totalTime: results.reduce((sum: number, r: any) => sum + r.generationTime, 0),
+      files: results
+    });
+  } catch (error) {
+    console.error('Error generating dialogue audio:', error);
+    res.status(500).json({
+      error: 'Failed to generate dialogue audio',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// ============================================================================
 // DEPRECATED: Character card audio moved to script-level
 // Use: POST /api/scripts/:id/generate-card-audio instead
 // ============================================================================
