@@ -75,9 +75,9 @@ export class DialogueAudioService {
     const dialogueLines = this.extractDialogueLines(parsedScript);
     console.log(`📝 Extracted ${dialogueLines.length} dialogue lines for session ${sessionId}`);
 
-    // 4. Create dialogue subdirectory
-    const sessionAudioDir = path.join(this.audioDir, sessionId);
-    const dialogueDir = path.join(sessionAudioDir, 'dialogue');
+    // 4. Create dialogue subdirectory (script-level, not session-level)
+    const scriptAudioDir = path.join(this.audioDir, session.script_id);
+    const dialogueDir = path.join(scriptAudioDir, 'dialogue');
     await fs.mkdir(dialogueDir, { recursive: true });
 
     // 5. Generate audio for each line (with parallelization)
@@ -121,7 +121,7 @@ export class DialogueAudioService {
             }
 
             const generationTime = Date.now() - startTime;
-            const audioUrl = `/audio/${sessionId}/dialogue/${filename}`;
+            const audioUrl = `/audio/${session.script_id}/dialogue/${filename}`;
 
             return {
               lineIndex,
@@ -237,24 +237,24 @@ export class DialogueAudioService {
    * Get dialogue audio URL for a specific line
    * Used by playback service to construct URLs
    *
-   * @param sessionId - Session ID
+   * @param scriptId - Script ID (dialogue audio is script-level, not session-level)
    * @param character - Character name
    * @param lineIndex - Line index (1-based)
    * @returns Audio URL
    */
-  getDialogueAudioUrl(sessionId: string, character: string, lineIndex: number): string {
+  getDialogueAudioUrl(scriptId: string, character: string, lineIndex: number): string {
     const filename = getDialogueFilename(character, lineIndex);
-    return `/audio/${sessionId}/dialogue/${filename}`;
+    return `/audio/${scriptId}/dialogue/${filename}`;
   }
 
   /**
-   * Check if dialogue audio exists for a session
+   * Check if dialogue audio exists for a script
    *
-   * @param sessionId - Session ID
+   * @param scriptId - Script ID (dialogue audio is script-level, not session-level)
    * @returns True if dialogue directory exists and has files
    */
-  async hasDialogueAudio(sessionId: string): Promise<boolean> {
-    const dialogueDir = path.join(this.audioDir, sessionId, 'dialogue');
+  async hasDialogueAudio(scriptId: string): Promise<boolean> {
+    const dialogueDir = path.join(this.audioDir, scriptId, 'dialogue');
     try {
       const files = await fs.readdir(dialogueDir);
       return files.length > 0;

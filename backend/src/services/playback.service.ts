@@ -69,9 +69,9 @@ class PlaybackService {
       const participant = participants.find(p => p.character_name === line.character);
       const isAI = participant ? Boolean(participant.is_ai) : true;
 
-      // Generate dialogue audio URL (full line audio)
+      // Generate dialogue audio URL (script-level, not session-level)
       const sanitizedName = sanitizeCharacterName(line.character);
-      const audioUrl = `/audio/${sessionId}/dialogue/${sanitizedName}-line-${lineIndex + 1}.wav`;
+      const audioUrl = `/audio/${session.script_id}/dialogue/${sanitizedName}-line-${lineIndex + 1}.wav`;
 
       return {
         ...line,
