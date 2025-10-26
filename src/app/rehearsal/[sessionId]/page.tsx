@@ -9,7 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useScript } from '@/hooks/useScripts'
 import { useQuery } from '@tanstack/react-query'
 import { usePlayback } from '@/hooks/usePlayback'
-import { ChevronLeft, ChevronRight, Pause, Play, RotateCcw, Home } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Play, Pause, RotateCcw, Home } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 // Type for extracted dialogue lines
@@ -32,13 +32,14 @@ export default function RehearsalPlayerPage() {
 
   // State
   const [selectedCharacter, setSelectedCharacter] = useState<string | null>(legacyCharacter)
+  const [isHost, setIsHost] = useState<boolean>(true) // Default to host controls until session config loads
 
   // Refs
   const currentLineRef = useRef<HTMLDivElement>(null)
   const audioRef = useRef<HTMLAudioElement>(null)
 
   // Server-synced playback state (polls every 500ms)
-  const { playbackInfo, isLoading: playbackLoading, advance, play, reset } = usePlayback({
+  const { playbackInfo, isLoading: playbackLoading, advance, previous, play, pause, reset, endSession } = usePlayback({
     sessionId,
     enabled: true,
     pollingInterval: 500
@@ -109,12 +110,17 @@ export default function RehearsalPlayerPage() {
     return charAnalysis.portrait.imageUrl
   }
 
-  // Get user's character from session config (multiplayer) or query param (solo)
+  // Determine host status and character from session config
   useEffect(() => {
+    // Check if user has the PIN (only the host has access to the PIN)
+    const hasPin = !!localStorage.getItem('runthru_pin')
+    setIsHost(hasPin)
+    console.log('[Rehearsal] Host status determined by PIN presence:', hasPin)
+
+    // Find user's character from session config (multiplayer) or query param (solo)
     if (sessionConfig && !legacyCharacter) {
-      // Find this user's character by matching player name from localStorage
       const savedPlayerName = localStorage.getItem('runthru_player_name')
-      console.log('[Rehearsal] Looking for perspective:', {
+      console.log('[Rehearsal] Looking for character:', {
         savedPlayerName,
         participants: sessionConfig.participants,
         sessionId
@@ -126,13 +132,16 @@ export default function RehearsalPlayerPage() {
         )
 
         if (userParticipant) {
-          console.log('[Rehearsal] Found user participant:', userParticipant)
+          console.log('[Rehearsal] Found user character:', userParticipant.characterName)
           setSelectedCharacter(userParticipant.characterName)
         } else {
           console.warn('[Rehearsal] No matching participant found for:', savedPlayerName)
           console.warn('[Rehearsal] Available participants:', sessionConfig.participants)
         }
       }
+    } else if (legacyCharacter) {
+      // Legacy solo mode - character from URL param
+      console.log('[Rehearsal] Legacy mode - using character from URL:', legacyCharacter)
     }
   }, [sessionConfig, legacyCharacter, sessionId])
 
@@ -146,14 +155,15 @@ export default function RehearsalPlayerPage() {
     }
   }, [playbackInfo])
 
-  // Audio auto-play for AI lines ONLY (skip human characters)
+  // Audio auto-play for AI lines ONLY (skip human characters, respect pause state)
   useEffect(() => {
     if (!playbackInfo?.currentLine || !audioRef.current) return
 
     const currentLine = playbackInfo.currentLine
+    const isPaused = playbackInfo.playbackState === 'paused'
 
-    // Only auto-play audio for AI characters (not human players)
-    if (currentLine.isAI && currentLine.audioUrl) {
+    // Only auto-play audio for AI characters (not human players) and only if not paused
+    if (currentLine.isAI && currentLine.audioUrl && !isPaused) {
       console.log('[Rehearsal] Auto-playing AI line:', currentLine.character, currentLine.audioUrl)
 
       audioRef.current.src = currentLine.audioUrl
@@ -165,18 +175,25 @@ export default function RehearsalPlayerPage() {
       audioRef.current.pause()
       audioRef.current.src = ''
       console.log('[Rehearsal] Human character turn:', currentLine.character, '- waiting for player input')
+    } else if (isPaused && currentLine.isAI) {
+      // Paused state - stop audio if playing
+      audioRef.current.pause()
+      console.log('[Rehearsal] Playback paused - stopping audio')
     }
   }, [playbackInfo]) // Trigger when playback info changes
 
-  // Auto-advance when audio ends (AI lines only)
+  // Auto-advance when audio ends (AI lines only, and only if playing)
   useEffect(() => {
     const audioElement = audioRef.current
     if (!audioElement || !playbackInfo?.currentLine) return
 
     const handleAudioEnded = () => {
-      if (playbackInfo.currentLine?.isAI) {
+      // Only auto-advance if playback is active (not paused)
+      if (playbackInfo.currentLine?.isAI && playbackInfo.playbackState === 'playing') {
         console.log('[Rehearsal] AI audio finished - auto-advancing')
         advance() // Auto-advance to next line
+      } else if (playbackInfo.playbackState === 'paused') {
+        console.log('[Rehearsal] Playback paused - not auto-advancing')
       }
     }
 
@@ -185,7 +202,7 @@ export default function RehearsalPlayerPage() {
     return () => {
       audioElement.removeEventListener('ended', handleAudioEnded)
     }
-  }, [playbackInfo?.currentLine, advance])
+  }, [playbackInfo?.currentLine, playbackInfo?.playbackState, advance])
 
   // Group dialogue lines by scene with scene headings
   const sceneGroups = useMemo(() => {
@@ -263,38 +280,66 @@ export default function RehearsalPlayerPage() {
 
   // Navigation handlers
   const handlePrevious = () => {
-    // TODO: Add rewind API endpoint for host
-    // For now, disabled (requires backend support)
-    console.log('[Rehearsal] Previous not yet supported in sync mode')
+    // Go back one line (host only)
+    console.log('[Rehearsal] Going to previous line')
+    previous()
   }
 
   const handleNext = () => {
-    // Call server API to advance (synced across all participants)
+    // Skip forward one line (host only)
     if (!playbackInfo?.isComplete) {
-      console.log('[Rehearsal] Advancing to next line via API')
+      console.log('[Rehearsal] Skipping to next line via API')
       advance()
     }
   }
 
   const handleReplay = () => {
-    // Replay audio for current line
-    if (audioRef.current && playbackInfo?.currentLine?.audioUrl) {
-      audioRef.current.currentTime = 0
-      audioRef.current.play()
-    }
+    // Reset to beginning of entire script
+    console.log('[Rehearsal] Resetting to beginning')
+    reset()
   }
 
   const handleTogglePlay = () => {
-    // Toggle play/pause state
-    if (isPlaying) {
-      audioRef.current?.pause()
+    // Play button behavior:
+    // - If it's the host's turn (orange): advance forward
+    // - If it's NOT the host's turn:
+    //   - If PAUSED: resume (play)
+    //   - If PLAYING: pause
+    const isHostTurn = currentLine?.character === selectedCharacter
+
+    if (isHostTurn) {
+      console.log('[Rehearsal] Host turn - advancing')
+      advance()
     } else {
-      play()
+      // Toggle play/pause state
+      if (playbackInfo?.playbackState === 'paused') {
+        console.log('[Rehearsal] Resuming playback')
+        play()
+      } else {
+        console.log('[Rehearsal] Pausing playback')
+        // Stop any playing audio
+        if (audioRef.current) {
+          audioRef.current.pause()
+        }
+        pause()
+      }
     }
   }
 
   const handleExit = () => {
-    router.push('/scripts')
+    // If host, end the session for everyone
+    if (isHost) {
+      console.log('[Rehearsal] Host exiting - ending session for all participants')
+      endSession()
+      // Wait a moment for the API call, then redirect
+      setTimeout(() => {
+        router.push('/')
+      }, 100)
+    } else {
+      // Non-host just exits to home
+      console.log('[Rehearsal] Non-host exiting')
+      router.push('/')
+    }
   }
 
   // Loading state
@@ -331,9 +376,22 @@ export default function RehearsalPlayerPage() {
       {/* User Perspective Banner - Show which character they're playing */}
       {selectedCharacter && (
         <div className="bg-gradient-to-r from-amber-500/20 via-amber-400/20 to-amber-500/20 border-b border-amber-500/30 px-4 py-2 text-center">
-          <span className="text-sm font-bold text-amber-400">
-            Playing as: <span className="text-lg">{selectedCharacter}</span>
-          </span>
+          <div className="flex items-center justify-center gap-4">
+            <span className="text-sm font-bold text-amber-400">
+              Playing as: <span className="text-lg">{selectedCharacter}</span>
+            </span>
+            {/* Playback State Indicator (visible to all, controlled by host only) */}
+            {playbackInfo && (
+              <span className={cn(
+                "text-xs font-black uppercase px-3 py-1 rounded-full border-2",
+                playbackInfo.playbackState === 'paused'
+                  ? "bg-yellow-500/20 border-yellow-500/50 text-yellow-400"
+                  : "bg-green-500/20 border-green-500/50 text-green-400"
+              )}>
+                {playbackInfo.playbackState === 'paused' ? '⏸ PAUSED' : '▶ PLAYING'}
+              </span>
+            )}
+          </div>
         </div>
       )}
 
@@ -453,61 +511,107 @@ export default function RehearsalPlayerPage() {
 
           {/* Playback Controls - Compact */}
           <div className="flex items-center justify-center gap-2">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={handlePrevious}
-              disabled={currentLineIndex === 0}
-              className="h-10 w-10 rounded-lg disabled:opacity-30"
-              aria-label="Previous line"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </Button>
+            {/* Host controls: full navigation */}
+            {isHost ? (
+              <>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handlePrevious}
+                  disabled={currentLineIndex === 0}
+                  className="h-10 w-10 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed"
+                  aria-label="Previous line"
+                  title={currentLineIndex === 0 ? "Already at beginning" : "Go back one line"}
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </Button>
 
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={handleReplay}
-              className="h-10 w-10 rounded-lg"
-              aria-label="Replay current line"
-            >
-              <RotateCcw className="h-4 w-4" />
-            </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handleReplay}
+                  className="h-10 w-10 rounded-lg"
+                  aria-label="Reset to beginning"
+                  title="Reset to beginning of script"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                </Button>
 
-            <Button
-              size="icon"
-              onClick={handleNext}
-              className={cn(
-                "h-12 w-12 rounded-lg transition-all",
-                currentLine?.isUserLine
-                  ? "bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 shadow-lg shadow-amber-500/50 animate-pulse"
-                  : "bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700"
-              )}
-              aria-label={currentLine?.isUserLine ? "Continue (Your Turn)" : "Continue"}
-            >
-              <ChevronRight className="h-6 w-6" />
-            </Button>
+                <Button
+                  size="lg"
+                  onClick={handleTogglePlay}
+                  className={cn(
+                    "h-16 w-16 rounded-full transition-all duration-300",
+                    currentLine?.isUserLine
+                      ? "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-orange-500 hover:to-amber-600 shadow-lg shadow-amber-500/50 animate-pulse"
+                      : playbackInfo?.playbackState === 'paused'
+                        ? "bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-lg shadow-green-500/30"
+                        : "bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 shadow-lg"
+                  )}
+                  aria-label={
+                    currentLine?.isUserLine
+                      ? "Continue (Your Turn)"
+                      : playbackInfo?.playbackState === 'paused'
+                        ? "Resume playback"
+                        : "Pause playback"
+                  }
+                  title={
+                    currentLine?.isUserLine
+                      ? "Continue (Your Turn)"
+                      : playbackInfo?.playbackState === 'paused'
+                        ? "Resume playback"
+                        : "Pause playback"
+                  }
+                >
+                  {currentLine?.isUserLine ? (
+                    <Play className="h-8 w-8" />
+                  ) : playbackInfo?.playbackState === 'paused' ? (
+                    <Play className="h-8 w-8" />
+                  ) : (
+                    <Pause className="h-8 w-8" />
+                  )}
+                </Button>
 
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={handleNext}
-              disabled={currentLineIndex === totalLines - 1}
-              className="h-10 w-10 rounded-lg disabled:opacity-30"
-              aria-label="Next line"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handleNext}
+                  disabled={currentLineIndex === totalLines - 1}
+                  className="h-10 w-10 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed"
+                  aria-label="Skip forward"
+                  title={currentLineIndex === totalLines - 1 ? "Already at end" : "Skip forward one line"}
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </Button>
 
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleExit}
-              className="h-10 w-10 rounded-lg"
-              aria-label="Exit to scripts"
-            >
-              <Home className="h-4 w-4" />
-            </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleExit}
+                  className="h-10 w-10 rounded-lg"
+                  aria-label="Exit to scripts"
+                  title="Exit rehearsal"
+                >
+                  <Home className="h-4 w-4" />
+                </Button>
+              </>
+            ) : (
+              /* Non-host controls: only Play button */
+              <Button
+                size="lg"
+                onClick={handleNext}
+                disabled={!currentLine?.isUserLine}
+                className={cn(
+                  "h-16 w-16 rounded-full transition-all duration-300",
+                  currentLine?.isUserLine
+                    ? "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-orange-500 hover:to-amber-600 shadow-lg shadow-amber-500/50 animate-pulse"
+                    : "bg-muted/30 opacity-40 cursor-not-allowed"
+                )}
+                aria-label={currentLine?.isUserLine ? "Your Turn - Continue" : "Waiting..."}
+              >
+                <Play className="h-8 w-8" />
+              </Button>
+            )}
           </div>
 
           {/* Progress Bar - Compact */}

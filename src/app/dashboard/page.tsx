@@ -16,10 +16,19 @@ export default function HomePage() {
         <p className="text-xl text-muted-foreground">
           Development Testing Dashboard
         </p>
-        <div className="flex gap-2 justify-center text-sm text-muted-foreground">
-          <span>Backend: http://localhost:4000</span>
-          <span>•</span>
-          <span>Frontend: http://localhost:3000</span>
+        <div className="text-sm text-muted-foreground space-y-2">
+          <div className="flex gap-2 justify-center">
+            <span>Backend: http://localhost:4000</span>
+            <span>•</span>
+            <span>Frontend: http://localhost:3000</span>
+          </div>
+          <div className="flex gap-2 justify-center items-center">
+            <span className="text-green-500 font-semibold">MVP Phase 1: 78% Complete</span>
+            <span>•</span>
+            <span>Sprints 1-7: ✅</span>
+            <span>•</span>
+            <span>Sprint 6B: In Progress</span>
+          </div>
         </div>
       </div>
 
@@ -122,71 +131,118 @@ export default function HomePage() {
         </Card>
 
         {/* Sprint 4 */}
-        <Card className="border-amber-500/50">
+        <Card>
           <CardHeader>
             <div className="flex items-start justify-between">
               <div>
                 <CardTitle className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-amber-500" />
+                  <CheckCircle2 className="w-5 h-5 text-green-500" />
                   Sprint 4: OpenAI Script Analysis & Character Portraits
                 </CardTitle>
                 <CardDescription>AI-powered metadata extraction + DALL-E portrait generation</CardDescription>
               </div>
-              <span className="text-sm font-medium text-amber-500">🔍 Testing Now</span>
+              <span className="text-sm font-medium text-green-500">100% Complete</span>
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-sm text-muted-foreground space-y-1 mb-4">
+            <div className="text-sm text-muted-foreground space-y-1">
               <div>✅ ScriptAnalysisService (GPT-4o-mini, ~$0.009/script)</div>
               <div>✅ CharacterPortraitService (DALL-E, $0.04/portrait)</div>
               <div>✅ Portrait metadata (JSON sidecars for reuse)</div>
               <div>✅ Character cards with AI portraits & taglines</div>
               <div>✅ Role badges (Lead/Featured/Ensemble)</div>
             </div>
-            <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4 space-y-3">
-              <p className="font-medium text-amber-500">Test Instructions:</p>
-              <ol className="text-sm space-y-2 list-decimal list-inside">
-                <li>Go to Script Library and select a script</li>
-                <li>Verify character portraits display in grid</li>
-                <li>Check taglines show below character names</li>
-                <li>Verify role badges (Lead/Featured/Ensemble)</li>
-                <li>Click "START REHEARSAL" → Verify portraits in character selection</li>
-              </ol>
-              <Link href="/scripts">
-                <Button className="w-full bg-amber-500 hover:bg-amber-600 text-black font-bold mt-2">
-                  Start Testing Sprint 4 →
-                </Button>
-              </Link>
-            </div>
           </CardContent>
         </Card>
 
         {/* Sprint 5 */}
-        <Card className="opacity-60">
+        <Card>
           <CardHeader>
             <div className="flex items-start justify-between">
               <div>
                 <CardTitle className="flex items-center gap-2">
-                  <Circle className="w-5 h-5 text-muted-foreground" />
-                  Sprint 5: Audio Generation & Caching
+                  <CheckCircle2 className="w-5 h-5 text-green-500" />
+                  Sprint 5: Multiplayer Lobbies & Security
                 </CardTitle>
-                <CardDescription>Batch TTS generation, audio cache, progress UI</CardDescription>
+                <CardDescription>PIN authentication + shareable lobby links + multiplayer character selection</CardDescription>
               </div>
-              <span className="text-sm font-medium text-muted-foreground">Not Started</span>
+              <span className="text-sm font-medium text-green-500">100% Complete</span>
             </div>
           </CardHeader>
+          <CardContent>
+            <div className="text-sm text-muted-foreground space-y-1">
+              <div>✅ 6-digit PIN authentication with rate limiting</div>
+              <div>✅ Shareable lobby links (UUID-based, 4-hour expiry)</div>
+              <div>✅ Real-time participant sync (polling every 2s)</div>
+              <div>✅ Character locking (first-come-first-served)</div>
+              <div>✅ Auto-redirect when host starts rehearsal</div>
+              <div>✅ Cloudflare Tunnel compatibility (no hardcoded URLs)</div>
+            </div>
+          </CardContent>
         </Card>
 
-        {/* Sprint 6 */}
+        {/* Sprint 6A */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-start justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-green-500" />
+                  Sprint 6A: Synchronized Multiplayer Rehearsal
+                </CardTitle>
+                <CardDescription>Real-time playback sync + character card audio (Chatterbox TTS)</CardDescription>
+              </div>
+              <span className="text-sm font-medium text-green-500">100% Complete</span>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-sm text-muted-foreground space-y-1">
+              <div>✅ ChatterboxAdapter with voice cloning (GPU-accelerated)</div>
+              <div>✅ Character catchphrase audio generation (~1.1s per character)</div>
+              <div>✅ PlaybackService (sync all browsers to same line)</div>
+              <div>✅ Real-time polling (500ms) for playback state</div>
+              <div>✅ Audio auto-play for AI lines + auto-advance</div>
+              <div>✅ Visual feedback (gold pulsing when user turn)</div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Sprint 7 */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-start justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-green-500" />
+                  Sprint 7: Rehearsal Playback UI
+                </CardTitle>
+                <CardDescription>Scene-based rehearsal with sticky headers and character portraits</CardDescription>
+              </div>
+              <span className="text-sm font-medium text-green-500">100% Complete</span>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-sm text-muted-foreground space-y-1">
+              <div>✅ Scene-based sticky headers (purple/cyan gradient)</div>
+              <div>✅ Character portrait integration (60x60 rounded squares)</div>
+              <div>✅ Hidden scrollbars (clean UI while maintaining scroll)</div>
+              <div>✅ Scene grouping logic with character badges</div>
+              <div>✅ "YOU" badge for selected character highlight</div>
+              <div>✅ Mobile-first responsive design</div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Sprint 6B */}
         <Card className="opacity-60">
           <CardHeader>
             <div className="flex items-start justify-between">
               <div>
                 <CardTitle className="flex items-center gap-2">
                   <Circle className="w-5 h-5 text-muted-foreground" />
-                  Sprint 6: Rehearsal Playback
+                  Sprint 6B: Full Dialogue Audio Generation
                 </CardTitle>
-                <CardDescription>Line-by-line playback, audio player, navigation</CardDescription>
+                <CardDescription>Batch TTS for all lines, voice assignment mapping, audio cache</CardDescription>
               </div>
               <span className="text-sm font-medium text-muted-foreground">Not Started</span>
             </div>
@@ -197,20 +253,47 @@ export default function HomePage() {
       {/* API Status */}
       <Card className="mt-8">
         <CardHeader>
-          <CardTitle className="text-lg">Backend API Endpoints (Sprint 4)</CardTitle>
+          <CardTitle className="text-lg">Backend API Endpoints (Sprint 1-7)</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm font-mono">
-            <div>GET /api/scripts</div>
-            <div>POST /api/scripts</div>
-            <div>GET /api/scripts/:id</div>
-            <div>DELETE /api/scripts/:id</div>
-            <div>GET /api/voices</div>
-            <div>POST /api/sessions</div>
-            <div>GET /api/sessions/:id</div>
-            <div>POST /api/sessions/:id/shuffle</div>
-            <div>PUT /api/sessions/:id/voice</div>
-            <div className="text-amber-500">GET /portraits/:scriptId/*.webp</div>
+            {/* Scripts */}
+            <div className="text-cyan-400">GET /api/scripts</div>
+            <div className="text-cyan-400">POST /api/scripts</div>
+            <div className="text-cyan-400">GET /api/scripts/:id</div>
+            <div className="text-cyan-400">DELETE /api/scripts/:id</div>
+            <div className="text-cyan-400">POST /api/scripts/:id/generate-card-audio</div>
+
+            {/* Voice Presets */}
+            <div className="text-purple-400">GET /api/voices</div>
+
+            {/* Sessions */}
+            <div className="text-green-400">POST /api/sessions</div>
+            <div className="text-green-400">GET /api/sessions/:id</div>
+            <div className="text-green-400">GET /api/sessions/:id/config</div>
+            <div className="text-green-400">GET /api/sessions/:id/playback</div>
+            <div className="text-green-400">POST /api/sessions/:id/advance</div>
+            <div className="text-green-400">POST /api/sessions/:id/shuffle</div>
+            <div className="text-green-400">PUT /api/sessions/:id/voice</div>
+
+            {/* Lobbies (Multiplayer) */}
+            <div className="text-amber-400">POST /api/auth/verify</div>
+            <div className="text-amber-400">POST /api/lobbies/create</div>
+            <div className="text-amber-400">POST /api/lobbies/:token/join</div>
+            <div className="text-amber-400">GET /api/lobbies/:token/participants</div>
+            <div className="text-amber-400">PUT /api/lobbies/:token/select</div>
+            <div className="text-amber-400">POST /api/lobbies/:token/start</div>
+
+            {/* Static Assets */}
+            <div className="text-magenta-400">GET /portraits/:scriptId/*.webp</div>
+            <div className="text-magenta-400">GET /audio/:sessionId/character-cards/*.wav</div>
+          </div>
+          <div className="mt-4 text-xs text-muted-foreground space-y-1">
+            <div><span className="text-cyan-400">■</span> Scripts &amp; Upload</div>
+            <div><span className="text-purple-400">■</span> Voice Presets</div>
+            <div><span className="text-green-400">■</span> Sessions &amp; Playback</div>
+            <div><span className="text-amber-400">■</span> Lobbies &amp; Auth</div>
+            <div><span className="text-magenta-400">■</span> Static Assets</div>
           </div>
         </CardContent>
       </Card>
