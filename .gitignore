@@ -102,3 +102,5 @@ coverage/
 tmp/
 temp/
 mockups/v0_example/
+backend/public/audio/
+throwaway-tests/

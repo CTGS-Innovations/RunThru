@@ -68,6 +68,12 @@ class ChatterboxAdapter(TTSAdapter):
 
         # Generate audio
         try:
+            # Set manual seed for reproducibility
+            # Prevents non-deterministic behavior and voice state pollution
+            torch.manual_seed(42)
+            if torch.cuda.is_available():
+                torch.cuda.manual_seed(42)
+
             # Check if voice_id is a file path (reference audio)
             if os.path.exists(voice_id):
                 # Voice cloning mode with reference audio
@@ -75,7 +81,7 @@ class ChatterboxAdapter(TTSAdapter):
                     text,
                     audio_prompt_path=voice_id,
                     exaggeration=exaggeration,
-                    cfg_weight=0.5  # Style control (0.0-1.0)
+                    cfg_weight=0.7  # Changed from 0.5 - prevents corruption with expressive voices
                 )
             else:
                 # Default voice mode (no reference audio)
