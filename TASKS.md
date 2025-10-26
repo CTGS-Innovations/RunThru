@@ -1,8 +1,8 @@
 # RunThru - Task Tracking & Progress
 
-**Last Updated**: 2025-10-25 03:35
+**Last Updated**: 2025-10-26 (Checkpoint: Sprint 8 Complete)
 **Current Phase**: MVP Phase 1 - Synchronized Multiplayer Rehearsal
-**Overall Progress**: Sprint 1: 100% ✅ | Sprint 2: 100% ✅ | Sprint 3: 100% ✅ | Sprint 4: 100% ✅ | Sprint 5: 100% ✅ | Sprint 6A: 100% ✅ (SYNC COMPLETE) | Sprint 7: 100% ✅
+**Overall Progress**: Sprint 1: 100% ✅ | Sprint 2: 100% ✅ | Sprint 3: 100% ✅ | Sprint 4: 100% ✅ | Sprint 5: 100% ✅ | Sprint 6A: 100% ✅ | Sprint 7: 100% ✅ | Sprint 8: 100% ✅
 
 ---
 
@@ -1375,27 +1375,159 @@
 
 ---
 
+## 📅 Sprint 8: Host Controls & Session Management (Week 4)
+
+**Status**: ✅ Complete - 100%
+**Depends on**: Sprint 6A ✅, Sprint 7 ✅
+**Started**: 2025-10-26
+**Completed**: 2025-10-26
+**Focus**: Complete multiplayer host controls, pause/play, and session lifecycle management
+
+### ✅ Completed Tasks (2025-10-26)
+
+#### 🎮 Host Control System
+- [x] **✅ COMPLETE**: Secure host detection using PIN
+  - [x] Uses `runthru_pin` in localStorage (only host has PIN)
+  - [x] Non-host players join via shareable token (no PIN)
+  - [x] Cannot fake being host by typing "Host" as name
+  - [x] File: `frontend/src/app/rehearsal/[sessionId]/page.tsx:116-118`
+
+- [x] **✅ COMPLETE**: Host navigation controls
+  - [x] Previous (←): Go back one line (disabled at line 0)
+  - [x] Next (→): Skip forward one line (disabled at final line)
+  - [x] Replay (↻): Reset to beginning of entire script
+  - [x] Play/Pause (center, circular): Context-aware action
+    - Orange + Play icon (pulsing): Host's turn - click to advance
+    - Blue + Pause icon: Playing - click to pause
+    - Green + Play icon: Paused - click to resume
+  - [x] Home (🏠): Exit and end session for all participants
+  - [x] All controls synced across participants
+  - [x] Tooltips on hover for accessibility
+
+- [x] **✅ COMPLETE**: Non-host simplified controls
+  - [x] Single circular Play button only
+  - [x] Orange/pulsing when it's their turn (enabled)
+  - [x] Grayed out when waiting for others (disabled)
+  - [x] Consistent visual design with host controls
+  - [x] File: `frontend/src/app/rehearsal/[sessionId]/page.tsx:538-548`
+
+#### ⏯️ Pause/Play State Management
+- [x] **✅ COMPLETE**: Backend pause endpoint
+  - [x] POST /api/sessions/:id/pause
+  - [x] Sets playback_state = 'paused'
+  - [x] Stops audio and auto-advance
+  - [x] File: `backend/src/routes/sessions.routes.ts:599-644`
+
+- [x] **✅ COMPLETE**: Frontend pause logic
+  - [x] Stops audio immediately on pause
+  - [x] Prevents auto-advance when paused
+  - [x] Resume continues from current line
+  - [x] File: `frontend/src/app/rehearsal/[sessionId]/page.tsx:294-319`
+
+- [x] **✅ COMPLETE**: Visual playback state indicator
+  - [x] Badge at top: "⏸ PAUSED" (yellow) or "▶ PLAYING" (green)
+  - [x] Visible to ALL participants (host and non-host)
+  - [x] Updates in real-time via polling
+  - [x] File: `frontend/src/app/rehearsal/[sessionId]/page.tsx:371-381`
+
+#### 🔚 Session End & Cleanup
+- [x] **✅ COMPLETE**: Backend session end endpoint
+  - [x] POST /api/sessions/:id/end
+  - [x] Host-only permission check
+  - [x] Marks session as inactive (is_active = 0)
+  - [x] File: `backend/src/routes/sessions.routes.ts:711-758`
+
+- [x] **✅ COMPLETE**: Automatic participant kickout
+  - [x] GET /api/sessions/:id/playback returns 410 Gone when session ended
+  - [x] Frontend polling detects 410 status
+  - [x] All participants automatically redirected to home page
+  - [x] File: `frontend/src/hooks/usePlayback.ts:54-78`
+
+- [x] **✅ COMPLETE**: Host exit behavior
+  - [x] Home button calls endSession() API
+  - [x] Session marked inactive in database
+  - [x] Non-host players kicked within 500ms (polling interval)
+  - [x] File: `frontend/src/app/rehearsal/[sessionId]/page.tsx:329-343`
+
+#### 🎨 UI/UX Enhancements
+- [x] **✅ COMPLETE**: Lobby status improvements
+  - [x] Replaced circle checkmarks with fixed-width state boxes
+  - [x] Green "READY" badge (96px wide)
+  - [x] Red "SELECTING" badge (96px wide)
+  - [x] Host displays as "HOST" instead of player name
+  - [x] Consistent styling across all states
+  - [x] File: `frontend/src/components/session/LobbyStatus.tsx`
+
+- [x] **✅ COMPLETE**: Backend isHost field
+  - [x] Added isHost to SessionConfig interface
+  - [x] Updated getSessionConfig() to include isHost for each participant
+  - [x] Converted SQLite boolean (0/1) to JavaScript boolean
+  - [x] File: `backend/src/services/lobby.service.ts:33, 348, 364`
+
+#### 🔧 Backend API Endpoints (New)
+- [x] POST /api/sessions/:id/previous - Go back one line (host only)
+- [x] POST /api/sessions/:id/pause - Pause playback
+- [x] POST /api/sessions/:id/end - End session for all participants
+- [x] Updated POST /api/sessions/:id/reset - Now requires participantId
+
+#### 📂 Files Modified
+**Backend:**
+- `backend/src/routes/sessions.routes.ts` - Added 3 new endpoints (previous, pause, end)
+- `backend/src/services/lobby.service.ts` - Added isHost field to session config
+
+**Frontend:**
+- `frontend/src/app/rehearsal/[sessionId]/page.tsx` - Complete host controls implementation
+- `frontend/src/components/session/LobbyStatus.tsx` - State indicator redesign
+- `frontend/src/hooks/usePlayback.ts` - Added pause, previous, endSession mutations
+
+### 🔍 Testing Results
+- ✅ Host sees all 5 navigation controls (Previous, Replay, Play/Pause, Next, Home)
+- ✅ Non-host sees only single Play button
+- ✅ Pause stops audio and prevents auto-advance
+- ✅ Resume continues from paused line
+- ✅ Playback state badge visible to all participants
+- ✅ Host exit ends session for everyone
+- ✅ Non-host players automatically redirected to home page
+- ✅ Previous/Next controls work correctly (disabled at boundaries)
+- ✅ Replay resets to line 0
+- ✅ All controls synced via server polling (500ms interval)
+
+### 📊 Sprint 8 Summary
+**Goal**: Complete multiplayer rehearsal controls and session management ✅
+**Result**: Full-featured multiplayer rehearsal with host control and clean session lifecycle
+**Commits**:
+- `26ce673` - Backend: Add multiplayer rehearsal controls and session management
+- `1905b70` - Frontend: Complete multiplayer rehearsal UI with host controls
+- `e55a003`, `1fb4913` - Merge to main branch
+
+---
+
 ---
 
 ## 🚨 Blockers & Decisions Needed
 
 ### Active Blockers:
 
-**✅ NO ACTIVE BLOCKERS** - Starting Sprint 6A (Synchronized Rehearsal)
+**✅ NO ACTIVE BLOCKERS** - Sprint 8 Complete! 🎉
 
-**Sprint 5 Summary** (100% Complete):
-- ✅ PIN authentication system implemented
-- ✅ Unified auth (PIN + lobby join) working
-- ✅ All backend APIs tested and working
-- ✅ SQLite boolean rendering bug fixed
-- ✅ Auth guard race condition fixed
-- ✅ Multiplayer lobby flow working end-to-end
-- ✅ Perspective debugging added (console logs + UI banner)
-- ✅ Cloudflare Tunnel compatibility (all relative URLs)
+**Sprint 8 Summary** (100% Complete - 2025-10-26):
+- ✅ Secure host detection using PIN in localStorage
+- ✅ Full host navigation controls (Previous, Next, Replay, Play/Pause, Home)
+- ✅ Non-host simplified controls (single Play button)
+- ✅ Pause/Play state management with visual feedback
+- ✅ Session end lifecycle (host exit kicks all participants)
+- ✅ Lobby status UI improvements (consistent state badges)
+- ✅ All controls synced across participants via polling
 
-**Current Focus**: Sprint 6A - Playback synchronization with test audio (see PRD: `/docs/synchronized-rehearsal-prd.md`)
+**Current Focus**: MVP Phase 1 Nearly Complete! Next up: Sprint 6B (Full Dialogue Audio Generation)
 
-**Goal**: Get 3+ browsers staying in sync, auto-playing audio, pausing on user turns
+**What's Working**:
+- ✅ Complete multiplayer rehearsal from lobby → playback → exit
+- ✅ Host can control playback flow (pause, rewind, skip, reset)
+- ✅ All participants see synchronized state
+- ✅ Session cleanup when host exits
+
+**Next Sprint**: Sprint 6B - Generate full dialogue audio with Chatterbox TTS (428 lines)
 
 ### Sprint 3 Decisions (Resolved):
 
@@ -1452,7 +1584,7 @@
 
 ## 📊 Progress Dashboard
 
-### Overall MVP Phase 1 Progress: 78%
+### Overall MVP Phase 1 Progress: 88%
 
 | Sprint | Status | Progress | Target Date |
 |--------|--------|----------|-------------|
@@ -1462,18 +1594,19 @@
 | 4. OpenAI Integration | ✅ Complete | 100% | 2025-10-23 |
 | 5. Multiplayer & Security | ✅ Complete | 100% | 2025-10-24 |
 | 6A-Part1. Character Card Audio | ✅ Complete | 100% | 2025-10-24 |
-| 6A-Part2. Playback Sync | ⏸️ Paused | 15% | TBD |
+| 6A-Part2. Playback Sync | ✅ Complete | 100% | 2025-10-25 |
 | 6B. Full Dialogue Audio (TTS) | ⏸️ Not Started | 0% | TBD |
 | 7. Rehearsal Playback UI | ✅ Complete | 100% | 2025-10-24 |
+| 8. Host Controls & Session Mgmt | ✅ Complete | 100% | 2025-10-26 |
 
 ### Track-Specific Progress:
 
-| Track | Sprint 5 (Multiplayer) | Sprint 6A-Part1 (Card Audio) | Sprint 6A-Part2 (Sync) | Sprint 6B (TTS) | Sprint 7 (UI) |
-|-------|------------------------|------------------------------|------------------------|-----------------|---------------|
-| 🎨 Frontend | ✅ 100% | ✅ 100% | ⏸️ 0% (Paused) | ⏸️ Waiting | ✅ 100% |
-| ⚙️ Backend | ✅ 100% | ✅ 100% | ⏸️ 15% (Service only) | ⏸️ Waiting | N/A |
-| 🤖 AI/ML | N/A | ✅ 100% (Chatterbox) | N/A | ⏸️ Waiting | N/A |
-| 🔗 Integration | ✅ 100% | ✅ 100% | ⏸️ 0% (Not tested) | ⏸️ Waiting | ✅ 100% |
+| Track | Sprint 5 (Multiplayer) | Sprint 6A (Sync) | Sprint 6B (TTS) | Sprint 7 (UI) | Sprint 8 (Controls) |
+|-------|------------------------|------------------|-----------------|---------------|---------------------|
+| 🎨 Frontend | ✅ 100% | ✅ 100% | ⏸️ Waiting | ✅ 100% | ✅ 100% |
+| ⚙️ Backend | ✅ 100% | ✅ 100% | ⏸️ Waiting | N/A | ✅ 100% |
+| 🤖 AI/ML | N/A | N/A | ⏸️ Waiting | N/A | N/A |
+| 🔗 Integration | ✅ 100% | ✅ 100% | ⏸️ Waiting | ✅ 100% | ✅ 100% |
 
 ---
 
