@@ -1,6 +1,7 @@
 /**
  * Dialogue Audio Proxy Route
  * Proxies dialogue audio requests to the backend server
+ * Dialogue audio is stored at script-level (not session-level)
  * Enables Cloudflare Tunnel compatibility (no hardcoded localhost URLs)
  */
 
@@ -10,13 +11,13 @@ const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:4000';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ sessionId: string; filename: string }> }
+  { params }: { params: Promise<{ scriptId: string; filename: string }> }
 ) {
-  const { sessionId, filename } = await params;
+  const { scriptId, filename } = await params;
 
   try {
-    // Fetch audio from backend
-    const backendUrl = `${BACKEND_URL}/audio/${sessionId}/dialogue/${filename}`;
+    // Fetch audio from backend (script-level path)
+    const backendUrl = `${BACKEND_URL}/audio/${scriptId}/dialogue/${filename}`;
     const response = await fetch(backendUrl);
 
     if (!response.ok) {
