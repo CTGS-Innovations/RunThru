@@ -22,9 +22,13 @@ COPY --from=deps /app/node_modules ./node_modules
 # Copy source code
 COPY . .
 
+# Accept build argument
+ARG BACKEND_URL=http://backend:4000
+
 # Set environment variables for build
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
+ENV BACKEND_URL=${BACKEND_URL}
 
 # Build Next.js application
 RUN npm run build
@@ -40,10 +44,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy necessary files from builder
-COPY --from=builder /app/public ./public
-
-# Copy standalone output
+# Copy standalone output (public assets are bundled in standalone if they exist)
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 

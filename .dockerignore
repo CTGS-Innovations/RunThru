@@ -57,4 +57,4 @@ TASKS.md
 *.md
 .prettierrc
 .eslintrc*
-tsconfig.json
+# tsconfig.json - NEEDED for Next.js path aliases (@/)

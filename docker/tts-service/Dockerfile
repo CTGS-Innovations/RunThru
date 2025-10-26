@@ -13,12 +13,15 @@ ENV CUDA_HOME=/usr/local/cuda
 ENV PATH=$CUDA_HOME/bin:$PATH
 ENV LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH
 
-# Install system dependencies
+# Install system dependencies (using Python 3.10 for pkuseg compatibility)
 RUN apt-get update && apt-get install -y \
-    python3.11 \
-    python3.11-dev \
+    software-properties-common \
+    && add-apt-repository ppa:deadsnakes/ppa \
+    && apt-get update && apt-get install -y \
+    python3.10 \
+    python3.10-dev \
+    python3.10-venv \
     python3-pip \
-    python3.11-venv \
     git \
     wget \
     curl \
@@ -28,8 +31,8 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Create symbolic links for python
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1 && \
-    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.10 1 && \
+    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1
 
 WORKDIR /app
 
@@ -48,9 +51,11 @@ RUN pip install --no-cache-dir \
 # Install other Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Install Index TTS and Chatterbox TTS
-RUN pip install --no-cache-dir \
-    git+https://github.com/resemble-ai/chatterbox.git
+# Optional: Install Chatterbox TTS (skip for now due to pkuseg Python 3.10 compatibility issues)
+# TODO: Re-enable when pkuseg is fixed or find alternative
+# RUN pip install --no-cache-dir chatterbox-tts
+
+# Note: Chatterbox adapter will fail to initialize but Index TTS will work
 
 # Copy application code
 COPY . .

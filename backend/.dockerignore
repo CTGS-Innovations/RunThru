@@ -34,15 +34,16 @@ coverage
 *.log
 logs
 
-# Database (use volume instead)
+# Database (use volume for data, but include schema)
 *.db
 *.db-shm
 *.db-wal
 database
+!database/schema.sql
 
 # Misc
 README.md
 .prettierrc
 .eslintrc*
-tsconfig.json
+# tsconfig.json - NEEDED for TypeScript compilation
 nodemon.json
