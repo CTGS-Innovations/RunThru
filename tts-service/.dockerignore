@@ -1,0 +1,60 @@
+# Virtual environment
+venv
+env
+.venv
+.env
+
+# Python cache
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.pytest_cache
+.mypy_cache
+.coverage
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs
+
+# Models (use volume instead)
+models/*
+!models/.gitkeep
+cache/*
+!cache/.gitkeep
+index-tts/checkpoints
+index-tts/pretrained_models
+
+# Reference voices
+reference-voices
+
+# Test files
+test_*.py
+*_test.py
+tests/
+
+# Misc
+README.md
+start.sh

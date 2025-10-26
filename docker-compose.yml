@@ -1,0 +1,161 @@
+# ==================================
+# RunThru Docker Compose Configuration
+# ==================================
+# This configuration orchestrates the full RunThru stack:
+# - Frontend (Next.js)
+# - Backend API (Node.js + Express)
+# - TTS Service (Python + PyTorch + CUDA)
+# - Cloudflare Tunnel (optional, for public access)
+
+version: '3.9'
+
+services:
+  # ============================================
+  # Frontend - Next.js Application
+  # ============================================
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: runthru-frontend
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://backend:4000}
+      - NEXT_TELEMETRY_DISABLED=1
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - runthru-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ============================================
+  # Backend - Node.js API Server
+  # ============================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: runthru-backend
+    ports:
+      - "${BACKEND_PORT:-4000}:4000"
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+      - DATABASE_PATH=/data/database/runthru.db
+      - TTS_SERVICE_URL=http://tts-service:5000
+      - PIN_CODE=${PIN_CODE:-1234}
+      - AUDIO_CACHE_DIR=/data/audio-cache
+      - SCRIPTS_DIR=/data/scripts
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    volumes:
+      # Persistent data storage
+      - runthru-data:/data
+      # Shared data with host (optional, for easy access)
+      - ./data/database:/data/database
+      - ./data/scripts:/data/scripts
+      - ./data/audio-cache:/data/audio-cache
+      - ./data/logs:/data/logs
+    depends_on:
+      tts-service:
+        condition: service_healthy
+    networks:
+      - runthru-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ============================================
+  # TTS Service - Python + PyTorch + CUDA
+  # ============================================
+  tts-service:
+    build:
+      context: ./tts-service
+      dockerfile: Dockerfile
+    container_name: runthru-tts
+    ports:
+      - "${TTS_PORT:-5000}:5000"
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+      - MODEL_DIR=/models
+      - PORT=5000
+      - HOST=0.0.0.0
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    volumes:
+      # TTS models (persistent)
+      - runthru-models:/models
+      # Shared models with host (optional, for easy model updates)
+      - ./data/models:/models
+      # Cache directory
+      - runthru-cache:/cache
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    networks:
+      - runthru-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s  # TTS models take longer to load
+
+  # ============================================
+  # Cloudflare Tunnel (Optional)
+  # ============================================
+  # Uncomment to enable public HTTPS access via Cloudflare Tunnel
+  # cloudflared:
+  #   image: cloudflare/cloudflared:latest
+  #   container_name: runthru-tunnel
+  #   command: tunnel --no-autoupdate run --token ${CF_TUNNEL_TOKEN}
+  #   environment:
+  #     - TUNNEL_TOKEN=${CF_TUNNEL_TOKEN}
+  #   depends_on:
+  #     - frontend
+  #   networks:
+  #     - runthru-network
+  #   restart: unless-stopped
+
+# ============================================
+# Networks
+# ============================================
+networks:
+  runthru-network:
+    driver: bridge
+    name: runthru-network
+
+# ============================================
+# Volumes
+# ============================================
+volumes:
+  # Persistent data storage
+  runthru-data:
+    name: runthru-data
+    driver: local
+
+  # TTS model weights
+  runthru-models:
+    name: runthru-models
+    driver: local
+
+  # TTS cache
+  runthru-cache:
+    name: runthru-cache
+    driver: local

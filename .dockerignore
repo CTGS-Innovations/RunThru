@@ -1,0 +1,60 @@
+# Node modules
+node_modules
+npm-debug.log
+
+# Next.js build output
+.next
+out
+dist
+build
+
+# Backend files (separate service)
+backend
+
+# TTS service files (separate service)
+tts-service
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+.claude
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test coverage
+coverage
+.nyc_output
+
+# Logs
+*.log
+logs
+
+# Data directories
+data
+backups
+throwaway-tests
+_tmp
+mockups
+
+# Misc
+README.md
+DOCKER.md
+TASKS.md
+*.md
+.prettierrc
+.eslintrc*
+tsconfig.json

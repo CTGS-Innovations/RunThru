@@ -75,7 +75,49 @@ RunThru helps theater students prepare for auditions and performances by providi
 
 ## 🚀 Quick Start
 
-### Prerequisites
+### 🐳 Docker Deployment (Recommended)
+
+**The easiest way to run RunThru is with Docker Compose.** This handles all dependencies, GPU passthrough, and service orchestration automatically.
+
+#### Prerequisites
+- **Docker** 20.10+ and Docker Compose 2.0+
+- **NVIDIA Docker Runtime** (for GPU support)
+- **NVIDIA GPU** with 8GB+ VRAM (tested on RTX 3090)
+- **OpenAI API Key** (for script analysis + portraits)
+
+#### Quick Start
+```bash
+# 1. Clone the repository
+git clone https://github.com/yourusername/RunThru.git
+cd RunThru
+
+# 2. Create environment file
+cp .env.example .env
+# Edit .env and set your PIN_CODE and OPENAI_API_KEY
+
+# 3. Create data directories
+mkdir -p data/{database,scripts,audio-cache,logs,models}
+
+# 4. Build and start services
+docker-compose up -d
+
+# 5. Check status
+docker-compose ps
+docker-compose logs -f
+
+# 6. Open the app
+# Visit http://localhost:3000
+```
+
+**📖 For complete Docker documentation, GPU setup, troubleshooting, and production deployment, see [DOCKER.md](./DOCKER.md)**
+
+---
+
+### 💻 Manual Development Setup
+
+For local development without Docker:
+
+#### Prerequisites
 
 - **Node.js** 20+ and npm
 - **Python** 3.11+
@@ -206,11 +248,19 @@ RunThru/
 
 ## 🎯 Development Workflow
 
-This project uses **git worktrees** for parallel development:
+This project uses **git worktrees** for parallel development and **Docker** for deployment.
 
-- **Main** (`/RunThru`): Integration, testing, documentation
-- **Frontend** (`/RunThru-frontend`): UI development (branch: `feature/frontend`)
-- **Backend** (`/RunThru-backend`): API + TTS service (branch: `feature/backend`)
+### Development vs Deployment
+
+**Development** (git worktrees for parallel work):
+- **Frontend** worktree (`/RunThru-frontend`) → `feature/frontend` branch
+- **Backend** worktree (`/RunThru-backend`) → `feature/backend` branch
+- Work on frontend and backend simultaneously without conflicts
+
+**Deployment** (Docker from main branch):
+- **Main** worktree (`/RunThru`) → `main` branch only
+- All Docker configs (Dockerfile, docker-compose.yml) live here
+- Merge feature branches → build Docker images → deploy anywhere
 
 ### Working with Worktrees
 
@@ -221,19 +271,27 @@ git worktree list
 # Develop in frontend worktree
 cd /path/to/RunThru-frontend
 git checkout feature/frontend
-# Make changes, commit
+# Make changes, commit to feature/frontend
 
 # Develop in backend worktree
 cd /path/to/RunThru-backend
 git checkout feature/backend
-# Make changes, commit
+# Make changes, commit to feature/backend
 
-# Integration testing in main worktree
+# When ready to deploy: merge to main and build
 cd /path/to/RunThru
+git checkout main
 git merge feature/frontend
 git merge feature/backend
-# Test full stack
+docker-compose build
+docker-compose up -d
 ```
+
+### Why This Pattern?
+
+- **Development worktrees** = Fast iteration, no branch switching
+- **Main worktree** = Production-ready, Dockerized, portable
+- **Separation** = Dev dependencies stay in dev worktrees, Docker only pulls from main
 
 ---
 
@@ -293,6 +351,7 @@ cat data/scripts/zombie-apocalypse.md
 
 ## 📖 Documentation
 
+- **[DOCKER.md](./DOCKER.md)**: 🐳 Docker deployment guide (GPU setup, production config)
 - **[CLAUDE.md](./CLAUDE.md)**: Project context for AI development
 - **[TASKS.md](./TASKS.md)**: Detailed task tracking & progress
 - **[docs/PRD.md](./docs/PRD.md)**: Product requirements

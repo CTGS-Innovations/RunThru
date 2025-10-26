@@ -1,0 +1,48 @@
+# Node modules
+node_modules
+npm-debug.log
+
+# Build output
+dist
+build
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test coverage
+coverage
+.nyc_output
+
+# Logs
+*.log
+logs
+
+# Database (use volume instead)
+*.db
+*.db-shm
+*.db-wal
+database
+
+# Misc
+README.md
+.prettierrc
+.eslintrc*
+tsconfig.json
+nodemon.json
