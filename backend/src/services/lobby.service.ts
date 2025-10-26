@@ -30,6 +30,7 @@ interface SessionConfig {
     playerName: string;
     characterName: string;
     isAI: boolean;
+    isHost: boolean;
   }>;
   startedAt: string;
 }
@@ -344,7 +345,8 @@ export class LobbyService {
       SELECT
         player_name as playerName,
         character_name as characterName,
-        is_ai as isAI
+        is_ai as isAI,
+        is_host as isHost
       FROM participants
       WHERE session_id = ? AND character_name IS NOT NULL
       ORDER BY is_ai ASC, joined_at ASC
@@ -353,12 +355,14 @@ export class LobbyService {
       playerName: string;
       characterName: string;
       isAI: number;  // SQLite returns 0 or 1
+      isHost: number;  // SQLite returns 0 or 1
     }>;
 
-    // Convert SQLite numeric boolean to actual boolean
+    // Convert SQLite numeric booleans to actual booleans
     const participants = rows.map(row => ({
       ...row,
       isAI: Boolean(row.isAI),
+      isHost: Boolean(row.isHost),
     }));
 
     return {
