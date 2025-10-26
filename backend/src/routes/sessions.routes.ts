@@ -338,15 +338,23 @@ router.get('/:id/playback', (req: Request, res: Response) => {
     // Get session
     const db = getDatabase();
     const session = db.prepare(`
-      SELECT script_id
+      SELECT script_id, is_active
       FROM sessions
       WHERE id = ?
-    `).get(id) as { script_id: string } | undefined;
+    `).get(id) as { script_id: string; is_active: number } | undefined;
 
     if (!session) {
       return res.status(404).json({
         error: 'Session not found',
         message: `No session found with id: ${id}`
+      });
+    }
+
+    // Check if session is active (not ended by host)
+    if (session.is_active === 0) {
+      return res.status(410).json({
+        error: 'Session ended',
+        message: 'This session has been ended by the host'
       });
     }
 
@@ -509,11 +517,94 @@ router.post('/:id/advance', (req: Request, res: Response) => {
 });
 
 // ============================================================================
-// POST /api/sessions/:id/reset
-// Reset playback to beginning
+// POST /api/sessions/:id/previous
+// Go back one line (host only)
 // ============================================================================
 
-router.post('/:id/reset', (req: Request, res: Response) => {
+router.post('/:id/previous', (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { participantId } = req.body;
+
+    if (!participantId) {
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'participantId is required'
+      });
+    }
+
+    // Get session and script
+    const db = getDatabase();
+
+    // Verify host permission
+    const participant = db.prepare(`
+      SELECT is_host FROM participants
+      WHERE id = ? AND session_id = ? AND is_host = 1
+    `).get(participantId, id);
+
+    if (!participant) {
+      return res.status(403).json({
+        error: 'Forbidden',
+        message: 'Only the host can rewind'
+      });
+    }
+
+    const session = db.prepare(`
+      SELECT script_id, current_line_index
+      FROM sessions
+      WHERE id = ?
+    `).get(id) as { script_id: string; current_line_index: number } | undefined;
+
+    if (!session) {
+      return res.status(404).json({
+        error: 'Session not found'
+      });
+    }
+
+    const script = db.prepare(`
+      SELECT parsed_json
+      FROM scripts
+      WHERE id = ?
+    `).get(session.script_id) as { parsed_json: string } | undefined;
+
+    if (!script) {
+      return res.status(404).json({
+        error: 'Script not found'
+      });
+    }
+
+    const parsedScript: ParsedScript = JSON.parse(script.parsed_json);
+
+    // Can't go before line 0
+    if (session.current_line_index <= 0) {
+      return res.status(400).json({
+        error: 'Already at beginning',
+        message: 'Cannot go back from first line'
+      });
+    }
+
+    const { playbackService } = require('../services/playback.service');
+    const newIndex = session.current_line_index - 1;
+    const playbackInfo = playbackService.jumpToLine(id, newIndex, parsedScript);
+
+    res.json({
+      playback: playbackInfo
+    });
+  } catch (error) {
+    console.error('Error going to previous line:', error);
+    res.status(500).json({
+      error: 'Failed to go to previous line',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// ============================================================================
+// POST /api/sessions/:id/pause
+// Pause playback
+// ============================================================================
+
+router.post('/:id/pause', (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -546,7 +637,67 @@ router.post('/:id/reset', (req: Request, res: Response) => {
     const parsedScript: ParsedScript = JSON.parse(script.parsed_json);
 
     const { playbackService } = require('../services/playback.service');
-    const playbackInfo = playbackService.resetPlayback(id, parsedScript);
+    const playbackInfo = playbackService.setPlaybackState(id, 'paused', parsedScript);
+
+    res.json({
+      playback: playbackInfo
+    });
+  } catch (error) {
+    console.error('Error pausing playback:', error);
+    res.status(500).json({
+      error: 'Failed to pause playback',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// ============================================================================
+// POST /api/sessions/:id/reset
+// Reset playback to beginning
+// ============================================================================
+
+router.post('/:id/reset', (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { participantId } = req.body;
+
+    if (!participantId) {
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'participantId is required'
+      });
+    }
+
+    // Get session and script
+    const db = getDatabase();
+    const session = db.prepare(`
+      SELECT script_id
+      FROM sessions
+      WHERE id = ?
+    `).get(id) as { script_id: string } | undefined;
+
+    if (!session) {
+      return res.status(404).json({
+        error: 'Session not found'
+      });
+    }
+
+    const script = db.prepare(`
+      SELECT parsed_json
+      FROM scripts
+      WHERE id = ?
+    `).get(session.script_id) as { parsed_json: string } | undefined;
+
+    if (!script) {
+      return res.status(404).json({
+        error: 'Script not found'
+      });
+    }
+
+    const parsedScript: ParsedScript = JSON.parse(script.parsed_json);
+
+    const { playbackService } = require('../services/playback.service');
+    const playbackInfo = playbackService.resetPlayback(id, participantId, parsedScript);
 
     res.json({
       playback: playbackInfo
@@ -555,6 +706,121 @@ router.post('/:id/reset', (req: Request, res: Response) => {
     console.error('Error resetting playback:', error);
     res.status(500).json({
       error: 'Failed to reset playback',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// ============================================================================
+// POST /api/sessions/:id/end
+// End session (host only) - kicks all participants out
+// ============================================================================
+
+router.post('/:id/end', (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { participantId } = req.body;
+
+    if (!participantId) {
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'participantId is required'
+      });
+    }
+
+    // Get session and verify host
+    const db = getDatabase();
+
+    // Verify host permission
+    const participant = db.prepare(`
+      SELECT is_host FROM participants
+      WHERE id = ? AND session_id = ? AND is_host = 1
+    `).get(participantId, id);
+
+    if (!participant) {
+      return res.status(403).json({
+        error: 'Forbidden',
+        message: 'Only the host can end the session'
+      });
+    }
+
+    // Mark session as inactive (ended)
+    db.prepare(`
+      UPDATE sessions
+      SET is_active = 0,
+          last_state_update = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).run(id);
+
+    res.json({
+      success: true,
+      message: 'Session ended successfully'
+    });
+  } catch (error) {
+    console.error('Error ending session:', error);
+    res.status(500).json({
+      error: 'Failed to end session',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// ============================================================================
+// POST /api/sessions/:id/generate-dialogue-audio
+// Generate full dialogue audio for all lines in a session
+// Uses session's voice assignments
+// ============================================================================
+
+router.post('/:id/generate-dialogue-audio', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    // Verify session exists
+    const db = getDatabase();
+    const session = db.prepare(`
+      SELECT id, script_id
+      FROM sessions
+      WHERE id = ?
+    `).get(id) as { id: string; script_id: string } | undefined;
+
+    if (!session) {
+      return res.status(404).json({
+        error: 'Session not found'
+      });
+    }
+
+    // Import DialogueAudioService
+    const { DialogueAudioService } = require('../services/dialogueAudio.service');
+    const dialogueAudioService = new DialogueAudioService();
+
+    console.log(`🎬 Starting dialogue audio generation for session ${id}`);
+
+    // Generate audio with progress tracking
+    let lastProgress = 0;
+    const results = await dialogueAudioService.generateForSession(
+      id,
+      (current: number, total: number) => {
+        const progress = Math.floor((current / total) * 100);
+        if (progress >= lastProgress + 10) {
+          console.log(`📊 Progress: ${current}/${total} (${progress}%)`);
+          lastProgress = progress;
+        }
+      }
+    );
+
+    console.log(`✅ Dialogue audio generation complete: ${results.length} files`);
+
+    res.json({
+      success: true,
+      sessionId: id,
+      generated: results.length,
+      totalTime: results.reduce((sum: number, r: any) => sum + r.generationTime, 0),
+      files: results
+    });
+  } catch (error) {
+    console.error('Error generating dialogue audio:', error);
+    res.status(500).json({
+      error: 'Failed to generate dialogue audio',
       message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
