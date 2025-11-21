@@ -1,0 +1,25 @@
+[Unit]
+Description=RunThru Frontend Service (Next.js)
+After=network.target runthru-backend.service
+
+[Service]
+Type=simple
+User=corey
+WorkingDirectory=/home/corey/projects/RunThru
+Environment="PORT=13000"
+Environment="NODE_ENV=production"
+Environment="BACKEND_URL=http://localhost:14000"
+Environment="NEXT_TELEMETRY_DISABLED=1"
+ExecStart=/usr/bin/npm start
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=runthru-frontend
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

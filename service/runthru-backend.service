@@ -1,0 +1,29 @@
+[Unit]
+Description=RunThru Backend API Service
+After=network.target
+
+[Service]
+Type=simple
+User=corey
+WorkingDirectory=/home/corey/projects/RunThru/backend
+Environment="PORT=14000"
+Environment="NODE_ENV=production"
+Environment="DATABASE_PATH=./database/runthru.db"
+Environment="TTS_SERVICE_URL=http://localhost:5000"
+Environment="AUDIO_CACHE_DIR=./data/audio-cache"
+Environment="SCRIPTS_DIR=./data/scripts"
+Environment="PORTRAITS_DIR=./public/portraits"
+Environment="LOG_LEVEL=INFO"
+ExecStart=/usr/bin/npm start
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=runthru-backend
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

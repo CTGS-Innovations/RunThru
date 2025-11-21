@@ -1,0 +1,95 @@
+#!/bin/bash
+# RunThru Service Setup Script
+# This script builds and installs RunThru as systemd services
+
+set -e  # Exit on error
+
+echo "==================================="
+echo "RunThru Production Service Setup"
+echo "==================================="
+echo ""
+
+# Check if running from correct directory
+if [ ! -f "docker-compose.yml" ]; then
+    echo "Error: Must run from /home/corey/projects/RunThru"
+    exit 1
+fi
+
+# Step 1: Build Backend
+echo "Step 1: Building backend..."
+cd backend
+if [ ! -d "node_modules" ]; then
+    echo "Installing backend dependencies..."
+    npm install
+fi
+echo "Compiling TypeScript..."
+npm run build
+cd ..
+echo "✓ Backend built successfully"
+echo ""
+
+# Step 2: Build Frontend
+echo "Step 2: Building frontend..."
+if [ ! -d "node_modules" ]; then
+    echo "Installing frontend dependencies..."
+    npm install
+fi
+echo "Building Next.js production bundle..."
+npm run build
+echo "✓ Frontend built successfully"
+echo ""
+
+# Step 3: Install systemd services
+echo "Step 3: Installing systemd services..."
+echo "This requires sudo privileges..."
+sudo cp runthru-backend.service /etc/systemd/system/
+sudo cp runthru-frontend.service /etc/systemd/system/
+sudo systemctl daemon-reload
+echo "✓ Services installed"
+echo ""
+
+# Step 4: Enable services (start on boot)
+echo "Step 4: Enabling services..."
+sudo systemctl enable runthru-backend.service
+sudo systemctl enable runthru-frontend.service
+echo "✓ Services enabled"
+echo ""
+
+# Step 5: Start services
+echo "Step 5: Starting services..."
+sudo systemctl start runthru-backend.service
+sudo systemctl start runthru-frontend.service
+echo "✓ Services started"
+echo ""
+
+# Step 6: Check status
+echo "Step 6: Checking service status..."
+echo ""
+echo "--- Backend Status ---"
+sudo systemctl status runthru-backend.service --no-pager -l
+echo ""
+echo "--- Frontend Status ---"
+sudo systemctl status runthru-frontend.service --no-pager -l
+echo ""
+
+# Step 7: Show listening ports
+echo "==================================="
+echo "Services are running!"
+echo "==================================="
+echo ""
+echo "Backend API: http://localhost:14000"
+echo "Frontend:    http://localhost:13000"
+echo ""
+echo "Verify ports are listening:"
+sudo ss -tlnp | grep -E ':(13000|14000)'
+echo ""
+echo "Useful commands:"
+echo "  sudo systemctl status runthru-backend"
+echo "  sudo systemctl status runthru-frontend"
+echo "  sudo systemctl restart runthru-backend"
+echo "  sudo systemctl restart runthru-frontend"
+echo "  sudo systemctl stop runthru-backend"
+echo "  sudo systemctl stop runthru-frontend"
+echo "  sudo journalctl -u runthru-backend -f"
+echo "  sudo journalctl -u runthru-frontend -f"
+echo ""
